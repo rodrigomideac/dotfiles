@@ -1,1 +1,0 @@
-/home/rodrigo/.config/i3
