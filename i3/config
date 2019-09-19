@@ -1,3 +1,13 @@
+# List of dependencies
+# numlockx
+# terminator
+# arandr
+# xrandr
+# rofi
+# i3-lock-fancy
+# setxkbmap
+
+
 #============================= Launch Settings =============================#
 # Applications to be launched when i3 starts
 
@@ -5,7 +15,7 @@
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 
 # Set wallpaper
-exec_always --no-startup-id sh ~/.fehbg
+exec_always --no-startup-id feh --bg-scale ~/.config/feh/wallpaper.jpg
 #============================================================================#
 
 #============================= Appearance ===================================#
@@ -25,26 +35,23 @@ set $mod Mod4
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec i3-sensible-terminal
+bindsym $mod+Return exec terminator
 
 # kill focused window
 bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
 # bindsym $mod+d exec dmenu_run
-bindsym $mod+d exec rofi -show drun -modi drun
+bindsym $mod+d exec "rofi -show drun -modi drun &>> /tmp/rofi.log"
 
 # bindsym $mod+d exec dmenu_run
 bindsym $mod+p exec arandr
+bindsym $mod+g exec qalculate-gtk
+bindsym $mod+Shift+h exec pavucontrol
+
 
 # Open left panel (search windows)
-bindsym $mod+Shift+s exec rofi -show window -modi window -theme sidebar
-
-# There also is the (new) i3-dmenu-desktop which only displays applications
-# shipping a .desktop file. It is a wrapper around dmenu, so you need that
-# installed.
-bindsym $mod+Shift+d exec --no-startup-id i3-dmenu-desktop
-
+bindsym $mod+Shift+d exec rofi -show window -modi window -theme sidebar
 
 #----------------------------- Window Management -----------------------------#
 # change focus
@@ -183,13 +190,15 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 exec_always --no-startup-id nm-applet
 
 #----------------------------- Keyboard Stuff -----------------------------#
-exec_always --no-startup-id setxkbmap -layout us,br
-exec_always --no-startup-id setxkbmap -option 'grp:alt_shift_toggle'
+exec_always --no-startup-id "setxkbmap br"
+#exec_always --no-startup-id "setxkbmap -option 'grp:alt_shift_toggle'"
+
+exec_always --no-startup-id numlockx
 
 # Volume Control bindkeys
-bindsym XF86AudioRaiseVolume exec amixer -q set Master 5%+ unmute  gggggg
-bindsym XF86AudioLowerVolume exec amixer -q set Master 5%- unmute  
-bindsym XF86AudioMute exec amixer -q set Master mute  
+bindsym XF86AudioRaiseVolume exec amixer -D pulse sset Master 5%+ 
+bindsym XF86AudioLowerVolume exec amixer -D pulse sset Master 5%-
+bindsym XF86AudioMute exec amixer set Master mute  
 bindsym XF86AudioPlay exec playerctl play-pause  
 bindsym XF86AudioNext exec playerctl next  
 bindsym XF86AudioPrev exec playerctl previous  
@@ -215,7 +224,17 @@ for_window [window_type="menu"] floating enable
 for_window [window_type="Arandr"] floating enable
 
 for_window [class="Gnome-calculator"] floating enable
+for_window [class="Qalculate-gtk"] floating enable
+for_window [class="Pavucontrol"] floating enable
+
+for_window [class="Yad" title="yad-calendar"] floating enable
 for_window [class="chrome" instance="calendar.google.com"] floating enable
+
 
 #=============================================================================#
 
+# Make the currently focused window a scratchpad
+bindsym $mod+Shift+minus move scratchpad
+
+# Show the first scratchpad window
+bindsym $mod+minus scratchpad show
