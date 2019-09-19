@@ -51,7 +51,7 @@ bindsym $mod+Shift+h exec pavucontrol
 
 
 # Open left panel (search windows)
-bindsym $mod+Shift+d exec rofi -show window -modi window -theme sidebar
+bindsym $mod+Tab exec rofi -show window -modi window -theme sidebar
 
 #----------------------------- Window Management -----------------------------#
 # change focus
