@@ -43,6 +43,7 @@ bindsym $mod+Shift+q kill
 # start dmenu (a program launcher)
 # bindsym $mod+d exec dmenu_run
 bindsym $mod+d exec "rofi -show drun -modi drun &>> /tmp/rofi.log"
+bindsym $mod+Shift+d exec "rofi -show run -modi run &>> /tmp/rofi-run.log"
 
 # bindsym $mod+d exec dmenu_run
 bindsym $mod+p exec arandr
@@ -51,7 +52,7 @@ bindsym $mod+Shift+h exec pavucontrol
 
 
 # Open left panel (search windows)
-bindsym $mod+Shift+d exec rofi -show window -modi window -theme sidebar
+bindsym $mod+Tab exec rofi -show window -modi window -theme sidebar
 
 #----------------------------- Window Management -----------------------------#
 # change focus
