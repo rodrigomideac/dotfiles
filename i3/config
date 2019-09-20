@@ -104,8 +104,8 @@ bindsym $mod+a focus parent
 # Define names for default workspaces for which we configure key bindings later on.
 # We use variables to avoid repeating the names in multiple places.
 set $ws1 "1"
-set $ws2 "2"
-set $ws3 "3"
+set $ws2 "2: chrome"
+set $ws3 "3: dev"
 set $ws4 "4"
 set $ws5 "5"
 set $ws6 "6"
@@ -113,6 +113,16 @@ set $ws7 "7"
 set $ws8 "8"
 set $ws9 "9"
 set $ws10 "10"
+set $ws11 "11"
+set $ws12 "12"
+set $ws13 "13"
+set $ws14 "14: slack"
+set $ws15 "15"
+set $ws16 "16"
+set $ws17 "17"
+set $ws18 "18"
+set $ws19 "19: spotify"
+set $ws20 "20"
 
 # switch to workspace
 bindsym $mod+1 workspace $ws1
@@ -125,7 +135,16 @@ bindsym $mod+7 workspace $ws7
 bindsym $mod+8 workspace $ws8
 bindsym $mod+9 workspace $ws9
 bindsym $mod+0 workspace $ws10
-
+#bindsym $mod+Shift+1 workspace $ws11
+#bindsym $mod+Shift+2 workspace $ws12
+#bindsym $mod+Shift+3 workspace $ws13
+#bindsym $mod+Shift+4 workspace $ws14
+#bindsym $mod+Shift+5 workspace $ws15
+#bindsym $mod+Shift+6 workspace $ws16
+#bindsym $mod+Shift+7 workspace $ws17
+#bindsym $mod+Shift+8 workspace $ws18
+#bindsym $mod+Shift+9 workspace $ws19
+#bindsym $mod+Shift+0 workspace $ws20
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace $ws1
 bindsym $mod+Shift+2 move container to workspace $ws2
@@ -231,7 +250,14 @@ for_window [class="Pavucontrol"] floating enable
 for_window [class="Yad" title="yad-calendar"] floating enable
 for_window [class="chrome" instance="calendar.google.com"] floating enable
 
-
+##==================================================##
+#                         *** Workspace specific settings ***                     #
+##=================================================##
+# Assign Workspaces:
+assign [class="Slack"] $ws14
+assign [class="Google-chrome"] $ws2
+assign [class="YAKINDU SCT Professional Edition"] $ws3
+for_window [class="Spotify"] move to workspace $ws19
 #=============================================================================#
 
 # Make the currently focused window a scratchpad
