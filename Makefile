@@ -1,3 +1,6 @@
+stow:
+	stow --restow --target=/home/rodrigo/.config .config
+
 
 sync-local:
 	rm -rf i3 && cp -r ~/.config/i3/ .
