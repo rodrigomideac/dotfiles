@@ -275,11 +275,13 @@ for_window [class="Nemo"] focus
 assign [title="ranger" class="Terminator"] $ws5
 for_window [title="ranger" class="Terminator"] focus
 
-assign [class="Slack"] $ws9
+for_window [class="Slack"] move to workspace $ws9
 for_window [class="Slack"] focus
 
 for_window [class="Spotify"] move to workspace $ws10
 for_window [class="Spotify"] focus
+
+focus_on_window_activation focus
 
 #=============================================================================#
 
