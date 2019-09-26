@@ -48,7 +48,7 @@ font-2 = "FontAwesome:size=8:antialias=false;1"
 
 modules-left = i3 
 ;modules-center = 
-modules-right = cpu memory filesystem backlight music volume redshift xkeyboard battery date powermenu
+modules-right = cpu memory filesystem backlight music alsa redshift xkeyboard battery popup-calendar powermenu
 
 tray-position = right
 tray-padding = 3
@@ -257,11 +257,95 @@ interval = 4
 exec = ~/.config/polybar/custom/bumblebee.sh
 
 
-[module/volume]
-type = internal/volume
+
+
+[module/alsa]
+type = internal/alsa
+
+; Soundcard to be used
+; Usually in the format hw:# where # is the card number
+; You can find the different card numbers in `/proc/asound/cards`
+;master-soundcard = default
+;speaker-soundcard = default
+;headphone-soundcard = default
+master-soundcard=hw:1
+click-right = exec pavucontrol
+
+
+; Name of the master, speaker and headphone mixers
+; Use the following command to list available mixer controls:
+; $ amixer scontrols | sed -nr "s/.*'([[:alnum:]]+)'.*/\1/p"
+; If master, speaker or headphone-soundcard isn't the default, 
+; use `amixer -c # scontrols` instead where # is the number 
+; of the master, speaker or headphone soundcard respectively
+;
+; Default: Master
+;master-mixer = IEC958
+
+; Optionally define speaker and headphone mixers
+; Default: none
+;speaker-mixer = Speaker
+; Default: none
+;headphone-mixer = Headphone
+
+; NOTE: This is required if headphone_mixer is defined
+; Use the following command to list available device controls
+; $ amixer controls | sed -r "/CARD/\!d; s/.*=([0-9]+).*name='([^']+)'.*/printf '%3.0f: %s\n' '\1' '\2'/e" | sort
+; You may also need to use `amixer -c # controls` as above for the mixer names
+; Default: none
+master-id = 1
+
+; Use volume mapping (similar to amixer -M and alsamixer), where the increase in volume is linear to the ear
+; Default: false
+mapped = true
+
+; Interval for volume increase/decrease (in percent points)
+; Default: 5
+interval = 5
 
 format-volume = <bar-volume> <label-volume>
 label-volume-foreground = ${root.foreground}
+scroll-up = amixer -D pulse sset Master 5%+
+scroll-down = amixer -D pulse sset Master 5%-
+
+format-volume-prefix = " "
+
+format-muted-prefix = " "
+format-muted-foreground = ${colors.foreground-alt}
+label-muted = sound muted
+
+bar-volume-width = 10
+bar-volume-foreground-0 = ${colors.primary}
+bar-volume-foreground-1 = ${colors.primary}
+bar-volume-foreground-2 = ${colors.primary}
+bar-volume-foreground-3 = ${colors.primary}
+bar-volume-foreground-4 = ${colors.primary}
+bar-volume-foreground-5 = ${colors.alert}
+bar-volume-foreground-6 = ${colors.alert}
+bar-volume-gradient = false
+bar-volume-indicator = | 
+bar-volume-indicator-font = 2 
+bar-volume-fill = ─
+bar-volume-fill-font = 2
+bar-volume-empty = ─
+bar-volume-empty-font = 2
+bar-volume-empty-foreground = ${colors.foreground-alt}
+
+
+
+
+
+[module/volume]
+type = internal/alsa
+master-soundcard=hw:0
+master-mixer = IEC958
+;click-right = exec pavucontrol
+
+format-volume = <bar-volume> <label-volume>
+label-volume-foreground = ${root.foreground}
+scroll-up = amixer -D pulse sset Master 5%+
+scroll-down = amixer -D pulse sset Master 5%-
+mapped = true
 
 format-volume-prefix = " "
 
@@ -408,3 +492,9 @@ format-underline = ${colors.alert}
 label = "%output:0:30%"
 exec = .config/polybar/custom/updates.sh
 exec-if = "ping -q -w 2 -c 1 176.34.135.167 > /dev/null"
+
+[module/popup-calendar]
+type = custom/script
+exec = ~/.config/polybar/polybar-scripts/popup-calendar.sh
+interval = 5
+click-left = ~/.config/polybar/polybar-scripts/popup-calendar.sh --popup

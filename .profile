@@ -36,3 +36,6 @@ alias aws-login='~/dev/dev-setup/aws-login.sh; export AWS_PROFILE=cobli-tech'
 xrandr --output eDP-1 --mode 1920x1080
 xrandr --output HDMI-1 --left-of eDP-1
 setxkbmap -layout br
+VISUAL=vim; export VISUAL EDITOR=vim; export EDITOR
+xset +fp /home/rodrigo/.local/share/fonts
+xset fp rehash
