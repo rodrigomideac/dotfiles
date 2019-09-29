@@ -260,6 +260,9 @@ for_window [class="Google-chrome"] focus
 assign [class="YAKINDU SCT Professional Edition"] $ws2
 for_window [class="YAKINDU SCT Professional Edition"] focus
 
+assign [class="MATLAB R2018a"] $ws2
+for_window [class="MATLAB R2018a"] focus
+
 assign [class="Code"] $ws2
 for_window [class="Code"] focus
 
