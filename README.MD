@@ -1,8 +1,21 @@
 # Dotfiles
 
+These are my dotfiles that I use in my i3wm setup, with rofi and polybar.
+
+The central point of this setup is to always open certain applications in specific workspaces. For now, I use this division:
+
+- Workspace 1: Chrome Browser
+- Workspace 2: Development IDEs
+- Workspace 3: Terminals
+- Workspace 4: Secondary Terminals (currently no bindings to this workspace)
+- Workspace 5: File Browsers (Ranger and Dolphin)
+- Workspace 6: Virtualbox
+- Workspace 8: Spotify
+- Workspace 9: Slack
+
 ## Getting started
 
-You need to have these dependencies installed before using this config. 
+You need to have at least these dependencies installed before using this config. I'm pretty sure there are many others that I have installed since my first boot, so I apologise if any dependency is missing from this list.
 
 ```
 numlockx
@@ -21,12 +34,21 @@ scrot
 xclip
 ```
 
+Also, you might need [Font Awesome](https://www.archlinux.org/packages/community/any/ttf-font-awesome/) to proper render some icons in the polybar.
+
 Edit the `Makefile` file to match your config path, and then run `make stow` to create the symlinks.
 
-Note: `stow` will fail if the destination folders and files already exist. Make sure to copy or delete them before running `make stow`
+Note: `stow` will fail if the destination folders and files already exist. Make sure to copy or delete them before running `make stow`.
 
+## Further Configuration
 
-### Further Configuration
+### Enable the services
+So far, this config relies only on [NetworkManager](https://wiki.archlinux.org/index.php?title=NetworkManager) service. Make sure to install its package, enable and start its service via:
 
-# Ranger
-To open Ranger in its workspace via rofi, we need to run it inside a `terminator` window named "ranger". Edit your `/usr/share/applications/ranger.desktop` Exec entry to `terminator -T "ranger" -e "ranger"` instead of only `ranger`
+```
+sudo systemctl enable NetworkManager.service
+sudo systemctl start NetworkManager.service
+```
+
+### Ranger
+To open Ranger in its workspace via rofi, we need to run it inside a `terminator` window named "ranger". Edit your `/usr/share/applications/ranger.desktop` Exec entry to `terminator -T "ranger" -e "ranger"` instead of only `ranger`.
