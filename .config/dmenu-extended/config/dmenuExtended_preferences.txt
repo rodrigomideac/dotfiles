@@ -17,23 +17,11 @@
     "indicator_alias": "",
     "indicator_edit": "*",
     "indicator_submenu": "->",
-    "menu": "dmenu",
+    "menu": "rofi",
     "menu_arguments": [
-        "-b",
-        "-i",
-        "-nf",
-        "#888888",
-        "-nb",
-        "#1D1F21",
-        "-sf",
-        "#ffffff",
-        "-sb",
-        "#1D1F21",
-        "-fn",
-        "terminus",
-        "-l",
-        "20"
-    ],
+        "-dmenu",
+	"-i"
+   ],
     "password_helper": [
         "zenity",
         "--password",
