@@ -17,6 +17,10 @@ exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 # Set wallpaper
 exec_always --no-startup-id feh --bg-scale ~/.config/feh/wallpaper.jpg
 
+# Start compton to reduce screen tearing
+exec_always --no-startup-id compton -b
+
+
 # Exec network manager applet
 exec_always --no-startup-id nm-applet --no-agent
 
