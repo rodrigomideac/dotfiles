@@ -17,6 +17,10 @@ exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 # Set wallpaper
 exec_always --no-startup-id feh --bg-scale ~/.config/feh/wallpaper.jpg
 
+# Start compton to reduce screen tearing
+exec_always --no-startup-id compton -b
+
+
 # Exec network manager applet
 exec_always --no-startup-id nm-applet --no-agent
 
@@ -46,7 +50,8 @@ bindsym $mod+Shift+q kill
 
 # start dmenu (a program launcher)
 # bindsym $mod+d exec dmenu_run
-bindsym $mod+d exec "rofi -show drun -modi drun &>> /tmp/rofi.log"
+#bindsym $mod+d exec "rofi -show drun -modi drun &>> /tmp/rofi.log"
+bindsym $mod+d exec "dmenu_extended_run"
 bindsym $mod+Shift+d exec "rofi -show run -modi run &>> /tmp/rofi-run.log"
 
 # bindsym $mod+d exec dmenu_run
