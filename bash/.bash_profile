@@ -3,3 +3,5 @@
 #
 
 [[ -f ~/.bashrc ]] && . ~/.bashrc
+export PROMPT_COMMAND="pwd > /tmp/whereami"
+

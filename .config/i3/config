@@ -43,7 +43,8 @@ set $mod Mod4
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec terminator
+bindsym $mod+Return exec $HOME/.config/i3/scripts/terminator_launcher
+bindsym $mod+Shift+Return exec terminator
 
 # kill focused window
 bindsym $mod+Shift+q kill
