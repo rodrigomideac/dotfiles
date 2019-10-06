@@ -1,6 +1,6 @@
 stow:
 	stow --restow --target=${HOME}/.config .config
-	stow --restow bash
-	stow --restow vim
-	stow --restow zsh
+	stow --target=${HOME} bash
+	stow --target=${HOME} vim
+	stow --target=${HOME} zsh
 
