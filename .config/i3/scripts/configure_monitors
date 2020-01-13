@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if (xrandr | grep "HDMI-1 disconnected"); then
+    xrandr --output eDP-1 --auto --mode 1920x1080 --output HDMI-1 --off 
+else
+    xrandr --output eDP-1 --auto --left-of HDMI-1 --mode 1920x1080 --output HDMI-1 --auto --mode 1920x1080 --primary
+
+fi
+
+
+#max=20
+#for i in `seq 1 $max`
+#do
+#  echo "i3-msg '[workspace=$i]' move workspace to output right"
+#  i3-msg '[workspace=$i]' move workspace to output right
+#done
