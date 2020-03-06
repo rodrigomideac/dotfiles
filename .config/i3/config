@@ -281,6 +281,9 @@ for_window [class="Code"] focus
 assign [class="code-oss"] $ws2
 for_window [class="code-oss"] focus
 
+assign [class="Mendeley Desktop"] $ws4
+for_window [class="Mendeley Desktop"] focus
+
 assign [title="ranger" class="Terminator"] $ws5
 for_window [title="ranger" class="Terminator"] focus
 
@@ -303,8 +306,9 @@ focus_on_window_activation focus
 
 #=============================================================================#
 
-# Make the currently focused window a scratchpad
-bindsym $mod+Shift+minus move scratchpad
+# Floating terminal scratchpad settings
+exec_always --no-startup-id terminator -r scraterm
+for_window [window_role="scraterm"] floating enable;
+for_window [window_role="scraterm"] move scratchpad; [window_role="scraterm"] scratchpad show; move position 80px 50px; move scratchpad
+bindsym $mod+F1 [window_role="scraterm"] scratchpad show, resize set 1200 650
 
-# Show the first scratchpad window
-bindsym $mod+minus scratchpad show

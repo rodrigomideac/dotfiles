@@ -101,7 +101,12 @@ source $ZSH/oh-my-zsh.sh
 #powerline-daemon -q
 #. /usr/lib/python3.7/site-packages/powerline/bindings/zsh/powerline.zsh
 
+prompt_context () { }
+
 function chpwd() {
     ls -a
     pwd > /tmp/whereami
 }
+
+TIMEFMT=$'\n================\nCPU\t%P\nuser\t%*U\nsystem\t%*S\ntotal\t%*E'
+
