@@ -271,6 +271,9 @@ for_window [class="Code"] focus
 assign [class="jetbrains-clion"] $ws2
 for_window [class="jetbrains-clion"] focus
 
+assign [class="jetbrains-idea-ce"] $ws2
+for_window [class="jetbrains-idea-ce"] focus
+
 assign [class="code-oss"] $ws2
 for_window [class="code-oss"] focus
 
@@ -298,6 +301,9 @@ for_window [class="Spotify"] focus
 # Communication Apps
 for_window [class="Slack"] move to workspace $ws9
 for_window [class="Slack"] focus
+
+for_window [class="discord"] move to workspace $ws10
+for_window [class="discord"] focus
 
 focus_on_window_activation focus
 
