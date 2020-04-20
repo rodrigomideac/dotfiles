@@ -20,9 +20,14 @@ exec_always --no-startup-id feh --bg-scale ~/.config/feh/wallpaper.jpg
 # Start compton to reduce screen tearing
 #exec_always --no-startup-id compton -b
 
+# Configure output monitors
+exec_always --no-startup-id $HOME/.config/i3/scripts/configure_monitors
 
 # Exec network manager applet
 exec_always --no-startup-id nm-applet --no-agent
+
+# Exec bluetooth applet
+exec_always --no-startup-id blueman-applet
 
 #============================================================================#
 
@@ -262,10 +267,12 @@ for_window [class="chrome" instance="calendar.google.com"] floating enable
 ##==================================================##
 #                         *** Workspace specific settings ***                     #
 ##=================================================##
-# Assign Workspaces:
+
+# Browsers
 assign [class="Google-chrome"] $ws1
 for_window [class="Google-chrome"] focus
 
+# IDEs and programming stuff
 assign [class="YAKINDU SCT Professional Edition"] $ws2
 for_window [class="YAKINDU SCT Professional Edition"] focus
 
@@ -275,26 +282,36 @@ for_window [class="MATLAB R2018a"] focus
 assign [class="Code"] $ws2
 for_window [class="Code"] focus
 
+assign [class="jetbrains-clion"] $ws2
+for_window [class="jetbrains-clion"] focus
+
 assign [class="code-oss"] $ws2
 for_window [class="code-oss"] focus
+
+assign [class="Mendeley Desktop"] $ws4
+for_window [class="Mendeley Desktop"] focus
 
 assign [title="ranger" class="Terminator"] $ws5
 for_window [title="ranger" class="Terminator"] focus
 
+# Terminals
 assign [class="Terminator"] $ws3
 for_window [class="Terminator"] focus
+
+# File managers
+assign [title="ranger" class="Terminator"] $ws5
+for_window [title="ranger" class="Terminator"] focus
 
 assign [class="Nemo"] $ws5
 for_window [class="Nemo"] focus
 
-assign [title="ranger" class="Terminator"] $ws5
-for_window [title="ranger" class="Terminator"] focus
-
-for_window [class="Slack"] move to workspace $ws9
-for_window [class="Slack"] focus
-
+# Media
 for_window [class="Spotify"] move to workspace $ws8
 for_window [class="Spotify"] focus
+
+# Communication Apps
+for_window [class="Slack"] move to workspace $ws9
+for_window [class="Slack"] focus
 
 focus_on_window_activation focus
 
