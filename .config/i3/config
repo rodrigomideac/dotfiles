@@ -29,6 +29,9 @@ exec_always --no-startup-id nm-applet --no-agent
 # Exec bluetooth applet
 exec_always --no-startup-id blueman-applet
 
+# Exec picom composite manager for display effects and reduced tearing
+exec_always --no-startup-id picom
+
 #============================================================================#
 
 #============================= Appearance ===================================#

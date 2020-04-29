@@ -52,3 +52,6 @@ sudo systemctl start NetworkManager.service
 
 ### Ranger
 To open Ranger in its workspace via rofi, we need to run it inside a `terminator` window named "ranger". Edit your `/usr/share/applications/ranger.desktop` Exec entry to `terminator -T "ranger" -e "ranger"` instead of only `ranger`.
+
+### Screen tearing on Nvidia-cards
+In `nvidia-settings` -> X Server Display Configuration, set either Force Composition Pipeline or Force Full Composition Pipeline to true.
