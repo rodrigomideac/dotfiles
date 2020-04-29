@@ -29,6 +29,9 @@ exec_always --no-startup-id nm-applet --no-agent
 # Exec bluetooth applet
 exec_always --no-startup-id blueman-applet
 
+# Exec picom composite manager for display effects and reduced tearing
+exec_always --no-startup-id picom
+
 #============================================================================#
 
 #============================= Appearance ===================================#
@@ -271,6 +274,9 @@ for_window [class="chrome" instance="calendar.google.com"] floating enable
 # Browsers
 assign [class="Google-chrome"] $ws1
 for_window [class="Google-chrome"] focus
+
+assign [class="firefox"] $ws1
+for_window [class="firefox"] focus
 
 # IDEs and programming stuff
 assign [class="YAKINDU SCT Professional Edition"] $ws2
