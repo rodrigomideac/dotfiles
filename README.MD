@@ -1,6 +1,6 @@
 # Dotfiles
 
-These are my dotfiles that I use in my i3wm setup, with rofi and polybar.
+These are my dotfiles that I use on my i3wm setup, with rofi and polybar.
 
 The central point of this setup is to always open certain applications in specific workspaces. For now, I use this division:
 
