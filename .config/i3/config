@@ -49,6 +49,7 @@ bindsym $mod+d exec "rofi -show drun -modi drun &>> /tmp/rofi.log"
 bindsym $mod+Shift+d exec "rofi -show run -modi run &>> /tmp/rofi-run.log"
 
 bindsym $mod+p exec arandr
+bindsym $mod+Shift+p exec "touch /tmp/display_mirror && i3-msg restart"
 bindsym $mod+g exec qalculate-gtk
 bindsym $mod+Shift+h exec pavucontrol
 
