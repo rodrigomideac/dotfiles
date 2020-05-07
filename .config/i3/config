@@ -227,8 +227,8 @@ bindsym XF86MonBrightnessUp exec light -A 5
 bindsym XF86MonBrightnessDown exec light -U 5
 
 # Screenshot bindings
-bindsym Print --release exec "scrot -s /tmp/screenshot-$(date +%F_%T).png -e 'xclip -selection c -t image/png < $f'"
-bindsym Shift+Print exec "scrot /tmp/screenshot-$(date +%F_%T).png -e 'xclip -selection c -t image/png < $f'"
+bindsym Print --release exec "maim -s --format=png /dev/stdout | tee ~/Pictures/$(date +%F_%T).png | ( xclip -selection clipboard -t image/png -i)"
+bindsym Shift+Print exec "maim ~/Pictures/$(date +%F_%T).png" 
 
 #============================ Window properties ==============================#
 # Define special properties for certain classes of windows
