@@ -19,6 +19,9 @@ exec_always --no-startup-id blueman-applet
 # Exec picom composite manager for display effects and reduced tearing
 exec_always --no-startup-id picom --config $HOME/.config/picom/picom.conf
 
+# Exec imwheel to increase mouse wheel speed
+exec_always --no-startup-id imwheel
+
 #============================================================================#
 
 #============================= Appearance ===================================#
