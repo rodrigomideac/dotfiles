@@ -42,6 +42,17 @@ Note: `stow` will fail if the destination folders and files already exist. Make 
 
 ## Further Configuration
 
+### Fonts
+
+You might need these fonts to proper render some icons in the polybar:
+
+- [Font Awesome 4 (version 5 is not used)](https://aur.archlinux.org/packages/ttf-font-awesome-4/)
+- [Siji](https://aur.archlinux.org/packages/siji-git)
+
+### VIM
+The `.vimrc` config file needs to have the [vim-plug](https://github.com/junegunn/vim-plug) installed.
+
+
 ### Enable the services
 So far, this config relies only on [NetworkManager](https://wiki.archlinux.org/index.php?title=NetworkManager) service. Make sure to install its package, enable and start its service via:
 

@@ -8,7 +8,7 @@ exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 exec_always --no-startup-id feh --bg-scale ~/.config/feh/wallpaper.jpg
 
 # Configure output monitors
-exec_always --no-startup-id $HOME/.config/i3/scripts/configure_monitors
+#exec_always --no-startup-id $HOME/.config/i3/scripts/configure_monitors
 
 # Exec network manager applet
 exec_always --no-startup-id nm-applet --no-agent
@@ -17,10 +17,7 @@ exec_always --no-startup-id nm-applet --no-agent
 exec_always --no-startup-id blueman-applet
 
 # Exec picom composite manager for display effects and reduced tearing
-exec_always --no-startup-id picom --config $HOME/.config/picom/picom.conf
-
-# Exec imwheel to increase mouse wheel speed
-exec_always --no-startup-id imwheel
+#exec_always --no-startup-id picom --config $HOME/.config/picom/picom.conf
 
 #============================================================================#
 
@@ -275,8 +272,14 @@ for_window [class="Code"] focus
 assign [class="jetbrains-clion"] $ws2
 for_window [class="jetbrains-clion"] focus
 
+assign [class="jetbrains-pycharm-ce"] $ws2
+for_window [class="jetbrains-pycharm-ce"] focus
+
 assign [class="jetbrains-idea-ce"] $ws2
 for_window [class="jetbrains-idea-ce"] focus
+
+assign [class="jetbrains-goland"] $ws2
+for_window [class="jetbrains-goland"] focus
 
 assign [class="code-oss"] $ws2
 for_window [class="code-oss"] focus

@@ -3,13 +3,13 @@
 FILE=/tmp/display_mirror
 if test -f "$FILE"; then
     echo "$FILE exist"
-    xrandr --output eDP-1 --auto --mode 1920x1080 --output HDMI-1 --same-as eDP-1 
+    xrandr --output eDP1 --auto --mode 1920x1080 --output HDMI1 --same-as eDP-1 
     rm -rf $FILE
 else
-    if (xrandr | grep "HDMI-1 disconnected"); then
-         xrandr --output eDP-1 --auto --mode 1920x1080 --output HDMI-1 --off 
+    if (xrandr | grep "HDMI1 disconnected"); then
+         xrandr --output eDP1 --auto --mode 1920x1080 --output HDMI1 --off 
     else
-         xrandr --output eDP-1 --auto --left-of HDMI-1 --mode 1920x1080 --output HDMI-1 --auto --mode 1920x1080 --primary
+         xrandr --output eDP1 --auto --left-of HDMI1 --mode 1920x1080 --output HDMI1 --auto --mode 1920x1080 --rate 120 --primary
 
     fi
 fi
