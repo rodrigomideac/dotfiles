@@ -13,6 +13,9 @@ exec_always --no-startup-id feh --bg-scale ~/.config/feh/wallpaper.jpg
 # Exec network manager applet
 exec_always --no-startup-id nm-applet --no-agent
 
+# Exec dunst
+exec_always --no-startup-id dunst
+
 # Exec bluetooth applet
 exec_always --no-startup-id blueman-applet
 

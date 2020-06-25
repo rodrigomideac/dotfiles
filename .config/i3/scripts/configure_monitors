@@ -9,7 +9,7 @@ else
     if (xrandr | grep "HDMI1 disconnected"); then
          xrandr --output eDP1 --auto --mode 1920x1080 --output HDMI1 --off 
     else
-         xrandr --output eDP1 --auto --left-of HDMI1 --mode 1920x1080 --output HDMI1 --auto --mode 1920x1080 --rate 120 --primary
+         xrandr --output eDP1 --auto --left-of HDMI1 --mode 1920x1080 --output HDMI1 --auto --mode 1920x1080 --rate 120 --primary --output DP2 --auto --mode 1920x1080 --right-of HDMI1 --rate 60
 
     fi
 fi

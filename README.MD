@@ -32,9 +32,8 @@ amixer
 playerctl
 scrot
 xclip
+dunst
 ```
-
-Also, you might need [Font Awesome](https://www.archlinux.org/packages/community/any/ttf-font-awesome/) to proper render some icons in the polybar.
 
 Edit the `Makefile` file to match your config path, and then run `make stow` to create the symlinks.
 
@@ -60,6 +59,13 @@ So far, this config relies only on [NetworkManager](https://wiki.archlinux.org/i
 sudo systemctl enable NetworkManager.service
 sudo systemctl start NetworkManager.service
 ```
+
+### Desktop Notifications
+Some apps, such as Slack and Spotify, can crash if a desktop notification server is not running.
+- Install [notification-daemon](https://www.archlinux.org/packages/?name=notification-daemon)
+- Install [dunst](https://www.archlinux.org/packages/?name=dunst)
+
+You can test if everything is ok by running in a shell `notify-send 'Hello world!' 'This is an example notification.' --icon=dialog-information`.
 
 ### Ranger
 To open Ranger in its workspace via rofi, we need to run it inside a `terminator` window named "ranger". Edit your `/usr/share/applications/ranger.desktop` Exec entry to `terminator -T "ranger" -e "ranger"` instead of only `ranger`.
