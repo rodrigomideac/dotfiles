@@ -51,7 +51,6 @@ You might need these fonts to proper render some icons in the polybar:
 ### VIM
 The `.vimrc` config file needs to have the [vim-plug](https://github.com/junegunn/vim-plug) installed.
 
-
 ### Enable the services
 So far, this config relies only on [NetworkManager](https://wiki.archlinux.org/index.php?title=NetworkManager) service. Make sure to install its package, enable and start its service via:
 
@@ -72,3 +71,16 @@ To open Ranger in its workspace via rofi, we need to run it inside a `terminator
 
 ### Screen tearing on Nvidia-cards
 In `nvidia-settings` -> X Server Display Configuration, set either Force Composition Pipeline or Force Full Composition Pipeline to true.
+
+### Multiple monitors setup
+The script `.config/i3/scripts/configure_monitors` is run at every i3wm startup. It will set the monitors with a desired configuration by using `xrandr`. See the limitations of this script before using it.
+- Create a file `~/.monitor-setup` with these contents, and adjust accordingly.
+
+```bash
+MONITOR_1_NAME=DP-0
+MONITOR_1_RATE=144
+MONITOR_2_NAME=HDMI-0
+MONITOR_2_RIGHT_OF=DP-0
+MONITOR_3_NAME=unset
+MONITOR_3_LEFT_OF=unset
+``` 
