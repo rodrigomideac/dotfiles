@@ -2,6 +2,8 @@
 
 These are my dotfiles that I use on my i3wm setup, with rofi and polybar.
 
+![Desktop Picture](imgs/rmc-desktop.png "Desktop Picture")
+
 The central point of this setup is to always open certain applications in specific workspaces. For now, I use this division:
 
 - Workspace 1: Chrome Browser
