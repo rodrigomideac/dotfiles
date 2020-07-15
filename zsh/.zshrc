@@ -110,3 +110,4 @@ function chpwd() {
 
 TIMEFMT=$'\n================\nCPU\t%P\nuser\t%*U\nsystem\t%*S\ntotal\t%*E'
 
+alias vpn-usp-connect="nmcli con up VPN\ USPNet --ask"

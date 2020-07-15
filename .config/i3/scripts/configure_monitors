@@ -1,15 +1,71 @@
 #!/bin/bash
+# This scripts setups via xrandr the desired monitor layout configuration.
+# Getting started:
+#  - Create at your home folder a file named .monitor-setup
+#  - Include the following contents:
+# MONITOR_1_NAME=DP-0
+# MONITOR_1_RATE=144
+# MONITOR_2_NAME=HDMI-0
+# MONITOR_2_RIGHT_OF=DP-0
+# MONITOR_3_NAME=unset
+# MONITOR_3_LEFT_OF=unset
+#  - Get the name of your current outputs by using the command `xrandr`
+#  - Modify the file ~/.monitor-setup accordingly
+# Caveats & Limitations
+#  - Your primary monitor will always be monitor #1.
+#  - Monitor #2 will always be the right of the monitor #1
+#  - Monitor #3 will always be left of the monitor #1
+#  - Resolution and rate for secondary monitors are hard-coded.
+
+set -a
+. $HOME/.monitor-setup
+
+echo "Name (1): $MONITOR_1_NAME"
+
+MONITOR_1_NAME="${MONITOR_1_NAME:-not assigned}"
+MONITOR_1_RATE="${MONITOR_1_RATE:-not assigned}"
+
+MONITOR_2_NAME="${MONITOR_2_NAME:-not assigned}"
+MONITOR_2_RIGHT_OF="${MONITOR_2_RIGHT_OF:-not assigned}"
+
+MONITOR_3_NAME="${MONITOR_3_NAME:-not assigned}"
+MONITOR_3_LEFT_OF="${MONITOR_3_LEFT_OF:-not assigned}"
+
+monitor_qty=$(xrandr | grep " connected " | wc -l)
+
+# Disable all secondary monitors to prevent inconsistent state
+xrandr --output $MONITOR_2_NAME --off --rate 60 
+xrandr --output $MONITOR_3_NAME --off --rate 60 
 
 FILE=/tmp/display_mirror
 if test -f "$FILE"; then
-    echo "$FILE exist"
-    xrandr --output eDP1 --auto --mode 1920x1080 --output HDMI1 --same-as eDP-1 
+    echo "Mirror monitor setup"
+    cmd="xrandr --output $MONITOR_1_NAME --auto --mode 1920x1080 
+     --output $MONITOR_2_NAME --same-as $MONITOR_1_NAME
+     --output $MONITOR_3_NAME --same-as $MONITOR_1_NAME"
     rm -rf $FILE
 else
-    if (xrandr | grep "HDMI1 disconnected"); then
-         xrandr --output eDP1 --auto --mode 1920x1080 --output HDMI1 --off 
+    if [[ "$monitor_qty" -eq 1 ]]; then
+	 echo "Single monitor setup"
+         cmd="xrandr 
+	 --output $MONITOR_1_NAME --auto --mode 1920x1080 --rate $MONITOR_1_RATE --primary
+	 --output $MONITOR_2_NAME --off --rate 60	 
+	 "
+    elif [[ "$monitor_qty" -eq 2 ]]; then     
+	 echo "Dual monitor setup"
+         cmd="xrandr 
+	 --output $MONITOR_1_NAME --auto --mode 1920x1080 --rate $MONITOR_1_RATE --primary 
+	 --output $MONITOR_2_NAME --auto --mode 1920x1080 --right-of $MONITOR_1_NAME --rate 60"
+    elif [[ "$monitor_qty" -eq 3 ]]; then
+	 echo "Triple monitor setup"
+         cmd="xrandr 
+	 --output $MONITOR_1_NAME --auto --mode 1920x1080 --rate $MONITOR_1_RATE --primary 
+	 --output $MONITOR_2_NAME --auto --mode 1920x1080 --right-of $MONITOR_1_NAME --rate 60
+	 --output $MONITOR_3_NAME --auto --mode 1920x1080 --left-of $MONITOR_1_NAME --rate 60"
     else
-         xrandr --output eDP1 --auto --left-of HDMI1 --mode 1920x1080 --output HDMI1 --auto --mode 1920x1080 --rate 120 --primary --output DP2 --auto --mode 1920x1080 --right-of HDMI1 --rate 60
-
+         echo "Monitor qty not supported"
     fi
 fi
+
+echo "Executing: $cmd"
+eval $cmd
