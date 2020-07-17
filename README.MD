@@ -49,6 +49,8 @@ You might need these fonts to proper render some icons in the polybar:
 
 - [Font Awesome 4 (version 5 is not used)](https://aur.archlinux.org/packages/ttf-font-awesome-4/)
 - [Siji](https://aur.archlinux.org/packages/siji-git)
+- [Noto Sans](https://www.archlinux.org/packages/extra/any/noto-fonts/)
+- [Fira Code](https://www.archlinux.org/packages/community/any/ttf-fira-code/)
 
 ### VIM
 The `.vimrc` config file needs to have the [vim-plug](https://github.com/junegunn/vim-plug) installed.
