@@ -17,3 +17,7 @@ nm-applet --no-agent &
 killall blueman-applet
 blueman-applet &
 
+# Move workspaces to default outputs
+set -a
+source $HOME/.monitor-setup
+python $HOME/.config/i3/scripts/default_workspaces.py
