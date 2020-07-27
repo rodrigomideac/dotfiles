@@ -111,3 +111,26 @@ function chpwd() {
 TIMEFMT=$'\n================\nCPU\t%P\nuser\t%*U\nsystem\t%*S\ntotal\t%*E'
 
 alias vpn-usp-connect="nmcli con up VPN\ USPNet --ask"
+
+# System Sources
+## SDKMAN for Java, Scala and SBT
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+## SSH Agent to store passkeys
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    ssh-agent -t 1h > "$XDG_RUNTIME_DIR/ssh-agent.env"
+fi
+if [[ ! "$SSH_AUTH_SOCK" ]]; then
+    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+fi
+
+## NVM for Node.js
+source /usr/share/nvm/init-nvm.sh
+
+## Source work-aliasrc so it can be stored in a private manner
+if [ -f ~/.work-aliasrc ]; then
+    source ~/.work-aliasrc
+else
+    print "404: ~/.work-aliasrc not found."
+fi
+
