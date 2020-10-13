@@ -111,10 +111,12 @@ function chpwd() {
 TIMEFMT=$'\n================\nCPU\t%P\nuser\t%*U\nsystem\t%*S\ntotal\t%*E'
 
 alias vpn-usp-connect="nmcli con up VPN\ USPNet --ask"
+alias copy-stdout="xclip -selection clipboard"
 
 # System Sources
 ## SDKMAN for Java, Scala and SBT
 source "$HOME/.sdkman/bin/sdkman-init.sh"
+source $HOME/.cargo/env
 
 ## SSH Agent to store passkeys
 if ! pgrep -u "$USER" ssh-agent > /dev/null; then

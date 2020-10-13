@@ -31,6 +31,9 @@ MONITOR_2_RIGHT_OF="${MONITOR_2_RIGHT_OF:-not assigned}"
 MONITOR_3_NAME="${MONITOR_3_NAME:-not assigned}"
 MONITOR_3_LEFT_OF="${MONITOR_3_LEFT_OF:-not assigned}"
 
+MONITOR_STANDALONE_NAME="${MONITOR_STANDALONE_NAME:-not assigned}"
+MONITOR_STANDALONE_RATE="${MONITOR_STANDALONE_RATE:-not assigned}"
+
 monitor_qty=$(xrandr | grep " connected " | wc -l)
 
 # Disable all secondary monitors to prevent inconsistent state
@@ -48,7 +51,7 @@ else
     if [[ "$monitor_qty" -eq 1 ]]; then
 	 echo "Single monitor setup"
          cmd="xrandr 
-	 --output $MONITOR_1_NAME --auto --mode 1920x1080 --rate $MONITOR_1_RATE --primary
+	 --output $MONITOR_STANDALONE_NAME --auto --mode 1920x1080 --rate $MONITOR_STANDALONE_RATE --primary
 	 --output $MONITOR_2_NAME --off --rate 60	 
 	 "
     elif [[ "$monitor_qty" -eq 2 ]]; then     
