@@ -202,7 +202,7 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 exec_always --no-startup-id nm-applet
 
 #----------------------------- Keyboard Stuff -----------------------------#
-exec_always --no-startup-id "setxkbmap br"
+exec_always --no-startup-id "setxkbmap -layout us -variant intl"
 exec_always --no-startup-id numlockx
 
 # Volume Control bindkeys

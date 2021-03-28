@@ -1,0 +1,5 @@
+MATLAB
+OneDrive
+snap
+.cache
+.local
