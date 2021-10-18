@@ -9,11 +9,11 @@
 # MONITOR_2_RIGHT_OF=DP-0
 # MONITOR_3_NAME=unset
 # MONITOR_3_LEFT_OF=unset
+# MONITOR_SWAP_DEFAULT_POSITIONS if you want to have monitor 2 by the left of monitor 1
 #  - Get the name of your current outputs by using the command `xrandr`
 #  - Modify the file ~/.monitor-setup accordingly
 # Caveats & Limitations
 #  - Your primary monitor will always be monitor #1.
-#  - Monitor #2 will always be the right of the monitor #1
 #  - Monitor #3 will always be left of the monitor #1
 #  - Resolution and rate for secondary monitors are hard-coded.
 
@@ -55,10 +55,18 @@ else
 	 --output $MONITOR_2_NAME --off --rate 60	 
 	 "
     elif [[ "$monitor_qty" -eq 2 ]]; then     
-	 echo "Dual monitor setup"
-         cmd="xrandr 
+	    echo "Dual monitor setup"
+
+        if [[ -z "${MONITOR_SWAP_DEFAULT_POSITIONS}" ]]; then
+            cmd="xrandr 
 	 --output $MONITOR_1_NAME --auto --mode 1920x1080 --rate $MONITOR_1_RATE --primary 
-	 --output $MONITOR_2_NAME --auto --mode 1920x1080 --right-of $MONITOR_1_NAME --rate 60"
+	 --output $MONITOR_2_NAME --auto --mode 1920x1080 --right-of $MONITOR_1_NAME --rate 60"        
+        else
+            cmd="xrandr 
+	 --output $MONITOR_1_NAME --auto --mode 1920x1080 --rate $MONITOR_1_RATE --primary 
+	 --output $MONITOR_2_NAME --auto --mode 1920x1080 --left-of $MONITOR_1_NAME --rate 60"        
+        fi
+         
     elif [[ "$monitor_qty" -eq 3 ]]; then
 	 echo "Triple monitor setup"
          cmd="xrandr 
