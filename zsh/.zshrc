@@ -117,6 +117,9 @@ alias copy-stdout="xclip -selection clipboard"
 ## SDKMAN for Java, Scala and SBT
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 source $HOME/.cargo/env
+export GO_PATH=~/go
+export PATH=$PATH:/$GO_PATH/bin
+
 
 ## SSH Agent to store passkeys
 if ! pgrep -u "$USER" ssh-agent > /dev/null; then
@@ -136,3 +139,5 @@ else
     print "404: ~/.work-aliasrc not found."
 fi
 
+source /opt/kube-ps1/kube-ps1.sh
+PROMPT='$(kube_ps1)'$PROMPT
