@@ -9,6 +9,7 @@
 # MONITOR_2_RIGHT_OF=DP-0
 # MONITOR_3_NAME=unset
 # MONITOR_3_LEFT_OF=unset
+# DISABLE_SCREEN= name of the screen that should be disable (useful when you want to disable the laptop screen)
 # MONITOR_SWAP_DEFAULT_POSITIONS if you want to have monitor 2 by the left of monitor 1
 #  - Get the name of your current outputs by using the command `xrandr`
 #  - Modify the file ~/.monitor-setup accordingly
@@ -33,6 +34,8 @@ MONITOR_3_LEFT_OF="${MONITOR_3_LEFT_OF:-not assigned}"
 
 MONITOR_STANDALONE_NAME="${MONITOR_STANDALONE_NAME:-not assigned}"
 MONITOR_STANDALONE_RATE="${MONITOR_STANDALONE_RATE:-not assigned}"
+
+DISABLE_SCREEN="${DISABLE_SCREEN:-not assigned}"
 
 monitor_qty=$(xrandr | grep " connected " | wc -l)
 
@@ -80,3 +83,10 @@ fi
 
 echo "Executing: $cmd"
 eval $cmd
+
+if [[ -z "${DISABLE_SCREEN}" ]]; then
+  echo "Disable screen not defined, so doing nothing..."
+else
+  xrandr --output $DISABLE_SCREEN --off
+fi
+
