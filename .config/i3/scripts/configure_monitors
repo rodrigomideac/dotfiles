@@ -84,9 +84,11 @@ fi
 echo "Executing: $cmd"
 eval $cmd
 
-if [[ -z "${DISABLE_SCREEN}" ]]; then
-  echo "Disable screen not defined, so doing nothing..."
-else
-  xrandr --output $DISABLE_SCREEN --off
+if [[ "$monitor_qty" -eq 3 ]]; then
+	if [[ -z "${DISABLE_SCREEN}" ]]; then
+	  echo "Disable screen not defined, so doing nothing..."
+	else
+  	  xrandr --output $DISABLE_SCREEN --off
+	fi
 fi
 
