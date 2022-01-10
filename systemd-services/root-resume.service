@@ -1,0 +1,11 @@
+[Unit]
+Description=Run commands after suspend/sleep
+After=suspend.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/systemctl restart bluetooth
+
+[Install]
+WantedBy=suspend.target
+
