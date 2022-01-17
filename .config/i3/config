@@ -310,7 +310,7 @@ focus_on_window_activation none
 #=============================================================================#
 
 # Floating terminal scratchpad settings
-exec_always --no-startup-id terminator -r scraterm
+exec_always --no-startup-id terminator -r scraterm -x "vim ~/Documents/scratchpad.txt"
 for_window [window_role="scraterm"] floating enable;
 for_window [window_role="scraterm"] move scratchpad; [window_role="scraterm"] scratchpad show; move position 80px 50px; move scratchpad
 bindsym $mod+F1 [window_role="scraterm"] scratchpad show, resize set 1200 650
