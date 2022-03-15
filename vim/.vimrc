@@ -76,3 +76,6 @@ noremap <silent> ,cu :<C-B>silent <C-E>s/^\V<C-R>=escape(b:comment_leader,'\/')<
 " Variable assignments
 " Enable yank to copy to clipboard
 set clipboard=unnamedplus
+
+set pastetoggle=<F2>
+

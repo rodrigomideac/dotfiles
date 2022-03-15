@@ -141,3 +141,6 @@ fi
 
 source /opt/kube-ps1/kube-ps1.sh
 PROMPT='$(kube_ps1)'$PROMPT
+
+
+[[ -s "/home/rodrigo/.gvm/scripts/gvm" ]] && source "/home/rodrigo/.gvm/scripts/gvm"
