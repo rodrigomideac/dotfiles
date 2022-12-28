@@ -32,10 +32,13 @@ qalculate-gtk
 pavucontrol
 amixer
 playerctl
-scrot
+maim
 xclip
 dunst
+stow
 ```
+
+There is a `deps.sh` that is a copy of what I had to install via AUR/official repos last time.
 
 Edit the `Makefile` file to match your config path, and then run `make stow` to create the symlinks.
 

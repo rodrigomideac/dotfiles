@@ -119,6 +119,7 @@ source "$HOME/.sdkman/bin/sdkman-init.sh"
 source $HOME/.cargo/env
 export GO_PATH=~/go
 export PATH=$PATH:/$GO_PATH/bin
+export PATH=$PATH:/home/rodrigo/devtools
 
 
 ## SSH Agent to store passkeys
@@ -142,5 +143,8 @@ fi
 source /opt/kube-ps1/kube-ps1.sh
 PROMPT='$(kube_ps1)'$PROMPT
 
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR"/ssh-agent.socket
+compinit
+_comp_options+=(globdots)
 
 [[ -s "/home/rodrigo/.gvm/scripts/gvm" ]] && source "/home/rodrigo/.gvm/scripts/gvm"
