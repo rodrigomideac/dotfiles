@@ -271,8 +271,14 @@ for_window [class="jetbrains-pycharm-ce"] focus
 assign [class="jetbrains-idea-ce"] $ws2
 for_window [class="jetbrains-idea-ce"] focus
 
+assign [class="jetbrains-idea"] $ws2
+for_window [class="jetbrains-idea"] focus
+
 assign [class="jetbrains-goland"] $ws2
 for_window [class="jetbrains-goland"] focus
+
+assign [class="jetbrains-webstorm"] $ws2
+for_window [class="jetbrains-webstorm"] focus
 
 assign [class="code-oss"] $ws2
 for_window [class="code-oss"] focus
@@ -287,6 +293,16 @@ for_window [title="ranger" class="Terminator"] focus
 assign [class="Terminator"] $ws3
 for_window [class="Terminator"] focus
 
+assign [class="Alacritty"] $ws3
+for_window [class="Alacritty"] focus
+
+# Other programming apps
+
+assign [class="insomnia"] $ws4
+for_window [class="insomina"] focus
+
+assign [class="jetbrains-datagrip"] $ws4
+for_window [class="jetbrains-datagrip"] focus
 # File managers
 assign [title="ranger" class="Terminator"] $ws5
 for_window [title="ranger" class="Terminator"] focus
@@ -294,6 +310,8 @@ for_window [title="ranger" class="Terminator"] focus
 assign [class="Nemo"] $ws5
 for_window [class="Nemo"] focus
 
+assign [class="dolphin"] $ws5
+for_window [class="dolhpin"] focus
 # Media
 for_window [class="Spotify"] move to workspace $ws8
 for_window [class="Spotify"] focus
