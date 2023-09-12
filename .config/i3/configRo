@@ -25,7 +25,7 @@ set $mod Mod4
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec alacritty_launcher
+bindsym $mod+Return exec $HOME/.config/i3/scripts/alacritty_launcher
 bindsym $mod+Shift+Return exec alacritty
 
 # kill focused window
@@ -328,11 +328,10 @@ focus_on_window_activation none
 #=============================================================================#
 
 # Floating terminal scratchpad settings
-# exec_always --no-startup-id terminator -r scraterm -x "vim ~/Documents/scratchpad.txt"
-# for_window [window_role="scraterm"] floating enable;
-# for_window [window_role="scraterm"] move scratchpad; [window_role="scraterm"] scratchpad show; move position 80px 50px; move scratchpad
-bindsym $mod+F1 exec --no-startup-id i3-scratchpad -tmt -atc alacritty_launcher
-
+exec_always --no-startup-id terminator -r scraterm -x "vim ~/Documents/scratchpad.txt"
+for_window [window_role="scraterm"] floating enable;
+for_window [window_role="scraterm"] move scratchpad; [window_role="scraterm"] scratchpad show; move position 80px 50px; move scratchpad
+bindsym $mod+F1 [window_role="scraterm"] scratchpad show, resize set 1200 650
 
 # Gaps
 # Disable window titlebars (required for gaps)
@@ -342,3 +341,4 @@ set $default_gaps_inner 5
 set $default_gaps_outer 5
 gaps inner $default_gaps_inner
 gaps outer $default_gaps_outer
+

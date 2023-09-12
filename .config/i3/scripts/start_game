@@ -1,0 +1,33 @@
+#!/bin/bash
+
+function pacmd-set-app-volume() {
+  local player="$1"
+  local volume="$2"
+  firstPlayerSinkIndex="$(pacmd list-sink-inputs | awk '/index:|application.name |application.process.binary / {print $0};' | grep -iB 1 "$player" | awk '/index:/ {print $2; exit}')"  # get specific app sink
+  echo "found $firstPlayerSinkIndex"
+  [[ $firstPlayerSinkIndex ]] && pacmd set-sink-input-volume "$firstPlayerSinkIndex" "$((volume*65536/100))" # 100% → 65536
+}
+
+function get-app-volume() {
+  SINK="1"
+  pactl list sinks | grep '^[[:space:]]Volume:' | \
+    head -n $(( $SINK + 1 )) | tail -n 1 | sed -e 's,.* \([0-9][0-9]*\)%.*,\1,'
+}
+
+ps cax | grep moonlight
+if [ $? -eq 0 ]; then
+  echo "Process is running."
+else
+  echo "Process is not running."
+fi
+
+game_mode=$(cat /tmp/game_mode) || ""
+if [[ $game_mode != moonlight_on ]]; then
+  pacmd-set-app-volume "Moonlight" 100
+  pacmd-set-app-volume "Spotify"   0  
+  echo 'moonlight_on' > /tmp/game_mode
+else
+  pacmd-set-app-volume "Moonlight" 0
+  pacmd-set-app-volume "Spotify"   100
+  echo 'moonlight_off' > /tmp/game_mode
+fi

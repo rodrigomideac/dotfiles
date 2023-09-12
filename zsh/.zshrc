@@ -117,8 +117,9 @@ alias copy-stdout="xclip -selection clipboard"
 ## SDKMAN for Java, Scala and SBT
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 source $HOME/.cargo/env
-export GO_PATH=~/go
-export PATH=$PATH:/$GO_PATH/bin
+export PATH=$PATH:/usr/local/go/bin
+#export GO_PATH="~/devtools/go1.18"
+#export PATH=$PATH:$GO_PATH/bin
 export PATH=$PATH:/home/rodrigo/devtools
 
 
@@ -148,3 +149,5 @@ compinit
 _comp_options+=(globdots)
 
 [[ -s "/home/rodrigo/.gvm/scripts/gvm" ]] && source "/home/rodrigo/.gvm/scripts/gvm"
+
+source /usr/share/fzf/key-bindings.zsh
