@@ -31,6 +31,9 @@ bindsym $mod+Shift+Return exec alacritty
 # kill focused window
 bindsym $mod+Shift+q kill
 
+# Start game mode
+bindsym $mod+Shift+g exec launcher_gamemode
+
 # start rofi
 bindsym $mod+d exec "rofi -show drun -modi drun &>> /tmp/rofi.log"
 bindsym $mod+Shift+d exec "rofi -show run -modi run &>> /tmp/rofi-run.log"
@@ -252,6 +255,9 @@ for_window [class="firefox"] focus
 # IDEs and programming stuff
 assign [class="YAKINDU SCT Professional Edition"] $ws2
 for_window [class="YAKINDU SCT Professional Edition"] focus
+
+assign [class="com.moonlight_stream.Moonlight"] $ws6
+for_window [class="com.moonlight_stream.Moonlight"] focus
 
 assign [class="MATLAB R2018a"] $ws2
 no_focus [class="MATLAB R2018a"]

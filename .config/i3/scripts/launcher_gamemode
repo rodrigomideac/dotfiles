@@ -1,0 +1,6 @@
+#!/bin/bash
+# Move workspaces to default outputs
+set -a
+source $HOME/.monitor-setup
+export GAME_MODE_ACTIVATED=TRUE
+python $HOME/.config/i3/scripts/default_workspaces.py

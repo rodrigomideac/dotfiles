@@ -1,0 +1,38 @@
+[colors.bright]
+black = "#5c5c5c"
+blue = "#6699cc"
+cyan = "#5fb3b3"
+green = "#a6bc69"
+magenta = "#c594c5"
+red = "#e57373"
+white = "#f3f4f5"
+yellow = "#fac863"
+
+[colors.cursor]
+cursor = "#c0c5ce"
+text = "#212121"
+
+[colors.normal]
+black = "#212121"
+blue = "#6699cc"
+cyan = "#5fb3b3"
+green = "#a6bc69"
+magenta = "#c594c5"
+red = "#e57373"
+white = "#c0c5ce"
+yellow = "#fac863"
+
+[colors.primary]
+background = "#212121"
+bright_foreground = "#f3f4f5"
+foreground = "#c0c5ce"
+
+[[keyboard.bindings]]
+chars = "\u001Bb"
+key = "Left"
+mods = "Control"
+
+[[keyboard.bindings]]
+chars = "\u001Bf"
+key = "Right"
+mods = "Control"

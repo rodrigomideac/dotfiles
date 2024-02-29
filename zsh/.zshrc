@@ -151,3 +151,5 @@ _comp_options+=(globdots)
 [[ -s "/home/rodrigo/.gvm/scripts/gvm" ]] && source "/home/rodrigo/.gvm/scripts/gvm"
 
 source /usr/share/fzf/key-bindings.zsh
+export FLYCTL_INSTALL="/home/rodrigo/.fly"
+export PATH="$FLYCTL_INSTALL/bin:$PATH"

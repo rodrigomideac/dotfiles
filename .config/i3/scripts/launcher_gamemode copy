@@ -1,0 +1,14 @@
+#!/bin/bash
+# Create file to enable focus mode
+set -a
+
+file_path="/tmp/focus_mode.txt"
+
+if [[ -e "$file_path" ]]; then
+  echo "File exists!"
+  rm -rf $file_path
+else
+  echo "File does not exist."
+  touch $file_path
+fi
+
