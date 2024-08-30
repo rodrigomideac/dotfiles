@@ -335,10 +335,20 @@ focus_on_window_activation none
 
 # Floating terminal scratchpad settings
 # exec_always --no-startup-id terminator -r scraterm -x "vim ~/Documents/scratchpad.txt"
-# for_window [window_role="scraterm"] floating enable;
-# for_window [window_role="scraterm"] move scratchpad; [window_role="scraterm"] scratchpad show; move position 80px 50px; move scratchpad
-bindsym $mod+F1 exec --no-startup-id i3-scratchpad -tmt -atc alacritty_launcher
+# for_window [window_role="heynote"] floating enable;
+# for_window [class="Heynote"] floating enable, move right;
+# for_window [window_role="heynote"] move scratchpad;
+# for_window [window_role="heynote"] scratchpad show; move position 80px 50px; move scratchpad
+# bindsym $mod+Shift+X exec --no-startup-id heynote
 
+# Floating window rule for heynote
+# for_window [class="Heynote"] floating enable, move rights
+
+# Keybinding to toggle heynote window
+# Toggle dropdown terminal
+bindsym $mod+Shift+X  exec --no-startup-id "i3-scratchpad -t -d50%x95% -acr heynote"
+
+# bindsym $mod+Shift+X exec --no-startup-id ~/.config/i3/scripts/toggle_heynote
 
 # Gaps
 # Disable window titlebars (required for gaps)

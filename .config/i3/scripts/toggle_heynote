@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Check if heynote is running
+if pgrep -x "heynote" > /dev/null
+then
+    # If running, hide it by moving to a different workspace
+    i3-msg "[class="Heynote"] move to workspace 10"
+else
+    # If not running, start it and move to the right
+    heynote &
+    sleep 1 # Wait for the window to appear
+    i3-msg "[class="Heynote"] move right"
+fi
