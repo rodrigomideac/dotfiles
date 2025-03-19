@@ -150,7 +150,7 @@ _comp_options+=(globdots)
 
 [[ -s "/home/rodrigo/.gvm/scripts/gvm" ]] && source "/home/rodrigo/.gvm/scripts/gvm"
 
-source /usr/share/fzf/key-bindings.zsh
+#source /usr/share/fzf/key-bindings.zsh
 export FLYCTL_INSTALL="/home/rodrigo/.fly"
 export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
@@ -186,4 +186,16 @@ bindkey ^l _sgpt_zsh
 
 
 export PATH="${PATH}:${HOME}/go/bin"
+export PATH="${PATH}:${HOME}/.local/share/gem/ruby/3.3.0"
+export PATH="${PATH}:/usr/lib/ruby/gems/3.3.0"
 eval "$(~/.local/bin/mise activate zsh)"
+
+alias rgf='rg --files | rg'
+#. $HOME/esp/esp-idf/export.sh
+export GEM_HOME="$HOME/gems"
+export PATH="$HOME/gems/bin:$PATH"
+
+. "$HOME/.atuin/bin/env"
+
+#eval "$(atuin init zsh)"
+eval "$(atuin init zsh --disable-up-arrow)"

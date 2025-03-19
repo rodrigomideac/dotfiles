@@ -1,5 +1,7 @@
 set clipboard=unnamed
 set number
+set nocompatible
+filetype plugin on
 syntax on
 
 " Set theme
@@ -31,6 +33,7 @@ Plug 'preservim/nerdtree'
 Plug 'chrisbra/Colorizer'
 Plug 'lervag/vimtex'
 Plug 'mhinz/vim-startify'
+Plug 'vimwiki/vimwiki'
 
 let g:tex_flavor='latex'
 let g:vimtex_view_method='zathura'

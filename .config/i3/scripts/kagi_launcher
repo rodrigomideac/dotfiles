@@ -1,0 +1,28 @@
+#!/bin/bash
+
+last_pid=$(cat /tmp/kagi_assistant.txt)
+echo "Last pid: $last_pid"
+kill -9 $last_pid
+
+# Start Chrome in the background
+google-chrome-stable \
+  --app=https://kagi.com/assistant \
+  --class="KagiAssistant" \
+  --user-data-dir=$HOME/.config/kagi-assistant-chrome \
+  --profile-directory="KagiAssistant" \
+  --app-id=kagiassistant \
+  --app-name="Kagi Assistant" \
+  --no-default-browser-check \
+  --new-window \
+  --window-size=1100,1080 \
+  --window-position=0,0 \
+  --disable-extensions \
+  --disable-background-mode \
+  --disk-cache-dir=/tmp/kagi-assistant-cache \
+  --no-first-run &
+
+# Store the Chrome PID
+CHROME_PID=$!
+echo $CHROME_PID > /tmp/kagi_assistant.txt
+
+i3-msg 'workspace AI; move workspace to output DP-1'

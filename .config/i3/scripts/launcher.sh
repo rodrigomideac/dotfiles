@@ -21,3 +21,7 @@ blueman-applet &
 set -a
 source $HOME/.monitor-setup
 python $HOME/.config/i3/scripts/default_workspaces.py
+
+# Run solaar on background
+solaar --window=hide & 
+notify-send "Running solaar on background..." "Startup notification"
