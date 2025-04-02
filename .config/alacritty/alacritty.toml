@@ -36,3 +36,11 @@ mods = "Control"
 chars = "\u001Bf"
 key = "Right"
 mods = "Control"
+
+[[keyboard.bindings]]
+key = "PageUp"
+action = "ScrollPageUp"
+
+[[keyboard.bindings]]
+key = "PageDown"
+action = "ScrollPageDown"

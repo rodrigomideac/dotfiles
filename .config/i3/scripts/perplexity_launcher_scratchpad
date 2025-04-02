@@ -1,0 +1,19 @@
+#!/bin/bash
+
+
+i3-scratchpad -t -s DP-1 -d60%x95% -acc -- \
+google-chrome-stable \
+  --app=https://www.perplexity.ai/search/ \
+  --class="KagiAssistant" \
+  --user-data-dir=$HOME/.config/perplexity-chrome \
+  --profile-directory="KagiAssistant" \
+  --app-id=kagiassistant \
+  --app-name="Kagi Assistant" \
+  --no-default-browser-check \
+  --new-window \
+  --window-size=1100,1080 \
+  --window-position=0,0 \
+  --disable-extensions \
+  --disable-background-mode \
+  --disk-cache-dir=/tmp/kagi-assistant-cache \
+  --no-first-run &

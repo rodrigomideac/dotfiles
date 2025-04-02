@@ -20,6 +20,9 @@ The central point of this setup is to always open certain applications in specif
 You need to have at least these dependencies installed before using this config. I'm pretty sure there are many others that I have installed since my first boot, so I apologise if any dependency is missing from this list.
 
 ```
+atuin
+i3-battery-popup
+solaar
 numlockx
 terminator
 arandr
