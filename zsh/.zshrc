@@ -199,3 +199,8 @@ export PATH="$HOME/gems/bin:$PATH"
 
 #eval "$(atuin init zsh)"
 eval "$(atuin init zsh --disable-up-arrow)"
+[[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
+
+alias vim="nvim"
+alias npost="nvim /home/rodrigo/dev/some-words/_posts/scratchpad.md"
+

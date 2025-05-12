@@ -358,7 +358,7 @@ focus_on_window_activation none
 # Toggle dropdown terminal
 bindsym $mod+Shift+X  exec --no-startup-id "i3-scratchpad -t -d50%x95% -acr heynote"
 
-bindsym $mod+X  exec --no-startup-id "$HOME/.config/i3/scripts/perplexity_launcher_scratchpad"
+bindsym $mod+X  exec --no-startup-id "$HOME/.config/i3/scripts/kagi_launcher_scratchpad"
 # bindsym $mod+Shift+X exec --no-startup-id ~/.config/i3/scripts/toggle_heynote
 
 # Gaps
