@@ -27,20 +27,3 @@ background = "#212121"
 bright_foreground = "#f3f4f5"
 foreground = "#c0c5ce"
 
-[[keyboard.bindings]]
-chars = "\u001Bb"
-key = "Left"
-mods = "Control"
-
-[[keyboard.bindings]]
-chars = "\u001Bf"
-key = "Right"
-mods = "Control"
-
-[[keyboard.bindings]]
-key = "PageUp"
-action = "ScrollPageUp"
-
-[[keyboard.bindings]]
-key = "PageDown"
-action = "ScrollPageDown"

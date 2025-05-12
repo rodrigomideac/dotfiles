@@ -1009,10 +1009,11 @@ require('lazy').setup({
 --
 --
 --vim.api.nvim_set_keymap('n', 'h', 'j', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', 'j', '<Left>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', 'k', '<Down>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', 'l', '<Up>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', ';', '<Right>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', 'j', '<Left>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', 'k', '<Down>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', 'l', '<Up>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', ';', '<Right>', { noremap = true, silent = true })
--- vim.api.nvim_set_keymap('n', 'j', 'k', { noremap = true, silent = true })
--- vim.api.nvim_set_keymap('n', 'k', 'l', { noremap = true, silent = true })
--- vim.api.nvim_set_keymap('n', 'l', ';', { noremap = true, silent = true })
