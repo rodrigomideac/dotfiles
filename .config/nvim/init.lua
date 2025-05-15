@@ -219,6 +219,9 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- Load custom keymaps from a separate file for modularity
+require('custom.keymaps')
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -675,7 +678,7 @@ require('lazy').setup({
         gopls = {},
         pyright = {},
         rust_analyzer = {},
-        metals = {},
+        -- metals = {},
         kotlin_language_server = {},
         jdtls = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -723,8 +726,8 @@ require('lazy').setup({
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
-        ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
-        automatic_installation = false,
+        ensure_installed = vim.tbl_keys(servers or {}), -- Include all servers from the servers table
+        automatic_installation = true, -- Automatically install missing LSP servers
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
@@ -1017,21 +1020,3 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
---vim.api.nvim_set_keymap('n', 'h', 'j', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('v', 'j', '<Left>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('v', 'k', '<Down>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('v', 'l', '<Up>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('v', ';', '<Right>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', 'j', '<Left>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', 'k', '<Down>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', 'l', '<Up>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', ';', '<Right>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>e', ':Neotree toggle<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>E', ':Neotree position=current toggle<CR>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<S-j>', ':bnext<CR>', { noremap = true, silent = true }) -- Shift+l for next buffer
-vim.api.nvim_set_keymap('n', '<S-;>', ':bprev<CR>', { noremap = true, silent = true }) -- Shift+h for previous buffer
-vim.keymap.set('n', '<C-w>j', '<C-w>h', { desc = 'Move to window on the left' })
-vim.keymap.set('n', '<C-w>k', '<C-w>j', { desc = 'Move to window on the left' })
-vim.keymap.set('n', '<C-w>l', '<C-w>k', { desc = 'Move to window on the left' })
-vim.keymap.set('n', '<C-w>;', '<C-w>l', { desc = 'Move to window on the left' })
-vim.api.nvim_set_keymap('n', '<leader>r', ':luafile $MYVIMRC<CR>', { noremap = true, silent = true })
