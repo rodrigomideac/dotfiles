@@ -1,5 +1,15 @@
 return {
   {
+    'antosha417/nvim-lsp-file-operations',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-neo-tree/neo-tree.nvim',
+    },
+    config = function()
+      require('lsp-file-operations').setup()
+    end,
+  },
+  {
     'nvim-neo-tree/neo-tree.nvim',
     branch = 'v3.x',
     dependencies = {
@@ -12,6 +22,16 @@ return {
     ---@module "neo-tree"
     ---@type neotree.Config?
     config = function()
+      vim.diagnostic.config {
+        signs = {
+          text = {
+            [vim.diagnostic.severity.ERROR] = '',
+            [vim.diagnostic.severity.WARN] = '',
+            [vim.diagnostic.severity.INFO] = '',
+            [vim.diagnostic.severity.HINT] = '󰌵',
+          },
+        },
+      }
       require('neo-tree').setup {
         close_if_last_window = true, -- Close Neo-tree if it is the last window
         popup_border_style = 'rounded',
@@ -31,17 +51,19 @@ return {
             },
             never_show = {},
           },
-          follow_current_file = true, -- Focus the file in the tree when opened
+          follow_current_file = true, -- Focus the f:hile in the tree when opened
           use_libuv_file_watcher = true,
         },
         window = {
           position = 'left',
           width = 30,
           mappings = {
-            ['j'] = 'left',
-            ['k'] = 'down',
-            ['l'] = 'up',
-            [';'] = 'right',
+            ['j'] = 'noop',
+            ['k'] = 'noop',
+            ['l'] = 'noop',
+            [';'] = 'noop',
+            [''] = 'noop',
+            ['<space>'] = 'noop',
           },
         },
       }
