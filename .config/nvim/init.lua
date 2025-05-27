@@ -220,7 +220,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- Load custom keymaps from a separate file for modularity
-require('custom.keymaps')
+require 'custom.keymaps'
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
@@ -496,6 +496,9 @@ require('lazy').setup({
       'saghen/blink.cmp',
     },
     config = function()
+      if vim.opt.diff:get() then
+        return
+      end
       -- Brief aside: **What is LSP?**
       --
       -- LSP is an initialism you've probably heard, but might not understand what it is.
@@ -528,6 +531,10 @@ require('lazy').setup({
       vim.api.nvim_create_autocmd('LspAttach', {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
+          -- Check if the current buffer's filetype is 'diff' and exit if it is
+          -- if vim.bo.filetype == 'diff' then
+          --   return
+          -- end
           -- NOTE: Remember that Lua is a real programming language, and as such it is possible
           -- to define small helper and utility functions so you don't have to repeat yourself.
           --
@@ -730,6 +737,9 @@ require('lazy').setup({
         automatic_installation = true, -- Automatically install missing LSP servers
         handlers = {
           function(server_name)
+            -- if vim.bo.filetype == 'diff' then
+            --   return
+            -- end
             local server = servers[server_name] or {}
             -- This handles overriding only values explicitly passed
             -- by the server configuration above. Useful when disabling

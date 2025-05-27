@@ -51,7 +51,9 @@ return {
             },
             never_show = {},
           },
-          follow_current_file = true, -- Focus the f:hile in the tree when opened
+          follow_current_file = {
+            enabled = true,
+          }, -- Focus the f:hile in the tree when opened
           use_libuv_file_watcher = true,
         },
         window = {

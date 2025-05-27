@@ -69,7 +69,7 @@ return {
       filesystem = {
         filtered_items = {
           visible = true,
-          hide_dotfiles = false,  -- Set to false to show hidden files
+          hide_dotfiles = false, -- Set to false to show hidden files
           hide_gitignored = false,
           hide_hidden = false,
         },
@@ -81,4 +81,5 @@ return {
       },
     },
   },
+  { 'akinsho/git-conflict.nvim', version = '*', config = true },
 }

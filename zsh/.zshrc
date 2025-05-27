@@ -183,8 +183,8 @@ bindkey ^l _sgpt_zsh
 # Shell-GPT integration ZSH v0.2
 #
 
-
-
+export GOPATH="${HOME}/go"
+export PATH="${PATH}:${GOPATH}/bin"
 export PATH="${PATH}:${HOME}/go/bin"
 export PATH="${PATH}:${HOME}/.local/share/gem/ruby/3.3.0"
 export PATH="${PATH}:/usr/lib/ruby/gems/3.3.0"
@@ -202,5 +202,8 @@ eval "$(atuin init zsh --disable-up-arrow)"
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
 
 alias vim="nvim"
+alias np="nvim /home/rodrigo/themes/rodrigomideac/dotfiles-work/prompts" 
+alias nf="nvim ." 
 alias npost="nvim /home/rodrigo/dev/some-words/_posts/scratchpad.md"
+
 

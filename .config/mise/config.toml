@@ -1,0 +1,3 @@
+[tasks.LLM.clean_bundle]
+description = "Uses repomix to generate a whole repository bundle"
+run = "repomix"
