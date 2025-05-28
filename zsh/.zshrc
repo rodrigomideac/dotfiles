@@ -205,5 +205,5 @@ alias vim="nvim"
 alias np="nvim /home/rodrigo/themes/rodrigomideac/dotfiles-work/prompts" 
 alias nf="nvim ." 
 alias npost="nvim /home/rodrigo/dev/some-words/_posts/scratchpad.md"
-
+export EDITOR=nvim
 
