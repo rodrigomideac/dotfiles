@@ -1,3 +1,36 @@
-[tasks.LLM.clean_bundle]
-description = "Uses repomix to generate a whole repository bundle"
-run = "repomix"
+
+[tasks."LLM::print_dev_spec_prompt"]
+description = "Prints the prompt to finish the idea-honing by generating a spec."
+run = "cat ~/.config/io.datasette.llm/templates/dev-ready-spec.yaml"
+
+[tasks."LLM::open_chat_idea_honing"]
+description = "Starts a chat to transform an idea into something feasible"
+run = "llm chat -m openrouter/openai/o3-mini-high -t idea-honing"
+
+[tasks."LLM::open_chat_idea_honing_from_full_repository_context"]
+description = "Starts a chat to transform an idea into something feasible, given the repository context"
+run = "repomix --style xml -o output.xml && cat output.xml | llm chat -m openrouter/openai/o3-mini-high -t idea-honing"
+
+[tasks."LLM::open_chat_planning_tdd"]
+description = "Starts a chat to generate a plan for a given spec. TDD will be used."
+run = "llm chat -m openrouter/openai/o3-mini-high -t chat-planning-tdd"
+
+[tasks."LLM::open_chat_planning"]
+description = "Starts a chat to generate a plan for a given spec. Save the output as prompt_plan.md"
+run = "llm chat -m openrouter/openai/o3-mini-high -t chat-planning"
+
+[tasks."LLM::print_chat_planning_follow_up"]
+description = "Prints the prompt to ask the LLM to generate a todo.md"
+run = "cat ~/.config/io.datasette.llm/templates/chat_planning_follow_up.yaml"
+
+[tasks."LLM::generate_missing_tests_from_full_repository_context"]
+description = "Generates missing tests on missing_tests.md from the full repository"
+run = "repomix --style xml -o output.xml && cat output.xml | llm -m anthropic/claude-sonnet-4-0 -t missing-tests > missing_tests.md"
+
+[tasks."LLM::generate_readme"]
+description = "Generates readme from the full repository"
+run = "repomix --style xml -o output.xml && cat output.xml | llm -m anthropic/claude-sonnet-4-0 -t generate-readme > generate-readme.md"
+
+[tasks."LLM::generate_missing_tests_from_user_generated_context"]
+description = "Generates missing tests on missing_tests.md from a user generated output.xml"
+run = "cat output.xml | llm -m anthropic/claude-sonnet-4-0 -t missing-tests > missing_tests.md"
