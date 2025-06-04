@@ -1,3 +1,997 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+4. Repository files, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+<additional_info>
+
+</additional_info>
+
+</file_summary>
+
+<directory_structure>
+lua/
+  custom/
+    plugins/
+      avante.lua
+      blink.cmp.lua
+      diffview.lua
+      floaterm.lua
+      go.nvim.lua
+      init.lua
+      neo-tree.lua
+      text-case.lua
+    keymaps.lua
+    mise.lua
+  kickstart/
+    plugins/
+      autopairs.lua
+      debug.lua
+      gitsigns.lua
+      indent_line.lua
+      lint.lua
+      neo-tree.lua
+    health.lua
+.gitignore
+.stylua.toml
+init.lua
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="lua/custom/plugins/avante.lua">
+return {
+  'yetone/avante.nvim',
+  event = 'VeryLazy',
+  version = false, -- Never set this value to "*"! Never!
+  opts = {
+    -- add any opts here
+    -- for example
+    provider = 'openai',
+    providers = {
+      openai = {
+        endpoint = 'https://api.openai.com/v1',
+        model = 'gpt-4o', -- your desired model (or use gpt-4o, etc.)
+        extra_request_body = {
+          timeout = 30000, -- Timeout in milliseconds, increase this for reasoning models
+          temperature = 0.75,
+          max_completion_tokens = 8192, -- Increase this to include reasoning tokens (for reasoning models)
+          --reasoning_effort = "medium", -- low|medium|high, only used for reasoning models
+        },
+      },
+    },
+  },
+  -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
+  build = 'make',
+  dependencies = {
+    'nvim-treesitter/nvim-treesitter',
+    'stevearc/dressing.nvim',
+    'nvim-lua/plenary.nvim',
+    'MunifTanjim/nui.nvim',
+    --- The below dependencies are optional,
+    'echasnovski/mini.pick', -- for file_selector provider mini.pick
+    'nvim-telescope/telescope.nvim', -- for file_selector provider telescope
+    'hrsh7th/nvim-cmp', -- autocompletion for avante commands and mentions
+    'ibhagwan/fzf-lua', -- for file_selector provider fzf
+    'nvim-tree/nvim-web-devicons', -- or echasnovski/mini.icons
+    'zbirenbaum/copilot.lua', -- for providers='copilot'
+    {
+      -- support for image pasting
+      'HakonHarnes/img-clip.nvim',
+      event = 'VeryLazy',
+      opts = {
+        -- recommended settings
+        default = {
+          embed_image_as_base64 = false,
+          prompt_for_file_name = false,
+          drag_and_drop = {
+            insert_mode = true,
+          },
+          -- required for Windows users
+          use_absolute_path = true,
+        },
+      },
+    },
+    {
+      -- Make sure to set this up properly if you have lazy=true
+      'MeanderingProgrammer/render-markdown.nvim',
+      opts = {
+        file_types = { 'markdown', 'Avante' },
+      },
+      ft = { 'markdown', 'Avante' },
+    },
+  },
+}
+</file>
+
+<file path="lua/custom/plugins/blink.cmp.lua">
+return { -- Autocompletion
+  'saghen/blink.cmp',
+  event = 'VimEnter',
+  version = '1.*',
+  dependencies = {
+    { 'Kaiser-Yang/blink-cmp-avante' },
+    -- Snippet Engine
+    {
+      'L3MON4D3/LuaSnip',
+      version = '2.*',
+      build = (function()
+        -- Build Step is needed for regex support in snippets.
+        -- This step is not supported in many windows environments.
+        -- Remove the below condition to re-enable on windows.
+        if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
+          return
+        end
+        return 'make install_jsregexp'
+      end)(),
+      dependencies = {
+        -- `friendly-snippets` contains a variety of premade snippets.
+        --    See the README about individual language/framework/plugin snippets:
+        --    https://github.com/rafamadriz/friendly-snippets
+        {
+          'rafamadriz/friendly-snippets',
+          config = function()
+            require('luasnip.loaders.from_vscode').lazy_load()
+          end,
+        },
+      },
+      opts = {},
+    },
+    'folke/lazydev.nvim',
+  },
+  --- @module 'blink.cmp'
+  --- @type blink.cmp.Config
+  opts = {
+    keymap = {
+      -- 'default' (recommended) for mappings similar to built-in completions
+      --   <c-y> to accept ([y]es) the completion.
+      --    This will auto-import if your LSP supports it.
+      --    This will expand snippets if the LSP sent a snippet.
+      -- 'super-tab' for tab to accept
+      -- 'enter' for enter to accept
+      -- 'none' for no mappings
+      --
+      -- For an understanding of why the 'default' preset is recommended,
+      -- you will need to read `:help ins-completion`
+      --
+      -- No, but seriously. Please read `:help ins-completion`, it is really good!
+      --
+      -- All presets have the following mappings:
+      -- <tab>/<s-tab>: move to right/left of your snippet expansion
+      -- <c-space>: Open menu or open docs if already open
+      -- <c-n>/<c-p> or <up>/<down>: Select next/previous item
+      -- <c-e>: Hide menu
+      -- <c-k>: Toggle signature help
+      --
+      -- See :h blink-cmp-config-keymap for defining your own keymap
+      preset = 'super-tab',
+
+      -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
+      --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
+    },
+
+    appearance = {
+      -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
+      -- Adjusts spacing to ensure icons are aligned
+      nerd_font_variant = 'mono',
+    },
+
+    completion = {
+      -- By default, you may press `<c-space>` to show the documentation.
+      -- Optionally, set `auto_show = true` to show the documentation after a delay.
+      documentation = { auto_show = true, auto_show_delay_ms = 500 },
+    },
+
+    sources = {
+      default = { 'avante', 'lsp', 'path', 'snippets', 'lazydev' },
+      providers = {
+        lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+        avante = {
+          module = 'blink-cmp-avante',
+          name = 'Avante',
+          opts = {
+            -- options for blink-cmp-avante
+          },
+        },
+      },
+    },
+
+    snippets = { preset = 'luasnip' },
+
+    -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
+    -- which automatically downloads a prebuilt binary when enabled.
+    --
+    -- By default, we use the Lua implementation instead, but you may enable
+    -- the rust implementation via `'prefer_rust_with_warning'`
+    --
+    -- See :h blink-cmp-config-fuzzy for more information
+    fuzzy = { implementation = 'prefer_rust_with_warning' },
+
+    -- Shows a signature help window while you type arguments for a function
+    signature = { enabled = true },
+  },
+}
+</file>
+
+<file path="lua/custom/plugins/diffview.lua">
+return {
+  'sindrets/diffview.nvim',
+  dependencies = { 'nvim-lua/plenary.nvim' },
+}
+</file>
+
+<file path="lua/custom/plugins/floaterm.lua">
+return {
+  'voldikss/vim-floaterm', -- or 'kassio/neoterm' for neoterm
+  config = function()
+    -- Set up key mappings here
+    vim.api.nvim_set_keymap('n', '<leader>ft', ':FloatermToggle<CR>', { noremap = true, silent = true })
+  end,
+}
+</file>
+
+<file path="lua/custom/plugins/go.nvim.lua">
+return {
+  'ray-x/go.nvim',
+  dependencies = { -- optional packages
+    'ray-x/guihua.lua',
+    'neovim/nvim-lspconfig',
+    'nvim-treesitter/nvim-treesitter',
+  },
+  config = function()
+    require('go').setup()
+
+    -- Add autocommand for formatting on save
+    local format_sync_grp = vim.api.nvim_create_augroup('GoFormat', { clear = true })
+    vim.api.nvim_create_autocmd('BufWritePre', {
+      pattern = '*.go',
+      callback = function()
+        require('go.format').goimports()
+      end,
+      group = format_sync_grp,
+      desc = 'Auto-format Go files with goimports on save',
+    })
+  end,
+  event = { 'CmdlineEnter' },
+  ft = { 'go', 'gomod' },
+  build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
+}
+</file>
+
+<file path="lua/custom/plugins/init.lua">
+-- You can add your own plugins here or in other files in this directory!
+--  I promise not to create any merge conflicts in this directory :)
+--
+-- See the kickstart.nvim README for more information
+--
+--
+-- local on_attach = function(client, bufnr)
+--   local buf_map = function(mode, lhs, rhs, opts)
+--     opts = opts or {}
+--     opts.buffer = bufnr
+--     vim.keymap.set(mode, lhs, rhs, opts)
+--   end
+--
+--   buf_map('n', 'gd', vim.lsp.buf.definition, { desc = 'Go to definition' })
+--   buf_map('n', 'gi', vim.lsp.buf.implementation, { desc = 'Go to implementation' }) -- Here
+--   buf_map('n', 'K', vim.lsp.buf.hover, { desc = 'Hover documentation' })
+--   buf_map('n', 'gr', vim.lsp.buf.implementation, { desc = 'Find references' })
+--   buf_map('n', '<leader>rn', vim.lsp.buf.rename, { desc = 'Rename symbol' })
+--   buf_map('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostics' })
+--   buf_map('n', '[d', vim.diagnostic.goto_prev, { desc = 'Previous diagnostic' })
+--   buf_map('n', ']d', vim.diagnostic.goto_next, { desc = 'Next diagnostic' })
+--   buf_map('n', '<leader>ca', vim.lsp.buf.code_action, { desc = 'Code actions' })
+-- end
+--
+-- local lspconfig = require 'lspconfig'
+--
+-- lspconfig.gopls.setup {
+--   on_attach = function(client, bufnr)
+--     -- your on_attach code
+--   end,
+--   settings = {
+--     gopls = {
+--       analyses = {
+--         unusedparams = true,
+--         unreachable = true,
+--       },
+--       staticcheck = true,
+--     },
+--   },
+-- }
+-- {
+--   'ray-x/go.nvim',
+--   dependencies = { -- optional packages
+--     'ray-x/guihua.lua',
+--     'neovim/nvim-lspconfig',
+--     'nvim-treesitter/nvim-treesitter',
+--   },
+--   config = function()
+--     require('go').setup()
+--   end,
+--   event = { 'CmdlineEnter' },
+--   ft = { 'go', 'gomod' },
+--   build = ':lua require("go.install").update_all_sync()', -- if you need to install/update all binaries
+-- },
+return {
+  {
+    'nvim-neo-tree/neo-tree.nvim',
+    version = '*',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
+      'MunifTanjim/nui.nvim',
+    },
+    cmd = 'Neotree',
+    keys = {
+      { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+    },
+    opts = {
+      filesystem = {
+        filtered_items = {
+          visible = true,
+          hide_dotfiles = false, -- Set to false to show hidden files
+          hide_gitignored = false,
+          hide_hidden = false,
+        },
+        window = {
+          mappings = {
+            ['\\'] = 'close_window',
+          },
+        },
+      },
+    },
+  },
+  { 'akinsho/git-conflict.nvim', version = '*', config = true },
+}
+</file>
+
+<file path="lua/custom/plugins/neo-tree.lua">
+return {
+  {
+    'antosha417/nvim-lsp-file-operations',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-neo-tree/neo-tree.nvim',
+    },
+    config = function()
+      require('lsp-file-operations').setup()
+    end,
+  },
+  {
+    'nvim-neo-tree/neo-tree.nvim',
+    branch = 'v3.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
+      'MunifTanjim/nui.nvim',
+      -- {"3rd/image.nvim", opts = {}}, -- Optional image support in preview window: See `# Preview Mode` for more information
+    },
+    lazy = false, -- neo-tree will lazily load itself
+    ---@module "neo-tree"
+    ---@type neotree.Config?
+    config = function()
+      vim.diagnostic.config {
+        signs = {
+          text = {
+            [vim.diagnostic.severity.ERROR] = '',
+            [vim.diagnostic.severity.WARN] = '',
+            [vim.diagnostic.severity.INFO] = '',
+            [vim.diagnostic.severity.HINT] = '󰌵',
+          },
+        },
+      }
+      require('neo-tree').setup {
+        close_if_last_window = true, -- Close Neo-tree if it is the last window
+        popup_border_style = 'rounded',
+        enable_git_status = true,
+        enable_diagnostics = true,
+        filesystem = {
+          commands = {
+            avante_add_files = function(state)
+              local node = state.tree:get_node()
+              local filepath = node:get_id()
+              local relative_path = require('avante.utils').relative_path(filepath)
+
+              local sidebar = require('avante').get()
+
+              local open = sidebar:is_open()
+              -- ensure avante sidebar is open
+              if not open then
+                require('avante.api').ask()
+                sidebar = require('avante').get()
+              end
+
+              sidebar.file_selector:add_selected_file(relative_path)
+
+              -- remove neo tree buffer
+              if not open then
+                sidebar.file_selector:remove_selected_file 'neo-tree filesystem [1]'
+              end
+            end,
+          },
+
+          filtered_items = {
+            visible = true,
+            show_hidden_count = true,
+            hide_dotfiles = false,
+            hide_gitignored = true,
+            hide_by_name = {
+              -- add extension names you want to explicitly exclude
+              '.git',
+              -- '.DS_Store',
+              -- 'thumbs.db',
+            },
+            never_show = {},
+          },
+          follow_current_file = {
+            enabled = true,
+          }, -- Focus the f:hile in the tree when opened
+          use_libuv_file_watcher = true,
+        },
+        window = {
+          position = 'left',
+          width = 30,
+          mappings = {
+            ['j'] = 'noop',
+            ['k'] = 'noop',
+            ['l'] = 'noop',
+            [';'] = 'noop',
+            [''] = 'noop',
+            ['<space>'] = 'noop',
+            ['oa'] = 'avante_add_files',
+          },
+        },
+      }
+      vim.keymap.set('n', '<C-n>', ':Neotree filesystem reveal left<CR>', {})
+    end,
+  },
+}
+</file>
+
+<file path="lua/custom/plugins/text-case.lua">
+return {
+  'johmsalas/text-case.nvim',
+  dependencies = { 'nvim-telescope/telescope.nvim' },
+  config = function()
+    require('textcase').setup {}
+    require('telescope').load_extension 'textcase'
+  end,
+  keys = {
+    'ga', -- Default invocation prefix
+    { 'ga.', '<cmd>TextCaseOpenTelescope<CR>', mode = { 'n', 'x' }, desc = 'Telescope' },
+  },
+  cmd = {
+    -- NOTE: The Subs command name can be customized via the option "substitude_command_name"
+    'Subs',
+    'TextCaseOpenTelescope',
+    'TextCaseOpenTelescopeQuickChange',
+    'TextCaseOpenTelescopeLSPChange',
+    'TextCaseStartReplacingCommand',
+  },
+  -- If you want to use the interactive feature of the `Subs` command right away, text-case.nvim
+  -- has to be loaded on startup. Otherwise, the interactive feature of the `Subs` will only be
+  -- available after the first executing of it or after a keymap of text-case.nvim has been used.
+  lazy = false,
+}
+</file>
+
+<file path="lua/custom/keymaps.lua">
+-- Custom keymaps for Neovim configuration
+-- This file contains all user-defined keymaps for better modularity.
+
+-- Remap movement keys in visual and normal modes
+vim.api.nvim_set_keymap('v', 'j', '<Left>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', 'k', '<Down>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', 'l', '<Up>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', ';', '<Right>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'j', '<Left>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'k', '<Down>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'l', '<Up>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', ';', '<Right>', { noremap = true, silent = true })
+
+-- Neo-tree keymaps
+vim.api.nvim_set_keymap('n', '<leader>e', ':Neotree toggle<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>E', ':Neotree position=current toggle<CR>', { noremap = true, silent = true })
+
+-- Buffer navigation keymaps
+vim.api.nvim_set_keymap('n', '<S-j>', ':bnext<CR>', { noremap = true, silent = true }) -- Shift+j for next buffer
+vim.api.nvim_set_keymap('n', '<S-;>', ':bprev<CR>', { noremap = true, silent = true }) -- Shift+; for previous buffer
+
+-- Window movement keymaps (overriding default)
+vim.keymap.set('n', '<C-w>j', '<C-w>h', { desc = 'Move to window on the left' })
+vim.keymap.set('n', '<C-w>k', '<C-w>j', { desc = 'Move to window on the lower' })
+vim.keymap.set('n', '<C-w>l', '<C-w>k', { desc = 'Move to window on the upper' })
+vim.keymap.set('n', '<C-w>;', '<C-w>l', { desc = 'Move to window on the right' })
+
+-- Reload Neovim configuration
+vim.api.nvim_set_keymap('n', '<leader>r', ':luafile $MYVIMRC<CR>', { noremap = true, silent = true })
+</file>
+
+<file path="lua/custom/mise.lua">
+vim.api.nvim_set_keymap('n', '<leader>mkf', ':lua CreateMiseTaskFilePrompt()<CR>', { noremap = true, silent = true, desc = 'Create Mise Task File' })
+
+function CreateMiseTaskFilePrompt()
+  local filename = vim.fn.input 'Enter filename for Mise task: '
+  if filename == nil or filename == '' then
+    print 'File creation cancelled.'
+    return
+  end
+
+  local file_path = vim.fn.expand('~/.config/mise/tasks/' .. filename)
+  local content = [[
+#!/usr/bin/env bash
+#MISE description="FILL"
+prompt="You are a skilled software engineer responsible for..."
+cd $MISE_ORIGINAL_CWD
+echo $prompt > .aider.prompt.txt
+
+echo "Enter a package.ClassNameTest:"
+read -r test_package
+if [ -n "$test_package" ]; then
+    echo "./gradlew --info clean test-with-stdout --tests '$test_package'" > .aider.execute_test.sh
+    
+else
+    echo "No specific test package provided. Using what is set previously:"
+    cat .aider.execute_test.sh
+fi
+chmod +x .aider.execute_test.sh  
+
+aider --model gemini/gemini-2.5-flash-preview-05-20 --read .aider.prompt.txt --test-cmd "sh .aider.execute_test.sh" --auto-test --yes-always
+
+]]
+
+  local file = io.open(file_path, 'w')
+  if file then
+    file:write(content)
+    io.close(file)
+    vim.fn.system('chmod +x ' .. file_path)
+    vim.cmd('edit ' .. file_path)
+  else
+    print('Error: Could not create file at ' .. file_path)
+  end
+end
+</file>
+
+<file path="lua/kickstart/plugins/autopairs.lua">
+-- autopairs
+-- https://github.com/windwp/nvim-autopairs
+
+return {
+  'windwp/nvim-autopairs',
+  event = 'InsertEnter',
+  opts = {},
+}
+</file>
+
+<file path="lua/kickstart/plugins/debug.lua">
+-- debug.lua
+--
+-- Shows how to use the DAP plugin to debug your code.
+--
+-- Primarily focused on configuring the debugger for Go, but can
+-- be extended to other languages as well. That's why it's called
+-- kickstart.nvim and not kitchen-sink.nvim ;)
+
+return {
+  -- NOTE: Yes, you can install new plugins here!
+  'mfussenegger/nvim-dap',
+  -- NOTE: And you can specify dependencies as well
+  dependencies = {
+    -- Creates a beautiful debugger UI
+    'rcarriga/nvim-dap-ui',
+
+    -- Required dependency for nvim-dap-ui
+    'nvim-neotest/nvim-nio',
+
+    -- Installs the debug adapters for you
+    'williamboman/mason.nvim',
+    'jay-babu/mason-nvim-dap.nvim',
+
+    -- Add your own debuggers here
+    'leoluz/nvim-dap-go',
+  },
+  keys = {
+    -- Basic debugging keymaps, feel free to change to your liking!
+    {
+      '<F5>',
+      function()
+        require('dap').continue()
+      end,
+      desc = 'Debug: Start/Continue',
+    },
+    {
+      '<F1>',
+      function()
+        require('dap').step_into()
+      end,
+      desc = 'Debug: Step Into',
+    },
+    {
+      '<F2>',
+      function()
+        require('dap').step_over()
+      end,
+      desc = 'Debug: Step Over',
+    },
+    {
+      '<F3>',
+      function()
+        require('dap').step_out()
+      end,
+      desc = 'Debug: Step Out',
+    },
+    {
+      '<leader>b',
+      function()
+        require('dap').toggle_breakpoint()
+      end,
+      desc = 'Debug: Toggle Breakpoint',
+    },
+    {
+      '<leader>B',
+      function()
+        require('dap').set_breakpoint(vim.fn.input 'Breakpoint condition: ')
+      end,
+      desc = 'Debug: Set Breakpoint',
+    },
+    -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
+    {
+      '<F7>',
+      function()
+        require('dapui').toggle()
+      end,
+      desc = 'Debug: See last session result.',
+    },
+  },
+  config = function()
+    local dap = require 'dap'
+    local dapui = require 'dapui'
+
+    require('mason-nvim-dap').setup {
+      -- Makes a best effort to setup the various debuggers with
+      -- reasonable debug configurations
+      automatic_installation = true,
+
+      -- You can provide additional configuration to the handlers,
+      -- see mason-nvim-dap README for more information
+      handlers = {},
+
+      -- You'll need to check that you have the required things installed
+      -- online, please don't ask me how to install them :)
+      ensure_installed = {
+        -- Update this to ensure that you have the debuggers for the langs you want
+        'delve',
+      },
+    }
+
+    -- Dap UI setup
+    -- For more information, see |:help nvim-dap-ui|
+    dapui.setup {
+      -- Set icons to characters that are more likely to work in every terminal.
+      --    Feel free to remove or use ones that you like more! :)
+      --    Don't feel like these are good choices.
+      icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
+      controls = {
+        icons = {
+          pause = '⏸',
+          play = '▶',
+          step_into = '⏎',
+          step_over = '⏭',
+          step_out = '⏮',
+          step_back = 'b',
+          run_last = '▶▶',
+          terminate = '⏹',
+          disconnect = '⏏',
+        },
+      },
+    }
+
+    -- Change breakpoint icons
+    -- vim.api.nvim_set_hl(0, 'DapBreak', { fg = '#e51400' })
+    -- vim.api.nvim_set_hl(0, 'DapStop', { fg = '#ffcc00' })
+    -- local breakpoint_icons = vim.g.have_nerd_font
+    --     and { Breakpoint = '', BreakpointCondition = '', BreakpointRejected = '', LogPoint = '', Stopped = '' }
+    --   or { Breakpoint = '●', BreakpointCondition = '⊜', BreakpointRejected = '⊘', LogPoint = '◆', Stopped = '⭔' }
+    -- for type, icon in pairs(breakpoint_icons) do
+    --   local tp = 'Dap' .. type
+    --   local hl = (type == 'Stopped') and 'DapStop' or 'DapBreak'
+    --   vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
+    -- end
+
+    dap.listeners.after.event_initialized['dapui_config'] = dapui.open
+    dap.listeners.before.event_terminated['dapui_config'] = dapui.close
+    dap.listeners.before.event_exited['dapui_config'] = dapui.close
+
+    -- Install golang specific config
+    require('dap-go').setup {
+      delve = {
+        -- On Windows delve must be run attached or it crashes.
+        -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
+        detached = vim.fn.has 'win32' == 0,
+      },
+    }
+  end,
+}
+</file>
+
+<file path="lua/kickstart/plugins/gitsigns.lua">
+-- Adds git related signs to the gutter, as well as utilities for managing changes
+-- NOTE: gitsigns is already included in init.lua but contains only the base
+-- config. This will add also the recommended keymaps.
+
+return {
+  {
+    'lewis6991/gitsigns.nvim',
+    opts = {
+      on_attach = function(bufnr)
+        local gitsigns = require 'gitsigns'
+
+        local function map(mode, l, r, opts)
+          opts = opts or {}
+          opts.buffer = bufnr
+          vim.keymap.set(mode, l, r, opts)
+        end
+
+        -- Navigation
+        map('n', ']c', function()
+          if vim.wo.diff then
+            vim.cmd.normal { ']c', bang = true }
+          else
+            gitsigns.nav_hunk 'next'
+          end
+        end, { desc = 'Jump to next git [c]hange' })
+
+        map('n', '[c', function()
+          if vim.wo.diff then
+            vim.cmd.normal { '[c', bang = true }
+          else
+            gitsigns.nav_hunk 'prev'
+          end
+        end, { desc = 'Jump to previous git [c]hange' })
+
+        -- Actions
+        -- visual mode
+        map('v', '<leader>hs', function()
+          gitsigns.stage_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end, { desc = 'git [s]tage hunk' })
+        map('v', '<leader>hr', function()
+          gitsigns.reset_hunk { vim.fn.line '.', vim.fn.line 'v' }
+        end, { desc = 'git [r]eset hunk' })
+        -- normal mode
+        map('n', '<leader>hs', gitsigns.stage_hunk, { desc = 'git [s]tage hunk' })
+        map('n', '<leader>hr', gitsigns.reset_hunk, { desc = 'git [r]eset hunk' })
+        map('n', '<leader>hS', gitsigns.stage_buffer, { desc = 'git [S]tage buffer' })
+        map('n', '<leader>hu', gitsigns.stage_hunk, { desc = 'git [u]ndo stage hunk' })
+        map('n', '<leader>hR', gitsigns.reset_buffer, { desc = 'git [R]eset buffer' })
+        map('n', '<leader>hp', gitsigns.preview_hunk, { desc = 'git [p]review hunk' })
+        map('n', '<leader>hb', gitsigns.blame_line, { desc = 'git [b]lame line' })
+        map('n', '<leader>hd', gitsigns.diffthis, { desc = 'git [d]iff against index' })
+        map('n', '<leader>hD', function()
+          gitsigns.diffthis '@'
+        end, { desc = 'git [D]iff against last commit' })
+        -- Toggles
+        map('n', '<leader>tb', gitsigns.toggle_current_line_blame, { desc = '[T]oggle git show [b]lame line' })
+        map('n', '<leader>tD', gitsigns.preview_hunk_inline, { desc = '[T]oggle git show [D]eleted' })
+      end,
+    },
+  },
+}
+</file>
+
+<file path="lua/kickstart/plugins/indent_line.lua">
+return {
+  { -- Add indentation guides even on blank lines
+    'lukas-reineke/indent-blankline.nvim',
+    -- Enable `lukas-reineke/indent-blankline.nvim`
+    -- See `:help ibl`
+    main = 'ibl',
+    opts = {},
+  },
+}
+</file>
+
+<file path="lua/kickstart/plugins/lint.lua">
+return {
+
+  { -- Linting
+    'mfussenegger/nvim-lint',
+    event = { 'BufReadPre', 'BufNewFile' },
+    config = function()
+      local lint = require 'lint'
+      lint.linters_by_ft = {
+        markdown = { 'markdownlint' },
+      }
+
+      -- To allow other plugins to add linters to require('lint').linters_by_ft,
+      -- instead set linters_by_ft like this:
+      -- lint.linters_by_ft = lint.linters_by_ft or {}
+      -- lint.linters_by_ft['markdown'] = { 'markdownlint' }
+      --
+      -- However, note that this will enable a set of default linters,
+      -- which will cause errors unless these tools are available:
+      -- {
+      --   clojure = { "clj-kondo" },
+      --   dockerfile = { "hadolint" },
+      --   inko = { "inko" },
+      --   janet = { "janet" },
+      --   json = { "jsonlint" },
+      --   markdown = { "vale" },
+      --   rst = { "vale" },
+      --   ruby = { "ruby" },
+      --   terraform = { "tflint" },
+      --   text = { "vale" }
+      -- }
+      --
+      -- You can disable the default linters by setting their filetypes to nil:
+      -- lint.linters_by_ft['clojure'] = nil
+      -- lint.linters_by_ft['dockerfile'] = nil
+      -- lint.linters_by_ft['inko'] = nil
+      -- lint.linters_by_ft['janet'] = nil
+      -- lint.linters_by_ft['json'] = nil
+      -- lint.linters_by_ft['markdown'] = nil
+      -- lint.linters_by_ft['rst'] = nil
+      -- lint.linters_by_ft['ruby'] = nil
+      -- lint.linters_by_ft['terraform'] = nil
+      -- lint.linters_by_ft['text'] = nil
+
+      -- Create autocommand which carries out the actual linting
+      -- on the specified events.
+      local lint_augroup = vim.api.nvim_create_augroup('lint', { clear = true })
+      vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
+        group = lint_augroup,
+        callback = function()
+          -- Only run the linter in buffers that you can modify in order to
+          -- avoid superfluous noise, notably within the handy LSP pop-ups that
+          -- describe the hovered symbol using Markdown.
+          if vim.opt_local.modifiable:get() then
+            lint.try_lint()
+          end
+        end,
+      })
+    end,
+  },
+}
+</file>
+
+<file path="lua/kickstart/plugins/neo-tree.lua">
+-- Neo-tree is a Neovim plugin to browse the file system
+-- https://github.com/nvim-neo-tree/neo-tree.nvim
+
+return {
+  'nvim-neo-tree/neo-tree.nvim',
+  version = '*',
+  dependencies = {
+    'nvim-lua/plenary.nvim',
+    'nvim-tree/nvim-web-devicons', -- not strictly required, but recommended
+    'MunifTanjim/nui.nvim',
+  },
+  cmd = 'Neotree',
+  keys = {
+    { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+  },
+  opts = {
+    filesystem = {
+      window = {
+        mappings = {
+          ['\\'] = 'close_window',
+        },
+      },
+    },
+  },
+}
+</file>
+
+<file path="lua/kickstart/health.lua">
+--[[
+--
+-- This file is not required for your own configuration,
+-- but helps people determine if their system is setup correctly.
+--
+--]]
+
+local check_version = function()
+  local verstr = tostring(vim.version())
+  if not vim.version.ge then
+    vim.health.error(string.format("Neovim out of date: '%s'. Upgrade to latest stable or nightly", verstr))
+    return
+  end
+
+  if vim.version.ge(vim.version(), '0.10-dev') then
+    vim.health.ok(string.format("Neovim version is: '%s'", verstr))
+  else
+    vim.health.error(string.format("Neovim out of date: '%s'. Upgrade to latest stable or nightly", verstr))
+  end
+end
+
+local check_external_reqs = function()
+  -- Basic utils: `git`, `make`, `unzip`
+  for _, exe in ipairs { 'git', 'make', 'unzip', 'rg' } do
+    local is_executable = vim.fn.executable(exe) == 1
+    if is_executable then
+      vim.health.ok(string.format("Found executable: '%s'", exe))
+    else
+      vim.health.warn(string.format("Could not find executable: '%s'", exe))
+    end
+  end
+
+  return true
+end
+
+return {
+  check = function()
+    vim.health.start 'kickstart.nvim'
+
+    vim.health.info [[NOTE: Not every warning is a 'must-fix' in `:checkhealth`
+
+  Fix only warnings for plugins and languages you intend to use.
+    Mason will give warnings for languages that are not installed.
+    You do not need to install, unless you want to use those languages!]]
+
+    local uv = vim.uv or vim.loop
+    vim.health.info('System Information: ' .. vim.inspect(uv.os_uname()))
+
+    check_version()
+    check_external_reqs()
+  end,
+}
+</file>
+
+<file path=".gitignore">
+tags
+test.sh
+.luarc.json
+nvim
+
+spell/
+lazy-lock.json
+</file>
+
+<file path=".stylua.toml">
+column_width = 160
+line_endings = "Unix"
+indent_type = "Spaces"
+indent_width = 2
+quote_style = "AutoPreferSingle"
+call_parentheses = "None"
+</file>
+
+<file path="init.lua">
 --[[
 
 =====================================================================
@@ -932,4 +1926,7 @@ require('lazy').setup({
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 e
--- require 'custom.mise'
+require 'custom.mise'
+</file>
+
+</files>

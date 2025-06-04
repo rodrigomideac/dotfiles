@@ -202,8 +202,8 @@ eval "$(atuin init zsh --disable-up-arrow)"
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
 
 alias vim="nvim"
-alias np="nvim /home/rodrigo/themes/rodrigomideac/dotfiles-work/prompts" 
-alias nf="nvim ." 
+alias nf="nvim ."
+alias nn="nvim ~/.config/nvim"
 alias npost="nvim /home/rodrigo/dev/some-words/_posts/scratchpad.md"
 export EDITOR=nvim
 alias mr="mise run"
