@@ -1,0 +1,20 @@
+#!/bin/bash
+
+
+i3-scratchpad -t -s DP-1 -d90%x95% -acc -- \
+google-chrome-stable \
+  --app=https://claude.ai \
+  --class="KagiAssistant" \
+  --user-data-dir=$HOME/.config/claude-chrome \
+  --profile-directory="KagiAssistant" \
+  --app-id=kagiassistant \
+  --app-name="Kagi Assistant" \
+  --no-default-browser-check \
+  --new-window \
+  --window-size=1800,1080 \
+  --window-position=0,0 \
+  --disable-extensions \
+  --disable-background-mode \
+  --disk-cache-dir=/tmp/kagi-assistant-cache \
+  --no-first-run &
+

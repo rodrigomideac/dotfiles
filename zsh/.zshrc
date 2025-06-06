@@ -203,7 +203,9 @@ eval "$(atuin init zsh --disable-up-arrow)"
 
 alias vim="nvim"
 alias nf="nvim ."
+alias ns="nvim ~/.nvim_scratch"
 alias nn="nvim ~/.config/nvim"
+alias nd="nvim ~/themes/rodrigomideac/dotfiles/"
 alias npost="nvim /home/rodrigo/dev/some-words/_posts/scratchpad.md"
 export EDITOR=nvim
 alias mr="mise run"

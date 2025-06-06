@@ -19,11 +19,11 @@ vim.api.nvim_set_keymap('n', '<leader>E', ':Neotree position=current toggle<CR>'
 vim.api.nvim_set_keymap('n', '<S-j>', ':bnext<CR>', { noremap = true, silent = true }) -- Shift+j for next buffer
 vim.api.nvim_set_keymap('n', '<S-;>', ':bprev<CR>', { noremap = true, silent = true }) -- Shift+; for previous buffer
 
--- Window movement keymaps (overriding default)
-vim.keymap.set('n', '<C-w>j', '<C-w>h', { desc = 'Move to window on the left' })
-vim.keymap.set('n', '<C-w>k', '<C-w>j', { desc = 'Move to window on the lower' })
-vim.keymap.set('n', '<C-w>l', '<C-w>k', { desc = 'Move to window on the upper' })
-vim.keymap.set('n', '<C-w>;', '<C-w>l', { desc = 'Move to window on the right' })
+-- -- Window movement keymaps (overriding default)
+vim.keymap.set('n', '<C-j>', '<C-w>h', { desc = 'Move to window on the left' })
+vim.keymap.set('n', '<C-k>', '<C-w>j', { desc = 'Move to window on the lower' })
+vim.keymap.set('n', '<C-l>', '<C-w>k', { desc = 'Move to window on the upper' })
+vim.keymap.set('n', '<C-;>', '<C-w>l', { desc = 'Move to window on the right' })
 
 -- Reload Neovim configuration
 vim.api.nvim_set_keymap('n', '<leader>r', ':luafile $MYVIMRC<CR>', { noremap = true, silent = true })

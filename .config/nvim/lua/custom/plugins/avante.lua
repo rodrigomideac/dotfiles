@@ -4,18 +4,19 @@ return {
   version = false, -- Never set this value to "*"! Never!
   opts = {
     -- add any opts here
-    -- for example
-    provider = 'openai',
+    provider = 'xai',
     providers = {
-      openai = {
-        endpoint = 'https://api.openai.com/v1',
-        model = 'gpt-4o', -- your desired model (or use gpt-4o, etc.)
-        extra_request_body = {
-          timeout = 30000, -- Timeout in milliseconds, increase this for reasoning models
-          temperature = 0.75,
-          max_completion_tokens = 8192, -- Increase this to include reasoning tokens (for reasoning models)
-          --reasoning_effort = "medium", -- low|medium|high, only used for reasoning models
-        },
+      xai = {
+        __inherited_from = 'openai',
+        endpoint = 'https://api.x.ai/v1',
+        api_key_name = 'XAI_API_KEY',
+        model = 'grok-3-mini',
+      },
+      openrouter = {
+        __inherited_from = 'openai',
+        endpoint = 'https://openrouter.ai/api/v1',
+        api_key_name = 'OPENROUTER_API_KEY',
+        model = 'deepseek/deepseek-r1',
       },
     },
   },
