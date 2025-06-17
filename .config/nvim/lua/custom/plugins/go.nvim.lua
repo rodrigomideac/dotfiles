@@ -6,7 +6,11 @@ return {
     'nvim-treesitter/nvim-treesitter',
   },
   config = function()
-    require('go').setup()
+    require('go').setup {
+      -- Enable method generation
+      lsp_cfg = true,
+      lsp_keymaps = false, -- Use your own keymaps
+    }
 
     -- Add autocommand for formatting on save
     local format_sync_grp = vim.api.nvim_create_augroup('GoFormat', { clear = true })
