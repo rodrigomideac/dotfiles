@@ -33,7 +33,7 @@ yay -S --noconfirm pavucontrol alsa-utils playerctl
 
 echo ""
 echo "=== Installing Screen & Session Management ==="
-yay -S --noconfirm i3lock-fancy betterlockscreen maim xclip
+yay -S --noconfirm i3lock-fancy  maim xclip
 
 echo ""
 echo "=== Installing File Management ==="
