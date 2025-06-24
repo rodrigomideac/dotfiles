@@ -17,31 +17,111 @@ The central point of this setup is to always open certain applications in specif
 
 ## Getting started
 
-You need to have at least these dependencies installed before using this config. I'm pretty sure there are many others that I have installed since my first boot, so I apologise if any dependency is missing from this list.
+You need to have these dependencies installed before using this config. The dependencies are organized by category for easier installation.
 
+### Core Window Manager & Desktop
+```
+i3-wm
+polybar
+picom
+rofi
+dunst
+feh
+stow
+```
+
+### Terminal & Shell
+```
+alacritty
+terminator
+zsh
+```
+
+### System Utilities
+```
+nm-applet
+NetworkManager
+blueman
+blueman-applet
+light
+xrandr
+arandr
+setxkbmap
+numlockx
+xdotool
+yad
+redshift
+```
+
+### Audio & Media Controls
+```
+pavucontrol
+amixer
+playerctl
+```
+
+### Screen & Session Management
+```
+i3-lock-fancy
+betterlockscreen
+maim
+xclip
+```
+
+### File Management
+```
+ranger
+dolphin
+```
+
+### Development Tools
+```
+neovim
+vim
+google-chrome
+firefox
+code
+```
+
+### Communication & Entertainment
+```
+spotify
+slack
+discord
+```
+
+### System Services & Security
+```
+kwallet
+ksshaskpass
+kwalletmanager
+ssh-agent
+notification-daemon
+```
+
+### Additional Utilities
 ```
 atuin
 i3-battery-popup
 solaar
-numlockx
-terminator
-arandr
-xrandr
-rofi
-i3-lock-fancy
-setxkbmap
-feh
 qalculate-gtk
-pavucontrol
-amixer
-playerctl
-maim
-xclip
-dunst
-stow
+zenity
+kdialog
+curl
 ```
 
-There is a `deps.sh` that is a copy of what I had to install via AUR/official repos last time.
+### Development Environment (Optional)
+```
+jetbrains-toolbox
+insomnia
+virtualenv
+kubectx
+aws-cli
+nvm
+tldr
+```
+
+There is a `deps.sh` script that installs many of these dependencies via pacman and yay.
 
 Edit the `Makefile` file to match your config path, and then run `make stow` to create the symlinks.
 

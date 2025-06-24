@@ -39,11 +39,3 @@ yay noto-fonts
 yay ttf-fira-code
 yay tldr
 
-# Vimplug
-curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-
-# SDK man for JDK management
-sudo pacman -S zip unzip
-curl -s "https://get.sdkman.io" | bash
-
