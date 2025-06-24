@@ -68,7 +68,7 @@ ZSH_THEME="agnoster"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git kube_ps1)
+plugins=(git kube-ps1)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -144,7 +144,7 @@ fi
 source /opt/kube-ps1/kube-ps1.sh
 PROMPT='$(kube_ps1)'$PROMPT
 
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR"/ssh-agent.socket
+# export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR"/ssh-agent.socket
 compinit
 _comp_options+=(globdots)
 
@@ -188,14 +188,14 @@ export PATH="${PATH}:${GOPATH}/bin"
 export PATH="${PATH}:${HOME}/go/bin"
 export PATH="${PATH}:${HOME}/.local/share/gem/ruby/3.3.0"
 export PATH="${PATH}:/usr/lib/ruby/gems/3.3.0"
-eval "$(~/.local/bin/mise activate zsh)"
+eval "$(mise activate zsh)"
 
 alias rgf='rg --files | rg'
 #. $HOME/esp/esp-idf/export.sh
 export GEM_HOME="$HOME/gems"
 export PATH="$HOME/gems/bin:$PATH"
 
-. "$HOME/.atuin/bin/env"
+# . "$HOME/.atuin/bin/env"
 
 #eval "$(atuin init zsh)"
 eval "$(atuin init zsh --disable-up-arrow)"
