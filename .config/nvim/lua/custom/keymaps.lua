@@ -27,3 +27,10 @@ vim.keymap.set('n', '<C-;>', '<C-w>l', { desc = 'Move to window on the right' })
 
 -- Reload Neovim configuration
 vim.api.nvim_set_keymap('n', '<leader>r', ':luafile $MYVIMRC<CR>', { noremap = true, silent = true })
+
+-- Inline diagnostics
+-- Keybinding to toggle inline diagnostics (ii)
+vim.api.nvim_set_keymap('n', '<Leader>ii', ':lua vim.cmd("DiagnosticsToggleVirtualText")<CR>', { noremap = true, silent = true })
+
+-- Keybinding to toggle diagnostics (id)
+vim.api.nvim_set_keymap('n', '<Leader>id', ':lua vim.cmd("DiagnosticsToggle")<CR>', { noremap = true, silent = true })
