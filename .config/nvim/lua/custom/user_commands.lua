@@ -17,3 +17,16 @@ vim.api.nvim_create_user_command('DiagnosticsToggle', function()
     vim.diagnostic.disable()
   end
 end, {})
+
+vim.api.nvim_create_user_command('W', 'SudaWrite', {})
+
+-- Autocommand for .md files
+vim.api.nvim_create_autocmd('BufRead', {
+  pattern = '*.md',
+  callback = function()
+    vim.diagnostic.enable(false)
+  end,
+})
+
+-- Necessary for nvim-metals
+vim.opt_global.shortmess:remove("F")

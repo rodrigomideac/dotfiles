@@ -56,8 +56,6 @@ return {
     metals_config.capabilities = require('blink.cmp').get_lsp_capabilities()
 
     metals_config.on_attach = function(client, bufnr)
-      vim.notify('ATTACHED ', vim.log.levels.INFO)
-      print 'Attached'
       -- if vim.bo.filetype == 'diff' then
       --   return
       -- end
@@ -117,7 +115,6 @@ return {
     vim.api.nvim_create_autocmd('FileType', {
       pattern = self.ft,
       callback = function()
-        vim.notify('Metals FileType triggered for: ' .. vim.bo.filetype, vim.log.levels.INFO)
         require('metals').initialize_or_attach(metals_config)
 
         -- Force attachment after a short delay

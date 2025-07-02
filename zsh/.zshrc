@@ -131,6 +131,14 @@ if [[ ! "$SSH_AUTH_SOCK" ]]; then
     source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
 fi
 
+# Add SSH key to agent if not already added
+if [ -z "$SSH_AUTH_SOCK" ]; then
+   eval "$(ssh-agent -s)"
+   ssh-add ~/.ssh/id_rsa 2>/dev/null
+else
+   ssh-add -l >/dev/null 2>&1 || ssh-add ~/.ssh/id_rsa 2>/dev/null
+fi
+
 ## NVM for Node.js
 source /usr/share/nvm/init-nvm.sh
 
@@ -204,7 +212,8 @@ eval "$(atuin init zsh --disable-up-arrow)"
 alias vim="nvim"
 alias nf="nvim ."
 alias nclaude="nvim ~/.claude/"
-alias ns="nvim ~/.nvim_scratch"
+alias nnotes="nvim ~/dev/notes"
+alias ntodo="nvim ~/dev/notes/todo.md"
 alias nn="nvim ~/.config/nvim"
 alias nd="nvim ~/themes/rodrigomideac/dotfiles/"
 alias cnvim="cd ~/.config/nvim && claude"

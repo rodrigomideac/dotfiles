@@ -34,3 +34,15 @@ vim.api.nvim_set_keymap('n', '<Leader>ii', ':lua vim.cmd("DiagnosticsToggleVirtu
 
 -- Keybinding to toggle diagnostics (id)
 vim.api.nvim_set_keymap('n', '<Leader>id', ':lua vim.cmd("DiagnosticsToggle")<CR>', { noremap = true, silent = true })
+
+-- Telescope find files from home directory (no CWD restriction)
+vim.keymap.set('n', '<leader>sH', function()
+  require('telescope.builtin').find_files {
+    prompt_title = 'Find Files (No CWD Restriction)',
+    cwd = vim.fn.expand '~', -- Start from home, or use '/' for root
+    hidden = true,
+  }
+end, { desc = '[S]earch files from [H]ome' })
+
+vim.keymap.set('i', 'jj', '<ESC>', { silent = true })
+vim.keymap.set('i', 'jk', '<ESC>', { silent = true })

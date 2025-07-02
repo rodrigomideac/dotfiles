@@ -103,7 +103,7 @@ vim.g.have_nerd_font = false
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.o.relativenumber = true
+vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.o.mouse = 'a'
@@ -412,11 +412,9 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          wrap_results = true,
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -688,7 +686,7 @@ require('lazy').setup({
         pyright = {},
         rust_analyzer = {},
         -- metals = {},
-        kotlin_language_server = {},
+        -- kotlin_language_server = {},
         jdtls = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -712,7 +710,7 @@ require('lazy').setup({
                 callSnippet = 'Replace',
               },
               -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
+              diagnostics = { disable = { 'missing-fields' } },
             },
           },
         },
@@ -742,6 +740,7 @@ require('lazy').setup({
 
       require('mason-lspconfig').setup {
         ensure_installed = vim.tbl_keys(servers or {}), -- Include all servers from the servers table
+        automatic_enable = true,
         automatic_installation = true, -- Automatically install missing LSP servers
         handlers = {
           function(server_name)

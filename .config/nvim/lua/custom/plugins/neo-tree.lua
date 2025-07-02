@@ -39,7 +39,8 @@ return {
         enable_git_status = true,
         enable_diagnostics = true,
         filesystem = {
-
+          group_empty_dirs = true,
+          scan_mode = 'deep',
           filtered_items = {
             visible = true,
             show_hidden_count = true,
