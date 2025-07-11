@@ -63,12 +63,12 @@ return {
           position = 'left',
           width = 30,
           mappings = {
-            ['j'] = 'noop',
-            ['k'] = 'noop',
-            ['l'] = 'noop',
-            [';'] = 'noop',
-            [''] = 'noop',
-            ['<space>'] = 'noop',
+            -- ['j'] = 'noop',
+            -- ['k'] = 'noop',
+            -- ['l'] = 'noop',
+            -- [';'] = 'noop',
+            -- [''] = 'noop',
+            -- ['<space>'] = 'noop',
           },
         },
       }

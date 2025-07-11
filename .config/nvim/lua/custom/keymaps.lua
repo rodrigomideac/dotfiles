@@ -1,32 +1,38 @@
 -- Custom keymaps for Neovim configuration
 -- This file contains all user-defined keymaps for better modularity.
 
--- Remap movement keys in visual and normal modes
-vim.api.nvim_set_keymap('v', 'j', '<Left>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('v', 'k', '<Down>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('v', 'l', '<Up>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('v', ';', '<Right>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', 'j', '<Left>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', 'k', '<Down>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', 'l', '<Up>', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', ';', '<Right>', { noremap = true, silent = true })
-
 -- Neo-tree keymaps
 vim.api.nvim_set_keymap('n', '<leader>e', ':Neotree toggle<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>E', ':Neotree position=current toggle<CR>', { noremap = true, silent = true })
 
 -- Buffer navigation keymaps
-vim.api.nvim_set_keymap('n', '<S-j>', ':bnext<CR>', { noremap = true, silent = true }) -- Shift+j for next buffer
-vim.api.nvim_set_keymap('n', '<S-;>', ':bprev<CR>', { noremap = true, silent = true }) -- Shift+; for previous buffer
+vim.api.nvim_set_keymap('n', '<S-h>', ':bnext<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<S-l>', ':bprev<CR>', { noremap = true, silent = true })
 
 -- -- Window movement keymaps (overriding default)
-vim.keymap.set('n', '<C-j>', '<C-w>h', { desc = 'Move to window on the left' })
-vim.keymap.set('n', '<C-k>', '<C-w>j', { desc = 'Move to window on the lower' })
-vim.keymap.set('n', '<C-l>', '<C-w>k', { desc = 'Move to window on the upper' })
-vim.keymap.set('n', '<C-;>', '<C-w>l', { desc = 'Move to window on the right' })
+vim.keymap.set('n', '<C-h>', '<C-w>h', { desc = 'Move to window on the left' })
+vim.keymap.set('n', '<C-j>', '<C-w>j', { desc = 'Move to window on the lower' })
+vim.keymap.set('n', '<C-k>', '<C-w>k', { desc = 'Move to window on the upper' })
+vim.keymap.set('n', '<C-l>', '<C-w>l', { desc = 'Move to window on the right' })
+-- Move lines up/down
+vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv")
+vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv")
+-- Keep cursor centered when jumping
+vim.keymap.set('n', '<C-d>', '<C-d>zz')
+vim.keymap.set('n', '<C-u>', '<C-u>zz')
+vim.keymap.set('n', 'n', 'nzzzv')
+vim.keymap.set('n', 'N', 'Nzzzv')
+-- TIP: Disable arrow keys in normal mode
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
--- Reload Neovim configuration
-vim.api.nvim_set_keymap('n', '<leader>r', ':luafile $MYVIMRC<CR>', { noremap = true, silent = true })
+-- Clear search highlighting
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+
+-- Search and replace word under cursor
+vim.keymap.set('n', '<leader>sR', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
 
 -- Inline diagnostics
 -- Keybinding to toggle inline diagnostics (ii)
