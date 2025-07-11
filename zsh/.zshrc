@@ -1,3 +1,5 @@
+zmodload zsh/zprof
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -115,7 +117,7 @@ alias copy-stdout="xclip -selection clipboard"
 
 # System Sources
 ## SDKMAN for Java, Scala and SBT
-source "$HOME/.sdkman/bin/sdkman-init.sh"
+# source "$HOME/.sdkman/bin/sdkman-init.sh"
 source $HOME/.cargo/env
 export PATH=$PATH:/usr/local/go/bin
 #export GO_PATH="~/devtools/go1.18"
@@ -149,14 +151,14 @@ else
     print "404: ~/.work-aliasrc not found."
 fi
 
-source /opt/kube-ps1/kube-ps1.sh
+# source /opt/kube-ps1/kube-ps1.sh
 PROMPT='$(kube_ps1)'$PROMPT
 
 # export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR"/ssh-agent.socket
 compinit
 _comp_options+=(globdots)
 
-[[ -s "/home/rodrigo/.gvm/scripts/gvm" ]] && source "/home/rodrigo/.gvm/scripts/gvm"
+# [[ -s "/home/rodrigo/.gvm/scripts/gvm" ]] && source "/home/rodrigo/.gvm/scripts/gvm"
 
 #source /usr/share/fzf/key-bindings.zsh
 export FLYCTL_INSTALL="/home/rodrigo/.fly"
@@ -191,9 +193,9 @@ bindkey ^l _sgpt_zsh
 # Shell-GPT integration ZSH v0.2
 #
 
-export GOPATH="${HOME}/go"
-export PATH="${PATH}:${GOPATH}/bin"
-export PATH="${PATH}:${HOME}/go/bin"
+# export GOPATH="${HOME}/go"
+# export PATH="${PATH}:${GOPATH}/bin"
+# export PATH="${PATH}:${HOME}/go/bin"
 export PATH="${PATH}:${HOME}/.local/share/gem/ruby/3.3.0"
 export PATH="${PATH}:/usr/lib/ruby/gems/3.3.0"
 eval "$(mise activate zsh)"
@@ -221,4 +223,4 @@ alias cnvim="cd ~/.config/nvim && claude"
 alias npost="nvim /home/rodrigo/dev/some-words/_posts/scratchpad.md"
 export EDITOR=nvim
 alias mr="mise run"
-
+zprof

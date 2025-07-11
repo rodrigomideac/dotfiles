@@ -1,5 +1,10 @@
 [settings]
 idiomatic_version_file_enable_tools = []
+
+[tools]
+go = "1.24"
+java = "temurin-11"
+node = "22"
 #
 # [tasks."LLM::open_chat_idea_honing_from_full_repository_context"]
 # description = "Starts a chat to transform an idea into something feasible, given the repository context"
