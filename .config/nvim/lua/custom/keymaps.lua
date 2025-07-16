@@ -52,3 +52,7 @@ end, { desc = '[S]earch files from [H]ome' })
 
 vim.keymap.set('i', 'jj', '<ESC>', { silent = true })
 vim.keymap.set('i', 'jk', '<ESC>', { silent = true })
+
+-- Redirect change operations to the blackhole to avoid spoiling 'y' register content
+vim.keymap.set('n', 'c', '"_c')
+vim.keymap.set('n', 'C', '"_C')

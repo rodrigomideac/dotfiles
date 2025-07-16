@@ -28,5 +28,17 @@ vim.api.nvim_create_autocmd('BufRead', {
   end,
 })
 
+-- Directory-based Kotlin LSP auto-attachment
+vim.api.nvim_create_autocmd('VimEnter', {
+  pattern = '*',
+  callback = function()
+    local cwd = vim.fn.getcwd()
+    if vim.fn.filereadable(cwd .. '/build.gradle.kts') == 1 then
+      require('lspconfig').kotlin_lsp.setup {}
+      vim.notify('Kotlin LSP attached for Gradle project', vim.log.levels.INFO)
+    end
+  end,
+})
+
 -- Necessary for nvim-metals
-vim.opt_global.shortmess:remove("F")
+vim.opt_global.shortmess:remove 'F'
