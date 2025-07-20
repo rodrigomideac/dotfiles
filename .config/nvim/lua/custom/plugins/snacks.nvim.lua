@@ -16,7 +16,19 @@ return {
     -- notifier = { enabled = true },
     quickfile = { enabled = true },
     scope = { enabled = true },
-    scroll = { enabled = true },
+    ---@type snacks.scroll.Config
+    scroll = {
+      enabled = true,
+      animate = {
+        duration = { step = 45, total = 90 },
+        easing = 'inOutQuad',
+      },
+      animate_repeat = {
+        delay = 100,
+        duration = { step = 5, total = 50 },
+        easing = 'inOutQuad',
+      },
+    },
     statuscolumn = { enabled = true },
     words = { enabled = true },
   },

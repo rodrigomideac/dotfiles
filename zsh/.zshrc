@@ -220,7 +220,7 @@ alias ntodo="nvim ~/dev/notes/todo.md"
 alias nn="nvim ~/.config/nvim"
 alias nd="nvim ~/dev-pessoal/dotfiles/"
 alias cnvim="cd ~/.config/nvim && claude"
-alias npost="nvim /home/rodrigo/dev/some-words/_posts/scratchpad.md"
+alias npost="nvim /home/rodrigo/dev-pessoal/some-words"
 export EDITOR=nvim
 alias mr="mise run"
 zprof
