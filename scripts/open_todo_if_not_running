@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Check if nvim is already running with todo.md
+if pgrep -f "nvim.*todo\.md" > /dev/null; then
+    exit 0
+fi
+
+# Open nvim with todo.md
+DISPLAY=:0 /usr/bin/nvim ~/dev/notes/todo.md

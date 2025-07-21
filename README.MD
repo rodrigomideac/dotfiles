@@ -127,6 +127,11 @@ Edit the `Makefile` file to match your config path, and then run `make stow` to 
 
 Note: `stow` will fail if the destination folders and files already exist. Make sure to copy or delete them before running `make stow`.
 
+## Personal Workflow Automation
+
+After setting up the dotfiles, you can run personal workflow automation setup:
+- `./setup_personal.sh` - Sets up personal automation like cron jobs for daily workflows
+
 ## Further Configuration
 
 ### Fonts

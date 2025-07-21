@@ -6,6 +6,9 @@ exec_always --no-startup-id $HOME/.config/i3/scripts/launcher.sh
 # Exec dunst
 exec_always --no-startup-id dunst
 
+# Start nvim with todo file
+exec --no-startup-id alacritty -e nvim ~/dev/notes/todo.md
+
 exec --no-startup-id  i3-battery-popup -n -D -L 10%
 #============================================================================#
 
