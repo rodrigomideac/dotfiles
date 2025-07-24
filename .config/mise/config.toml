@@ -5,6 +5,7 @@ idiomatic_version_file_enable_tools = []
 go = "1.24"
 gradle = "latest"
 java = "temurin-17.0.15+6"
+kotlin = "2.2.0"
 node = "22"
 #
 # [tasks."LLM::open_chat_idea_honing_from_full_repository_context"]

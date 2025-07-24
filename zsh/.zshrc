@@ -155,8 +155,10 @@ fi
 PROMPT='$(kube_ps1)'$PROMPT
 
 # export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR"/ssh-agent.socket
+autoload -U compinit
 compinit
 _comp_options+=(globdots)
+source <(jj util completion zsh)
 
 # [[ -s "/home/rodrigo/.gvm/scripts/gvm" ]] && source "/home/rodrigo/.gvm/scripts/gvm"
 
