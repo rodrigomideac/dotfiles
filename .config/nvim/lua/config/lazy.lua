@@ -14,10 +14,26 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Function to get LazyVim spec based on environment variable
+local function get_lazyvim_spec()
+  if vim.env.USE_LOCAL_FORK then
+    -- Use local fork for development
+    return {
+      "LazyVim/LazyVim",
+      dev = true,
+      dir = "/home/rodrigo/dev-pessoal/LazyVim",
+      import = "lazyvim.plugins",
+    }
+  else
+    -- Use regular LazyVim from GitHub
+    return { "LazyVim/LazyVim", import = "lazyvim.plugins" }
+  end
+end
+
 require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
-    { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    get_lazyvim_spec(),
     -- import/override with your plugins
     { import = "plugins" },
   },
