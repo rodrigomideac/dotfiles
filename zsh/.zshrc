@@ -225,4 +225,13 @@ alias cnvim="cd ~/.config/nvim && claude"
 alias npost="nvim /home/rodrigo/dev-pessoal/some-words"
 export EDITOR=nvim
 alias mr="mise run"
+alias xc="xclip -selection clipboard"
+
+xc1() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: xc <filename>"
+        return 1
+    fi
+    cat "$1" | xclip -selection clipboard && echo "Copied $1 to clipboard"
+}
 zprof

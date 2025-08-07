@@ -362,7 +362,7 @@ focus_on_window_activation none
 bindsym $mod+Shift+X  exec --no-startup-id "i3-scratchpad -t -d50%x95% -acr heynote"
 
 bindsym $mod+X  exec --no-startup-id "$HOME/.config/i3/scripts/claude_scratchpad"
-# bindsym $mod+Shift+X exec --no-startup-id ~/.config/i3/scripts/toggle_heynote
+bindsym $mod+Z  exec --no-startup-id "$HOME/.config/i3/scripts/todo_scratchpad"
 
 # Gaps
 # Disable window titlebars (required for gaps)

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+i3-scratchpad -t -s DP-1 -d90%x95% -acc -- \
+  alacritty -e nvim ~/dev/notes/todo.md &
