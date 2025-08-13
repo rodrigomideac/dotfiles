@@ -41,4 +41,48 @@ vim.notify("Plugin config loaded: " .. debug.getinfo(1, "S").source)
 - LazyVim extras config: `lazyvim.json`
 - Custom plugin configs: `lua/plugins/*.lua`
 
+# CSS Module Navigation Setup
+
+## Problem Solved
+Custom CSS module navigation for TypeScript/React files where `gd` (go to definition) was incorrectly opening Next.js global type definitions instead of the corresponding `.module.css` file.
+
+## Solution Implementation
+Created `lua/plugins/css-modules.lua` with enhanced navigation that:
+
+1. **Detects CSS module usage patterns**:
+   - `styles.className` usage
+   - `import ... from './file.module.css'` statements
+   - Direct CSS class names
+
+2. **Modern LazyVim compatibility**:
+   - Works with `vtsls` (current TypeScript LSP)
+   - Also supports legacy `tsserver` and `typescript-tools`
+   - Uses proper filetype filtering for TS/JS/TSX/JSX files
+
+3. **Keymap override strategy**:
+   - `gd` - Enhanced go-to-definition (CSS modules aware, falls back to LSP)
+   - `<leader>gc` - Dedicated CSS module navigation
+   - Uses `vim.defer_fn()` to override LazyVim's default keymaps
+   - Dual approach: LspAttach + FileType autocmds for reliability
+
+## Key Technical Details
+
+- **Timing issue**: LazyVim sets LSP keymaps after plugin autocmds run
+- **Solution**: Use deferred keymap setting with 100-200ms delays
+- **Pattern matching**: Multiple search patterns for camelCase/kebab-case conversion
+- **Fallback behavior**: Gracefully falls back to normal LSP definition when not a CSS class
+
+## Configuration Pattern for Custom LSP Keymaps
+
+When overriding default LazyVim LSP keymaps, use this pattern:
+```lua
+vim.defer_fn(function()
+  vim.keymap.set("n", "gd", custom_handler, {
+    buffer = bufnr,
+    remap = false,
+    silent = true,
+  })
+end, 100)
+```
+
 

@@ -234,4 +234,24 @@ xc1() {
     fi
     cat "$1" | xclip -selection clipboard && echo "Copied $1 to clipboard"
 }
+# Function to copy the current command line to the clipboard
+copy_command_to_clipboard() {
+  print -rn -- "$BUFFER" | xclip -selection clipboard
+  zle -M "Command copied to clipboard"
+}
+zle -N copy_command_to_clipboard
+bindkey '^G' copy_command_to_clipboard
+
+copy_last_command() {
+  print -z "$(fc -ln -1)" | xclip -selection clipboard
+}
+zle -N copy_last_command
+bindkey '^F' copy_last_command
+
+bindkey() {
+  fc -ln -1 | xargs -I {} sh -c "{}" | xclip -selection clipboard
+}
+zle -N copy_last_output
+bindkey '^P' copy_last_output
+
 zprof
