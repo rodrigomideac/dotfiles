@@ -1,0 +1,9 @@
+{
+  "dateformat": {
+    "prefix": "jn",
+    "body": [
+      "$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATE, ${1:field1}, ${2:field2}, ${3:field3}, ${4:field4}$0"
+    ],
+    "description": "Insert current date with format YYYY-mm-dd and 4 fillable fields"
+  }
+}

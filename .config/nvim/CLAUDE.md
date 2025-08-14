@@ -1,4 +1,4 @@
-This is a configuration for the neovim LazyVim IDE: https://www.lazyvim.org/
+This is a configuration for the neovim LazyVim IDE: <https://www.lazyvim.org/>
 
 # Debug Process for Plugin Issues
 
@@ -7,24 +7,29 @@ This is a configuration for the neovim LazyVim IDE: https://www.lazyvim.org/
 When plugin configuration isn't working, use these commands to debug:
 
 ### 1. Find installed plugins by pattern
+
 ```bash
 find ~/.local/share/nvim/lazy -name "*cmp*" -type d
 find ~/.local/share/nvim/lazy -name "*plugin-name*" -type d
 ```
 
 ### 2. Verify specific plugin installation
+
 ```bash
 find ~/.local/share/nvim/lazy -name "nvim-cmp" -type d
 find ~/.local/share/nvim/lazy -name "blink.cmp" -type d
 ```
 
 ### 3. List all installed plugins
+
 ```bash
 ls ~/.local/share/nvim/lazy/
 ```
 
 ### 4. Check if configuration is being executed
+
 Add debug notifications in your plugin config:
+
 ```lua
 vim.notify("Plugin config loaded: " .. debug.getinfo(1, "S").source)
 ```
@@ -44,9 +49,11 @@ vim.notify("Plugin config loaded: " .. debug.getinfo(1, "S").source)
 # CSS Module Navigation Setup
 
 ## Problem Solved
+
 Custom CSS module navigation for TypeScript/React files where `gd` (go to definition) was incorrectly opening Next.js global type definitions instead of the corresponding `.module.css` file.
 
 ## Solution Implementation
+
 Created `lua/plugins/css-modules.lua` with enhanced navigation that:
 
 1. **Detects CSS module usage patterns**:
@@ -75,6 +82,7 @@ Created `lua/plugins/css-modules.lua` with enhanced navigation that:
 ## Configuration Pattern for Custom LSP Keymaps
 
 When overriding default LazyVim LSP keymaps, use this pattern:
+
 ```lua
 vim.defer_fn(function()
   vim.keymap.set("n", "gd", custom_handler, {
@@ -84,5 +92,3 @@ vim.defer_fn(function()
   })
 end, 100)
 ```
-
-

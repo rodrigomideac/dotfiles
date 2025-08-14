@@ -166,6 +166,22 @@ source <(jj util completion zsh)
 export FLYCTL_INSTALL="/home/rodrigo/.fly"
 export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
+_uv_run_mod() {
+    if [[ "$words[2]" == "run" && "$words[CURRENT]" != -* ]]; then
+        # Check if any previous argument after 'run' ends with .py
+        if [[ ${words[3,$((CURRENT-1))]} =~ ".*\.py" ]]; then
+            # Already have a .py file, complete any files
+            _arguments '*:filename:_files'
+        else
+            # No .py file yet, complete only .py files
+            _arguments '*:filename:_files -g "*.py"'
+        fi
+    else
+        _uv "$@"
+    fi
+}
+compdef _uv_run_mod uv
+
 # Shell-GPT integration ZSH v0.2
 _sgpt_zsh() {
 if [[ -n "$BUFFER" ]]; then

@@ -1,6 +1,9 @@
 return {
   "saghen/blink.cmp",
   opts = {
+    snippets = {
+      preset = "luasnip",
+    },
     keymap = {
       preset = "super-tab",
       ["<Tab>"] = {
