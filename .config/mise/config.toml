@@ -4,7 +4,7 @@ idiomatic_version_file_enable_tools = []
 [tools]
 go = "1.24"
 gradle = "latest"
-java = "temurin-17.0.15+6"
+java = "temurin-11"
 kotlin = "2.2.0"
 node = "22"
 #
