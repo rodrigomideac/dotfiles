@@ -22,7 +22,7 @@ profile home_desk {
   output $HOME_CENTER enable
 }
 
-profile laptop {
-  alias $LAPTOP enable
+profile mobile {
+  output $LAPTOP enable
 }
 
