@@ -1,0 +1,33 @@
+{
+  "c_header": {
+    "prefix": "c_header",
+    "body": [
+      "#ifndef _${1:${TM_FILENAME_BASE/(.*)/${1:/upcase}/}}_H_",
+      "#define _${1:${TM_FILENAME_BASE/(.*)/${1:/upcase}/}}_H_",
+      "",
+      "#include <stddef.h>",
+      "#include <stdint.h>",
+      "",
+      "#ifdef __cplusplus",
+      "extern \"C\" {",
+      "#endif",
+      "",
+      "typedef struct {",
+      "  int32_t (*receive_data)(uint8_t *buffer, size_t max_size, size_t *received);",
+      "  int32_t (*send_data)(uint8_t *buffer, size_t size);",
+      "  uint32_t (*get_time)(void);",
+      "  void (*log_info)(const char *tag, const char *format, ...);",
+      "  void (*log_error)(const char *tag, const char *format, ...);",
+      "} ${2:comm_interface_t};",
+      "",
+      "$0",
+      "",
+      "#ifdef __cplusplus",
+      "}",
+      "#endif // C++ compatibility",
+      "",
+      "#endif // _${1:${TM_FILENAME_BASE/(.*)/${1:/upcase}/}}_H_"
+    ],
+    "description": "C header file template with include guards and interface structure"
+  }
+}

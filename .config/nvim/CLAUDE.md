@@ -92,3 +92,68 @@ vim.defer_fn(function()
   })
 end, 100)
 ```
+
+# vtsls LSP Debugging Guide
+
+## Problem: Missing Type Hints for Imported Functions
+
+When TypeScript inlay hints work for built-in functions but not for imported functions from your project, the issue is typically in the vtsls inlay hint configuration.
+
+## Debugging Steps
+
+### 1. Enable LSP Logging
+```lua
+:lua vim.lsp.set_log_level('DEBUG')
+```
+Log location: `~/.local/state/nvim/lsp.log`
+
+### 2. Check vtsls Configuration in Log
+Look for the `workspace/didChangeConfiguration` message in lsp.log to see current settings:
+```
+typescript = { 
+  inlayHints = { 
+    parameterNames = { enabled = "literals" }  -- This is the problem!
+  }
+}
+```
+
+### 3. Common Configuration Issues
+
+**Problem**: `parameterNames.enabled = "literals"` only shows hints for literal values
+**Solution**: Change to `"all"` to show hints for all parameters including variables
+
+**Problem**: `variableTypes.enabled = false` hides variable type hints
+**Solution**: Set to `true` to show variable types
+
+### 4. Fix vtsls Configuration
+
+Create `lua/plugins/vtsls.lua`:
+```lua
+return {
+  "yioneko/nvim-vtsls",
+  opts = {
+    settings = {
+      typescript = {
+        inlayHints = {
+          parameterNames = {
+            enabled = "all", -- "all" | "literals" | "none"
+            suppressWhenArgumentMatchesName = false,
+          },
+          parameterTypes = { enabled = true },
+          variableTypes = { enabled = true },
+          functionLikeReturnTypes = { enabled = true },
+        },
+      },
+    },
+  },
+}
+```
+
+### 5. Verification Commands
+```vim
+:LspInfo              # Check server capabilities
+:LspRestart vtsls     # Restart after config changes
+```
+
+## Key Insight
+The log shows `inlayHintProvider = true` but actual hint generation depends on specific typescript.inlayHints settings. LazyVim's default `"literals"` setting is too restrictive for imported functions.

@@ -50,3 +50,5 @@ vim.keymap.set("n", "<leader>rp", function()
     vim.notify("Failed to perform replacement: " .. result, vim.log.levels.ERROR)
   end
 end, { desc = "Replace current word with clipboard content in buffer" })
+
+vim.keymap.set("n", "<leader>P", 'viw"_dP', { desc = "Replace word with register" })

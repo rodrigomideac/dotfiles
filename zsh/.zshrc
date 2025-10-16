@@ -1,4 +1,4 @@
-zmodload zsh/zprof
+# zmodload zsh/zprof
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -126,19 +126,20 @@ export PATH=$PATH:/home/rodrigo/devtools
 
 
 ## SSH Agent to store passkeys
-if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-    ssh-agent -t 1h > "$XDG_RUNTIME_DIR/ssh-agent.env"
-fi
-if [[ ! "$SSH_AUTH_SOCK" ]]; then
-    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
-fi
+SSH_ENV="$XDG_RUNTIME_DIR/ssh-agent.env"
 
-# Add SSH key to agent if not already added
-if [ -z "$SSH_AUTH_SOCK" ]; then
-   eval "$(ssh-agent -s)"
-   ssh-add ~/.ssh/id_rsa 2>/dev/null
+# Check if we have a valid SSH agent running
+if [[ -f "$SSH_ENV" ]]; then
+    source "$SSH_ENV" >/dev/null
+    # if ! ssh-add -l >/dev/null 2>&1; then
+    #     # Agent is not accessible, start a new one
+    #     ssh-agent > "$SSH_ENV"
+    #     source "$SSH_ENV" >/dev/null
+    # fi
 else
-   ssh-add -l >/dev/null 2>&1 || ssh-add ~/.ssh/id_rsa 2>/dev/null
+    # No agent file exists, start a new one
+    ssh-agent > "$SSH_ENV"
+    source "$SSH_ENV" >/dev/null
 fi
 
 ## NVM for Node.js
@@ -183,31 +184,31 @@ _uv_run_mod() {
 compdef _uv_run_mod uv
 
 # Shell-GPT integration ZSH v0.2
-_sgpt_zsh() {
-if [[ -n "$BUFFER" ]]; then
-    _sgpt_prev_cmd=$BUFFER
-    BUFFER+="⌛"
-    zle -I && zle redisplay
-    BUFFER=$(sgpt --shell <<< "$_sgpt_prev_cmd" --no-interaction)
-    zle end-of-line
-fi
-}
-zle -N _sgpt_zsh
-bindkey ^l _sgpt_zsh
+
+# if [[ -n "$BUFFER" ]]; then
+#     _sgpt_prev_cmd=$BUFFER
+#     BUFFER+="⌛"
+#     zle -I && zle redisplay
+#     BUFFER=$(sgpt --shell <<< "$_sgpt_prev_cmd" --no-interaction)
+#     zle end-of-line
+# fi
+# }
+# zle -N _sgpt_zsh
+# bindkey ^l _sgpt_zsh
 # Shell-GPT integration ZSH v0.2
 
 # Shell-GPT integration ZSH v0.2
-_sgpt_zsh() {
-if [[ -n "$BUFFER" ]]; then
-    _sgpt_prev_cmd=$BUFFER
-    BUFFER+="⌛"
-    zle -I && zle redisplay
-    BUFFER=$(sgpt --shell <<< "$_sgpt_prev_cmd" --no-interaction)
-    zle end-of-line
-fi
-}
-zle -N _sgpt_zsh
-bindkey ^l _sgpt_zsh
+# _sgpt_zsh() {
+# if [[ -n "$BUFFER" ]]; then
+#     _sgpt_prev_cmd=$BUFFER
+#     BUFFER+="⌛"
+#     zle -I && zle redisplay
+#     BUFFER=$(sgpt --shell <<< "$_sgpt_prev_cmd" --no-interaction)
+#     zle end-of-line
+# fi
+# }
+# zle -N _sgpt_zsh
+# bindkey ^l _sgpt_zsh
 # Shell-GPT integration ZSH v0.2
 #
 
@@ -252,37 +253,45 @@ xc1() {
     cat "$1" | xclip -selection clipboard && echo "Copied $1 to clipboard"
 }
 # Function to copy the current command line to the clipboard
-copy_command_to_clipboard() {
-  print -rn -- "$BUFFER" | xclip -selection clipboard
-  zle -M "Current Command copied to clipboard"
-  print_help
-}
-zle -N copy_command_to_clipboard
-bindkey '^G' copy_command_to_clipboard
-
-copy_last_command() {
-  print -z "$(fc -ln -1)" | xclip -selection clipboard
-  zle -M "Last Command copied to clipboard"
-  print_help
-}
-zle -N copy_last_command
-bindkey '^F' copy_last_command
-
-bindkey() {
-  fc -ln -1 | xargs -I {} sh -c "{}" | xclip -selection clipboard
-  zle -M "Last Output copied to clipboard"
-  print_help
-}
-zle -N copy_last_output
-bindkey '^P' copy_last_output
-
-print_help() {
-    zle -M "Keymaps:"
-    zle -M "    Ctrl+f: Copy last command"
-    zle -M "    Ctrl+g: Copy current command"
-    zle -M "    Ctrl+p: Copy last output"
-}
+# copy_command_to_clipboard() {
+#   print -rn -- "$BUFFER" | xclip -selection clipboard
+#   zle -M "Current Command copied to clipboard"
+#   print_help
+# }
+# zle -N copy_command_to_clipboard
+# bindkey '^G' copy_command_to_clipboard
+#
+# copy_last_command() {
+#   print -z "$(fc -ln -1)" | xclip -selection clipboard
+#   zle -M "Last Command copied to clipboard"
+#   print_help
+# }
+# zle -N copy_last_command
+# bindkey '^F' copy_last_command
+#
+# bindkey() {
+#   fc -ln -1 | xargs -I {} sh -c "{}" | xclip -selection clipboard
+#   zle -M "Last Output copied to clipboard"
+#   print_help
+# }
+# zle -N copy_last_output
+# bindkey '^P' copy_last_output
+#
+# print_help() {
+#     zle -M "Keymaps:"
+#     zle -M "    Ctrl+f: Copy last command"
+#     zle -M "    Ctrl+g: Copy current command"
+#     zle -M "    Ctrl+p: Copy last output"
+# }
 
 alias jst="just --working-directory /home/rodrigo/dev-pessoal/dk --justfile /home/rodrigo/dev-pessoal/dk/justfile"
+alias idf="cd ~/esp/esp-idf && . ./export.sh && cd -"
 
-zprof
+y() {
+    yazi --cwd-file /tmp/yazidir
+    if [ -f /tmp/yazidir ]; then
+        cd "$(cat /tmp/yazidir)"
+    fi
+}
+
+# zprof

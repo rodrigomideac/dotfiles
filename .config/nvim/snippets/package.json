@@ -18,6 +18,12 @@
           "csv"
         ],
         "path": "./jn.json"
+      },
+      {
+        "language": [
+          "all"
+        ],
+        "path": "./c.json"
       }
     ]
   }
