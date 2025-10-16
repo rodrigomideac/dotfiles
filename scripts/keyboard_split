@@ -1,2 +1,3 @@
 #!/bin/bash
 setxkbmap -option && setxkbmap -layout us -variant intl
+setxkbmap -option && setxkbmap -layout us -variant intl -print >~/.config/niri/keymap.xkb
