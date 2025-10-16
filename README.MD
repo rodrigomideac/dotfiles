@@ -1,19 +1,10 @@
 # Dotfiles
 
-These are my dotfiles that I use on my i3wm setup, with rofi and polybar.
+These are my dotfiles that I use on my niri setup.
 
+TODO: change the pic
 ![Desktop Picture](imgs/rmc-desktop.png "Desktop Picture")
 
-The central point of this setup is to always open certain applications in specific workspaces. For now, I use this division:
-
-- Workspace 1: Chrome Browser
-- Workspace 2: Development IDEs
-- Workspace 3: Terminals
-- Workspace 4: Secondary Terminals (currently no bindings to this workspace)
-- Workspace 5: File Browsers (Ranger and Dolphin)
-- Workspace 6: Virtualbox
-- Workspace 8: Spotify
-- Workspace 9: Slack
 
 ## Getting started
 
@@ -21,130 +12,51 @@ You need to have these dependencies installed before using this config. The depe
 
 ### Core Window Manager & Desktop
 ```
-i3-wm
-polybar
-picom
-rofi
-dunst
-feh
-stow
+sudo pacman -S niri fuzzel swaybg swaylock xwayland-satellite xdg-desktop-portal-hyprland evince mako swayidle waybar plasma-polkit-agent udiskie kanshi swaymsg
 ```
 
-### Terminal & Shell
+### Essential tools 
 ```
-alacritty
-terminator
-zsh
-```
-
-### System Utilities
-```
-nm-applet
-NetworkManager
-blueman
-blueman-applet
-light
-xrandr
-arandr
-setxkbmap
-numlockx
-xdotool
-yad
-redshift
-```
-
-### Audio & Media Controls
-```
-pavucontrol
-amixer
-playerctl
-```
-
-### Screen & Session Management
-```
-i3-lock-fancy
-betterlockscreen
-maim
-xclip
-```
-
-### File Management
-```
-ranger
-dolphin
-```
-
-### Development Tools
-```
-neovim
-vim
-google-chrome
-firefox
-code
-```
-
-### Communication & Entertainment
-```
-spotify
-slack
-discord
-```
-
-### System Services & Security
-```
-kwallet
-ksshaskpass
-kwalletmanager
-ssh-agent
-notification-daemon
-```
-
-### Additional Utilities
-```
-atuin
-i3-battery-popup
-solaar
-qalculate-gtk
-zenity
-kdialog
+sudo pacman -S \
+alacritty \
+zsh \
+nemo \
+neovim \
+firefox \
+atuin \
+solaar \
 curl
 ```
 
-### Development Environment (Optional)
+### Optional tools
 ```
-jetbrains-toolbox
-insomnia
-virtualenv
-kubectx
-aws-cli
-nvm
-tldr
+yay -S \
+jetbrains-toolbox \
+insomnia \
+virtualenv \
+kubectx \
+aws-cli \
+nvm \
+tldr \
+google-chrome \
+spotify \
+slack \
 ```
-
-There is a `deps.sh` script that installs many of these dependencies via pacman and yay.
 
 Edit the `Makefile` file to match your config path, and then run `make stow` to create the symlinks.
 
 Note: `stow` will fail if the destination folders and files already exist. Make sure to copy or delete them before running `make stow`.
 
-## Personal Workflow Automation
-
-After setting up the dotfiles, you can run personal workflow automation setup:
-- `./setup_personal.sh` - Sets up personal automation like cron jobs for daily workflows
-
 ## Further Configuration
 
 ### Fonts
 
-You might need these fonts to proper render some icons in the polybar:
+You might need these fonts to proper render some icons:
 
 - [Font Awesome 4 (version 5 is not used)](https://aur.archlinux.org/packages/ttf-font-awesome-4/)
 - [Siji](https://aur.archlinux.org/packages/siji-git)
 - [Noto Sans](https://www.archlinux.org/packages/extra/any/noto-fonts/)
 - [Fira Code](https://www.archlinux.org/packages/community/any/ttf-fira-code/)
-
-### VIM
-The `.vimrc` config file needs to have the [vim-plug](https://github.com/junegunn/vim-plug) installed.
 
 ### Enable the services
 So far, this config relies only on [NetworkManager](https://wiki.archlinux.org/index.php?title=NetworkManager) service. Make sure to install its package, enable and start its service via:
@@ -154,28 +66,6 @@ sudo systemctl enable NetworkManager.service
 sudo systemctl start NetworkManager.service
 ```
 
-### Desktop Notifications
-Some apps, such as Slack and Spotify, can crash if a desktop notification server is not running.
-- Install [notification-daemon](https://www.archlinux.org/packages/?name=notification-daemon)
-- Install [dunst](https://www.archlinux.org/packages/?name=dunst)
+### Configure the monitors
+Find out the output names via `niri msg outputs`. Then change the `./config/kanshi/config`.
 
-You can test if everything is ok by running in a shell `notify-send 'Hello world!' 'This is an example notification.' --icon=dialog-information`.
-
-### Ranger
-To open Ranger in its workspace via rofi, we need to run it inside a `terminator` window named "ranger". Edit your `/usr/share/applications/ranger.desktop` Exec entry to `terminator -T "ranger" -e "ranger"` instead of only `ranger`.
-
-### Screen tearing on Nvidia-cards
-In `nvidia-settings` -> X Server Display Configuration, set either Force Composition Pipeline or Force Full Composition Pipeline to true.
-
-### Multiple monitors setup
-The script `.config/i3/scripts/configure_monitors` is run at every i3wm startup. It will set the monitors with a desired configuration by using `xrandr`. See the limitations of this script before using it.
-- Create a file `~/.monitor-setup` with these contents, and adjust accordingly.
-
-```bash
-MONITOR_1_NAME=DP-0
-MONITOR_1_RATE=144
-MONITOR_2_NAME=HDMI-0
-MONITOR_2_RIGHT_OF=DP-0
-MONITOR_3_NAME=unset
-MONITOR_3_LEFT_OF=unset
-``` 
