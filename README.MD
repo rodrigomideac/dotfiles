@@ -66,6 +66,8 @@ sudo systemctl enable NetworkManager.service
 sudo systemctl start NetworkManager.service
 ```
 
-### Configure the monitors
+### Kanshi - Dynamic monitor configuration
 Find out the output names via `niri msg outputs`. Then change the `./config/kanshi/config`.
 
+### Waybar - Status bar
+Any changes requires a `systemctl --user restart waybar`. You can debug any errors on waybar execution using `journalctl --user -u waybar -f`. 

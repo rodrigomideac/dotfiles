@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [[ -n "$1" ]]; then
+  alacritty -e "$1"
+  exit 0
+fi
+
+WHEREAMI=$(cat /tmp/whereami)
+[[ -z $WHEREAMI ]] && alacritty || alacritty --working-directory="$WHEREAMI"

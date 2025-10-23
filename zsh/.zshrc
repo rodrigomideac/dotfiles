@@ -239,6 +239,7 @@ alias ntodo="nvim ~/dev/notes/todo.md"
 alias nn="nvim ~/.config/nvim"
 alias nd="nvim ~/dev-pessoal/dotfiles/"
 alias cnvim="cd ~/.config/nvim && claude"
+alias cniri="cd ~/.config/niri && claude"
 alias npost="nvim /home/rodrigo/dev-pessoal/some-words"
 alias njst="nvim /home/rodrigo/dev-pessoal/dk"
 export EDITOR=nvim
