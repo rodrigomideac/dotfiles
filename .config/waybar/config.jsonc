@@ -1,12 +1,13 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 30,
+  "height": 65,
   "spacing": 1,
   "margin": 0,
   "modules-left": [
     "custom/weather",
-    "custom/weather-tomorrow"
+    "custom/weather-tomorrow",
+    "custom/multiline"
   ],
   "modules-center": [], //battery   //disk     // uptime      //updates        // systray
   "modules-right": [
@@ -218,5 +219,11 @@
     "format": "⏻",
     "tooltip": false,
     "on-click": "~/.config/waybar/scripts/power-menu.sh"
+  },
+  "custom/multiline": {
+    "exec": "echo '<span font=\"10\" line_height=\"1.2\">Line 1\nLine 2\nLine 3\nLine 4</span>'",
+    "interval": 60,
+    "format": "{}",
+    "escape": false
   }
 }

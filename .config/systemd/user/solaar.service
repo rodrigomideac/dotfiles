@@ -1,0 +1,13 @@
+[Unit]
+Description=Logitech Custom Keymap
+Documentation=https://github.com/pwr-Solaar/Solaar
+BindsTo=niri.service
+After=niri.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/solaar --window=hide 
+
+[Install]
+WantedBy=niri.service
+

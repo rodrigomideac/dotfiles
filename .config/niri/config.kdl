@@ -274,6 +274,9 @@ layout {
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
 
+// Custom startup script
+spawn-at-startup "~/.config/niri/scripts/startup.sh"
+
 hotkey-overlay {
     // Uncomment this line to disable the "Important Hotkeys" pop-up at startup.
     // skip-at-startup
@@ -620,6 +623,11 @@ binds {
     Mod+Q { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 1"; }
     Mod+W { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 2"; }
     Mod+E { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 3"; }
+    // waystt - Speech to Text (direct typing)
+    Mod+B { spawn "sh" "-c" "pgrep -x waystt >/dev/null && pkill --signal SIGUSR1 waystt || (YDOTOOL_SOCKET=/tmp/.ydotool_socket waystt --pipe-to ydotool type --file - &)"; }
+    
+    // waystt - Speech to Text (clipboard copy)
+    Mod+Shift+B { spawn "sh" "-c" "pgrep -x waystt >/dev/null && pkill --signal SIGUSR1 waystt || (waystt --pipe-to wl-copy &)"; }
 }
 
 // CUSTOM

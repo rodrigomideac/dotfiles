@@ -117,7 +117,7 @@ window#waybar {
 #mode, #mpd, #custom-weather, #custom-playerctl, #clock, #cpu,
 #memory, #temperature, #battery, #network, #pulseaudio,
 #backlight, #disk, #custom-uptime, #custom-updates, #custom-quote,
-#idle_inhibitor, #tray, #custom-power {
+#idle_inhibitor, #tray, #custom-power, #custom-multiline {
     padding: 0 10px;
     margin: 0 2px;
     border-bottom: 2px solid transparent;
@@ -310,4 +310,13 @@ window#waybar {
 
 #custom-power:hover {
     background: @background-light;
+}
+
+/* Multi-line module styling */
+#custom-multiline {
+    font-size: 10px;
+    padding: 2px 10px;
+    margin: 0 2px;
+    border-bottom: 2px solid @magenta;
+    color: @magenta;
 }

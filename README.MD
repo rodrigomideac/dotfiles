@@ -58,16 +58,21 @@ You might need these fonts to proper render some icons:
 - [Noto Sans](https://www.archlinux.org/packages/extra/any/noto-fonts/)
 - [Fira Code](https://www.archlinux.org/packages/community/any/ttf-fira-code/)
 
-### Enable the services
-So far, this config relies only on [NetworkManager](https://wiki.archlinux.org/index.php?title=NetworkManager) service. Make sure to install its package, enable and start its service via:
+### Enable the the systemd services
+After the `make stow`, run `systemctl --user daemon-reload`. 
 
 ```
-sudo systemctl enable NetworkManager.service
-sudo systemctl start NetworkManager.service
+sudo systemctl enable --now NetworkManager.service
+sudo systemctl enable --now ydotoold.service
+systemctl --user enable --now kanshi.service
+systemctl --user enable --now solaar.service
+systemctl --user enable --now swaybg.service
+systemctl --user enable --now swayidle.service
+systemctl --user enable --now ssh-agent.service
 ```
 
 ### Kanshi - Dynamic monitor configuration
 Find out the output names via `niri msg outputs`. Then change the `./config/kanshi/config`.
 
 ### Waybar - Status bar
-Any changes requires a `systemctl --user restart waybar`. You can debug any errors on waybar execution using `journalctl --user -u waybar -f`. 
+Any changes requires a `systemctl --user restart waybar`. Y ou can debug any errors on waybar execution using `journalctl --user -u waybar -f`. 

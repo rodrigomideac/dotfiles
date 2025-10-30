@@ -1,0 +1,11 @@
+[Unit]
+Description=ydotoold - generic command-line automation tool
+After=default.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/ydotoold --socket-path=/tmp/.ydotool_socket --socket-perm=0600
+
+[Install]
+WantedBy=default.target

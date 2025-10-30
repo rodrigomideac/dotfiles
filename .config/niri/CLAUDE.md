@@ -10,8 +10,8 @@ This is a configuration repository for **niri**, a scrollable-tiling Wayland com
 
 All niri configuration files use **KDL (KDL Document Language)** format. The main configuration file is `config.kdl`.
 
-- KDL specification: https://kdl.dev
-- Niri configuration documentation: https://yalter.github.io/niri/Configuration:-Introduction
+- KDL specification: <https://kdl.dev>
+- Niri configuration documentation: <https://yalter.github.io/niri/Configuration:-Introduction>
 
 ## Key Files
 
@@ -34,6 +34,7 @@ All niri configuration files use **KDL (KDL Document Language)** format. The mai
 ## Common Tasks
 
 ### Viewing Current Configuration
+
 ```bash
 # View current niri configuration
 cat ~/.config/niri/config.kdl
@@ -49,6 +50,7 @@ niri msg -j workspaces | jq
 ```
 
 ### Testing Configuration Changes
+
 ```bash
 # Validate configuration (niri will report syntax errors on reload)
 # No dedicated validate command exists - test by reloading
@@ -60,6 +62,7 @@ niri msg action quit
 ```
 
 ### Interacting with niri via IPC
+
 ```bash
 # Execute any niri action programmatically
 niri msg action <action-name> [args]
@@ -70,11 +73,72 @@ niri msg action move-window-to-workspace --window-id <id> 5
 niri msg action toggle-overview
 ```
 
+### Common Window and Monitor Operations
+
+#### Moving Windows to Monitors
+
+```bash
+# Move focused window to a specific monitor by name
+niri msg action move-window-to-monitor <OUTPUT>
+
+# Examples with actual monitor names:
+niri msg action move-window-to-monitor DP-2      # Left monitor
+niri msg action move-window-to-monitor HDMI-A-1  # Right monitor
+
+# Move specific window by ID
+niri msg action move-window-to-monitor --id <window-id> DP-2
+
+# Directional movement
+niri msg action move-window-to-monitor-left
+niri msg action move-window-to-monitor-right
+niri msg action move-window-to-monitor-up
+niri msg action move-window-to-monitor-down
+niri msg action move-window-to-monitor-previous
+niri msg action move-window-to-monitor-next
+```
+
+#### Focusing Monitors
+
+```bash
+# Focus a monitor by name
+niri msg action focus-monitor <OUTPUT>
+
+# Examples:
+niri msg action focus-monitor DP-2
+niri msg action focus-monitor HDMI-A-1
+
+# Directional focus
+niri msg action focus-monitor-left
+niri msg action focus-monitor-right
+niri msg action focus-monitor-up
+niri msg action focus-monitor-down
+niri msg action focus-monitor-previous  # Previously focused monitor
+niri msg action focus-monitor-next      # Next monitor in sequence
+```
+
+#### Focusing and Changing Workspaces
+
+```bash
+# Focus workspace by index or name
+niri msg action focus-workspace <REFERENCE>
+
+# Examples:
+niri msg action focus-workspace 1
+niri msg action focus-workspace 5
+niri msg action focus-workspace "Development"  # If workspace has a name
+
+# Relative workspace movement
+niri msg action focus-workspace-down      # Workspace below
+niri msg action focus-workspace-up        # Workspace above
+niri msg action focus-workspace-previous  # Previously focused workspace
+```
+
 ## Architecture and Key Concepts
 
 ### Window Management Model
 
 Niri uses a **scrollable tiling layout** with dynamic workspaces:
+
 - Workspaces are arranged vertically and created/destroyed dynamically
 - Windows within a workspace are arranged horizontally in columns
 - Columns can contain multiple windows stacked vertically
@@ -83,6 +147,7 @@ Niri uses a **scrollable tiling layout** with dynamic workspaces:
 ### Keybinding System
 
 Keybindings in `config.kdl` follow this pattern:
+
 ```kdl
 <Modifier>+<Key> { <action>; }
 ```
@@ -94,6 +159,7 @@ Keybindings in `config.kdl` follow this pattern:
 ### Window Rules
 
 Window rules match applications by `app-id` or `title` and apply custom behavior:
+
 ```kdl
 window-rule {
     match app-id="app-identifier"
@@ -102,6 +168,7 @@ window-rule {
 ```
 
 Common window rule properties:
+
 - `open-floating` - Launch window in floating mode
 - `default-column-width` - Set initial width
 - `block-out-from` - Exclude from screen capture
@@ -110,6 +177,7 @@ Common window rule properties:
 ### Custom Scripts Integration
 
 The Claude scratchpad script (bound to `Mod+X`) demonstrates:
+
 - Using `niri msg -j` for querying window/workspace state via JSON
 - Using `niri msg action` for programmatic window manipulation
 - State management with temporary files
@@ -120,6 +188,7 @@ The Claude scratchpad script (bound to `Mod+X`) demonstrates:
 The repository is in `/home/rodrigo/dev-pessoal/dotfiles/.config/niri/` with an additional reference directory at `/home/rodrigo/.config/niri`.
 
 When making changes:
+
 - Edit files in the main repository directory
 - Reload niri configuration to apply changes
 - Some changes require restarting affected applications (noted in config comments)
@@ -135,3 +204,8 @@ When making changes:
 ## Git Branch
 
 Current work is on branch `rmc-introduce-niri` which should be merged to `master`.
+
+# Monitor Configuration
+
+Principal monitor: HDMI-A-1
+Side monitor: DP-2
