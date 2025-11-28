@@ -1,3 +1,3 @@
 #!/bin/bash
 setxkbmap -option && setxkbmap -layout us -variant intl -option ctrl:swapcaps -print >~/.config/niri/keymap.xkb
-setxkbmap -option && setxkbmap -layout us -variant intl -option ctrl:swapcaps
+systemctl --user restart niri
