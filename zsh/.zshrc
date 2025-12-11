@@ -233,10 +233,11 @@ eval "$(atuin init zsh --disable-up-arrow)"
 alias vim="nvim"
 alias nano="nvim"
 alias nf="nvim ."
+alias nscala="JAVA_HOME=/home/rodrigo/.local/share/mise/installs/java/temurin-21.0.8+9.0.LTS nvim ."
 alias nclaude="nvim ~/.claude/"
 alias nnotes="nvim ~/dev/notes"
 alias ntodo="nvim ~/dev/notes/todo.md"
-alias nn="nvim ~/.config/nvim"
+alias nn="cd ~/.config/nvim && nf"
 alias nd="nvim ~/dev-pessoal/dotfiles/"
 alias cnvim="cd ~/.config/nvim && claude"
 alias cniri="cd ~/.config/niri && claude"
@@ -297,3 +298,9 @@ y() {
 
 # zprof
 export YDOTOOL_SOCKET=/tmp/.ydotool_socket
+
+# G1GC somehow is broken with sbt builds
+export SBT_OPTS="-Xmx2G -Xss2M -XX:MaxMetaspaceSize=512M \
+    -XX:+UseParallelGC \
+    -XX:ParallelGCThreads=4 \
+    -Duser.timezone=GMT"

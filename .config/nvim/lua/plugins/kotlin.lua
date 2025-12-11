@@ -11,11 +11,11 @@ return {
         "mvnw",
         "settings.gradle",
       },
-      -- -- Optional: Specify a custom Java path to run the server
-      -- jre_path = os.getenv("JDK21"),
+      -- Optional: Specify a custom Java path to run the server
+      jre_path = "/home/rodrigo/.local/share/mise/installs/java/21.0.2",
       -- Optional: Specify additional JVM arguments
       jvm_args = {
-        "-Xmx4g",
+        "-Xmx8g",
       },
     })
   end,

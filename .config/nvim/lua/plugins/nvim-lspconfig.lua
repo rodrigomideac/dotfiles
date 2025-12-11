@@ -2,10 +2,6 @@ return {
   "neovim/nvim-lspconfig",
   opts = {
     servers = {
-      -- Disable Kotlin LSP (performance issues on large projects)
-      kotlin_language_server = {
-        autostart = false,
-      },
       vtsls = {
         settings = {
           typescript = {
