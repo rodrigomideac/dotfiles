@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Script to determine the ktlint version used in a Gradle project
+
+set -e
+
+echo "Detecting ktlint version used by Gradle..."
+
+# Find the first subproject (or use root if no subprojects)
+SUBPROJECT=$(find . -maxdepth 2 -name "build.gradle.kts" -not -path "./build.gradle.kts" | head -1 | sed 's|./||' | sed 's|/build.gradle.kts||')
+
+if [ -z "$SUBPROJECT" ]; then
+    # No subproject found, try root
+    PROJECT_PATH=""
+else
+    PROJECT_PATH=":${SUBPROJECT}"
+fi
+
+# Get ktlint version from dependencies
+KTLINT_VERSION=$(./gradlew ${PROJECT_PATH}:dependencies --configuration ktlint 2>/dev/null | grep "com.pinterest:ktlint:" | head -1 | sed 's/.*ktlint://' | sed 's/ .*//')
+
+if [ -z "$KTLINT_VERSION" ]; then
+    echo "Error: Could not determine ktlint version."
+    echo "Make sure the ktlint plugin is configured in your project."
+    exit 1
+fi
+
+echo ""
+echo "================================================"
+echo "Gradle project uses ktlint version: $KTLINT_VERSION"
+echo "================================================"
+echo ""
+echo "Setting up ktlint version with mise..."
+mise use ktlint@${KTLINT_VERSION}
+echo ""
+echo "Done! You can now use: ktlint --format"
+echo ""
