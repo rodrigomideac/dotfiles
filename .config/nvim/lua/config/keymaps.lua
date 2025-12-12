@@ -52,3 +52,8 @@ vim.keymap.set("n", "<leader>rp", function()
 end, { desc = "Replace current word with clipboard content in buffer" })
 
 vim.keymap.set("n", "<leader>P", 'viw"_dP', { desc = "Replace word with register" })
+
+-- Format buffer with Ctrl+Alt+L
+vim.keymap.set({ "n", "x" }, "<C-A-l>", function()
+  LazyVim.format({ force = true })
+end, { desc = "Format buffer" })
