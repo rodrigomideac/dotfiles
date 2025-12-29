@@ -4,3 +4,6 @@
 
 -- Disable autoformat on save
 vim.g.autoformat = false
+
+-- Force LazyVim to always use telescope (not snacks picker)
+vim.g.lazyvim_picker = "telescope"

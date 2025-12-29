@@ -7,6 +7,7 @@ gradle = "latest"
 java = "temurin-11"
 kotlin = "2.2.0"
 node = "22"
+pnpm = "latest"
 #
 # [tasks."LLM::open_chat_idea_honing_from_full_repository_context"]
 # description = "Starts a chat to transform an idea into something feasible, given the repository context"

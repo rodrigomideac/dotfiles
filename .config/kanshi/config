@@ -22,6 +22,11 @@ profile home_desk {
   output $HOME_CENTER enable
 }
 
+profile home_desk_alternative {
+  output $LAPTOP disable
+  output $HOME_CENTER enable
+}
+
 profile mobile {
   output $LAPTOP enable
 }

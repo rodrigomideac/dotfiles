@@ -36,6 +36,8 @@ return {
           "--glob=!.metals/",
           "--glob=!.bloop/",
           "--glob=!target/", -- Exclude Bloop build directory
+          "--glob=!node_modules/",
+          "--glob=!.mastra/",
         },
       },
     },
@@ -44,10 +46,7 @@ return {
     {
       "<leader><leader>",
       function()
-        require("telescope.builtin").find_files({
-          hidden = true,
-          no_ignore = true,
-        })
+        LazyVim.pick("find_files", { hidden = true, no_ignore = true })()
       end,
       desc = "Find files (including hidden and gitignored)",
     },

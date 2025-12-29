@@ -3,9 +3,13 @@ return {
   opts = {
     formatters_by_ft = {
       kotlin = { "ktlint" },
+      -- Makefiles don't need formatters, just tabs
+      make = {},
+      makefile = {},
     },
     formatters = {
       ktlint = {
+        command= "/home/rodrigo/.local/share/mise/installs/ktlint/0.42.1/ktlint",
         -- Override for ktlint 0.42.1 compatibility
         -- (newer versions use --log-level=none which doesn't exist in 0.42.1)
         args = { "-F", "--stdin" },
