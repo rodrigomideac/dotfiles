@@ -9,13 +9,14 @@
 input {
     keyboard {
         xkb {
-            file "~/.config/niri/keymap.xkb"
+            // KEYBOARD_LAYOUT_MARKER_START
+            // Current layout: split
+            layout "us"
+            variant "intl"
+            // KEYBOARD_LAYOUT_MARKER_END
+
             // You can set rules, model, layout, variant and options.
             // For more information, see xkeyboard-config(7).
-
-            // For example:
-            // layout "us,ru"
-            // options "grp:win_space_toggle,compose:ralt,ctrl:nocaps"
 
             // If this section is empty, niri will fetch xkb settings
             // from org.freedesktop.locale1. You can control these using
@@ -628,6 +629,9 @@ binds {
     
     // waystt - Speech to Text (clipboard copy)
     Mod+Shift+B { spawn "sh" "-c" "pgrep -x waystt >/dev/null && pkill --signal SIGUSR1 waystt || (waystt --pipe-to wl-copy &)"; }
+
+    // Toggle keyboard layout between thinkpad and split
+    Mod+F12 { spawn-sh "$HOME/.config/niri/scripts/switch_keyboard_layout.sh"; }
 }
 
 // CUSTOM

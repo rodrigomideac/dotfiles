@@ -23,7 +23,7 @@ LABEL="solaar_apply"
 
 # Allow any seated user to access the receiver.
 # uaccess: modern ACL-enabled udev
-#TAG+="uaccess"
+TAG+="uaccess"
 
 # Grant members of the "plugdev" group access to receiver (useful for SSH users)
 MODE="0660", GROUP="plugdev"
