@@ -52,11 +52,45 @@ install_packages() {
     $PKG_UPDATE
 
     # Install packages
-    PACKAGES="zsh neovim cifs-utils smbclient git curl"
+    PACKAGES="zsh cifs-utils smbclient git curl"
     echo "Installing: $PACKAGES"
     $PKG_INSTALL $PACKAGES
 
     echo "✓ Packages installed successfully"
+}
+
+# install_neovim_appimage() - Install Neovim from official AppImage
+install_neovim_appimage() {
+    echo "Installing Neovim from AppImage..."
+
+    # Check if nvim is already installed
+    if command -v nvim &> /dev/null; then
+        echo "✓ Neovim already installed, skipping"
+        return 0
+    fi
+
+    # Download AppImage
+    echo "Downloading Neovim AppImage..."
+    local tmp_appimage="/tmp/nvim-linux-x86_64.appimage"
+    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage
+    chmod u+x nvim-linux-x86_64.appimage
+    mv nvim-linux-x86_64.appimage "$tmp_appimage"
+
+    # Test if AppImage works
+    if "$tmp_appimage" --version &> /dev/null; then
+        echo "✓ AppImage works, installing globally..."
+        sudo mkdir -p /opt/nvim
+        sudo mv "$tmp_appimage" /opt/nvim/nvim
+        sudo ln -sf /opt/nvim/nvim /usr/local/bin/nvim
+    else
+        echo "⚠ AppImage doesn't work, extracting..."
+        "$tmp_appimage" --appimage-extract
+        sudo mv squashfs-root /opt/nvim-squashfs
+        sudo ln -sf /opt/nvim-squashfs/AppRun /usr/local/bin/nvim
+        rm -f "$tmp_appimage"
+    fi
+
+    echo "✓ Neovim installed"
 }
 
 # install_oh_my_zsh() - Install oh-my-zsh framework in unattended mode
@@ -309,6 +343,7 @@ main() {
     # Run setup steps
     detect_distro
     install_packages
+    install_neovim_appimage
     install_oh_my_zsh
     set_default_shell
     clone_dotfiles
