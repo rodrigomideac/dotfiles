@@ -160,16 +160,31 @@ deploy_dotfiles() {
     cp "$TMP_DIR/zsh/.zshrc" "$HOME/.zshrc"
     echo "✓ Copied .zshrc"
 
+    # Clean up .zshrc to remove unnecessary tools
+    echo "Cleaning up .zshrc..."
+    sed -i 's/plugins=(git kube-ps1)/plugins=(git)/' "$HOME/.zshrc"
+    sed -i '/^source \$HOME\/\.cargo\/env$/d' "$HOME/.zshrc"
+    sed -i '/^export PATH=\$PATH:\/usr\/local\/go\/bin$/d' "$HOME/.zshrc"
+    sed -i '/^source \/usr\/share\/nvm\/init-nvm\.sh$/d' "$HOME/.zshrc"
+    sed -i '/^# source \/opt\/kube-ps1\/kube-ps1\.sh$/d' "$HOME/.zshrc"
+    sed -i "/^PROMPT='\$(kube_ps1)'\$PROMPT$/d" "$HOME/.zshrc"
+    sed -i '/^source <(jj util completion zsh)$/d' "$HOME/.zshrc"
+    sed -i '/^export FLYCTL_INSTALL=/d' "$HOME/.zshrc"
+    sed -i '/^export PATH="\$FLYCTL_INSTALL\/bin:\$PATH"$/d' "$HOME/.zshrc"
+    sed -i '/^_uv_run_mod()/,/^}$/d' "$HOME/.zshrc"
+    sed -i '/^compdef _uv_run_mod uv$/d' "$HOME/.zshrc"
+    sed -i '/^eval "\$(mise activate zsh)"$/d' "$HOME/.zshrc"
+    sed -i '/^# \. "\$HOME\/\.atuin\/bin\/env"$/d' "$HOME/.zshrc"
+    sed -i '/^#eval "\$(atuin init zsh)"$/d' "$HOME/.zshrc"
+    sed -i '/^eval "\$(atuin init zsh --disable-up-arrow)"$/d' "$HOME/.zshrc"
+    sed -i '/^alias nscala=/d' "$HOME/.zshrc"
+    sed -i '/^alias mr=/d' "$HOME/.zshrc"
+    echo "✓ Cleaned up .zshrc"
+
     # Copy nvim config
     mkdir -p "$HOME/.config"
     cp -r "$TMP_DIR/.config/nvim" "$HOME/.config/"
     echo "✓ Copied nvim configuration"
-
-    # Note about optional dependencies
-    echo ""
-    echo "Note: Your .zshrc includes optional tools (mise, atuin, nvm, fzf, etc.)"
-    echo "These are not installed by this script. Install them manually if needed."
-    echo ""
 }
 
 # add_ssh_keys() - Add authorized SSH public key for remote access
