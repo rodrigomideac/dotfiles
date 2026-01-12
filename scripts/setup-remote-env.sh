@@ -2,7 +2,7 @@
 # setup-remote-env.sh - Remote environment setup script
 # Purpose: Automate setup of ephemeral remote hosts with dev tools and configuration
 # Repository: https://github.com/rodrigomideac/dotfiles
-
+# Install with curl -fsSL https://raw.githubusercontent.com/rodrigomideac/dotfiles/master/scripts/setup-remote-env.sh | bash
 set -e  # Exit on error
 set -u  # Exit on undefined variable
 set -o pipefail  # Exit on pipe failure
