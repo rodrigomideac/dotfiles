@@ -123,7 +123,7 @@ export PATH=$PATH:/usr/local/go/bin
 #export GO_PATH="~/devtools/go1.18"
 #export PATH=$PATH:$GO_PATH/bin
 export PATH=$PATH:/home/rodrigo/devtools
-
+export PATH=$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin
 
 ## SSH Agent to store passkeys
 SSH_ENV="$XDG_RUNTIME_DIR/ssh-agent.env"
@@ -273,3 +273,5 @@ export SBT_OPTS="-Xmx2G -Xss2M -XX:MaxMetaspaceSize=512M \
     -XX:+UseParallelGC \
     -XX:ParallelGCThreads=4 \
     -Duser.timezone=GMT"
+
+
