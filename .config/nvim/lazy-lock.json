@@ -55,7 +55,7 @@
   "nvim-metals": { "branch": "main", "commit": "90dadd67bb1069ce1ba2a4dabf4e45da2807ba80" },
   "nvim-nio": { "branch": "master", "commit": "21f5324bfac14e22ba26553caf69ec76ae8a7662" },
   "nvim-surround": { "branch": "main", "commit": "1098d7b3c34adcfa7feb3289ee434529abd4afd1" },
-  "nvim-treesitter": { "branch": "main", "commit": "5a7e5638e7d220575b1c22c8a2e099b52231886e" },
+  "nvim-treesitter": { "branch": "main", "commit": "15b3416cc1f557c4932468e512a0bd45871167bc" },
   "nvim-treesitter-textobjects": { "branch": "main", "commit": "baa6b4ec28c8be5e4a96f9b1b6ae9db85ec422f8" },
   "nvim-ts-autotag": { "branch": "main", "commit": "c4ca798ab95b316a768d51eaaaee48f64a4a46bc" },
   "octo.nvim": { "branch": "master", "commit": "4a3a4fc5a9d3a372c91041f5b846f33b8d6b31fa" },

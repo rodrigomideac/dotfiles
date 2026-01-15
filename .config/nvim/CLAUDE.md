@@ -1,5 +1,7 @@
 This is a configuration for the neovim LazyVim IDE: <https://www.lazyvim.org/>
 
+You can run make clean to remove all state for neovim/lazyvim
+
 # Debug Process for Plugin Issues
 
 ## Checking Which Plugins Are Actually Installed
