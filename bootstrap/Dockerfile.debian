@@ -1,0 +1,35 @@
+FROM debian:12
+
+# Prevent interactive prompts during apt install
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Copy dotfiles repository to simulate already-cloned state
+# (In real usage, script would clone from git, but for testing we use local copy)
+COPY . /root/.dotfiles/
+
+# Copy bootstrap script to a location in PATH
+COPY bootstrap/bootstrap.sh /usr/local/bin/bootstrap.sh
+COPY bootstrap/assertions.sh /usr/local/bin/assertions.sh
+RUN chmod +x /usr/local/bin/bootstrap.sh /usr/local/bin/assertions.sh
+
+# Test 1: Run bootstrap as root with --no-interactive
+# (No URL needed since dotfiles already at ~/.dotfiles)
+RUN bootstrap.sh --no-interactive
+
+# Test 2: Create non-root user and test idempotency
+RUN useradd -m -s /bin/bash testuser && \
+    echo "testuser:123456" | chpasswd && \
+    echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# Copy dotfiles to testuser's home as well
+RUN cp -r /root/.dotfiles /home/testuser/.dotfiles && \
+    chown -R testuser:testuser /home/testuser/.dotfiles
+
+USER testuser
+WORKDIR /home/testuser
+RUN bootstrap.sh --no-interactive
+
+# Run validation assertions
+RUN assertions.sh
+
+# Default command: Start zsh to verify it works
+CMD ["/usr/bin/zsh", "-c", "echo 'Bootstrap successful! Zsh is running.'"]

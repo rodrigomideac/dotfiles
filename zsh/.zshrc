@@ -72,7 +72,7 @@ ZSH_THEME="agnoster"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(git kube-ps1)
 
-source $ZSH/oh-my-zsh.sh
+[[ -f "$ZSH/oh-my-zsh.sh" ]] && source "$ZSH/oh-my-zsh.sh"
 
 # User configuration
 
@@ -118,52 +118,46 @@ alias copy-stdout="xclip -selection clipboard"
 # System Sources
 ## SDKMAN for Java, Scala and SBT
 # source "$HOME/.sdkman/bin/sdkman-init.sh"
-source $HOME/.cargo/env
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 export PATH=$PATH:/usr/local/go/bin
 #export GO_PATH="~/devtools/go1.18"
 #export PATH=$PATH:$GO_PATH/bin
-export PATH=$PATH:/home/rodrigo/devtools
 export PATH=$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin
+export PATH=$PATH:$HOME/devtools
 
 ## SSH Agent to store passkeys
-SSH_ENV="$XDG_RUNTIME_DIR/ssh-agent.env"
-
-# Check if we have a valid SSH agent running
-if [[ -f "$SSH_ENV" ]]; then
-    source "$SSH_ENV" >/dev/null
-    # if ! ssh-add -l >/dev/null 2>&1; then
-    #     # Agent is not accessible, start a new one
-    #     ssh-agent > "$SSH_ENV"
-    #     source "$SSH_ENV" >/dev/null
-    # fi
-else
-    # No agent file exists, start a new one
-    ssh-agent > "$SSH_ENV"
-    source "$SSH_ENV" >/dev/null
+if [[ -n "$XDG_RUNTIME_DIR" ]]; then
+    SSH_ENV="$XDG_RUNTIME_DIR/ssh-agent.env"
+    if [[ -f "$SSH_ENV" ]]; then
+        source "$SSH_ENV" >/dev/null
+    else
+        ssh-agent > "$SSH_ENV"
+        source "$SSH_ENV" >/dev/null
+    fi
 fi
 
 ## NVM for Node.js
-source /usr/share/nvm/init-nvm.sh
+[[ -f /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh
 
 ## Source work-aliasrc so it can be stored in a private manner
-if [ -f ~/.work-aliasrc ]; then
-    source ~/.work-aliasrc
-else
-    print "404: ~/.work-aliasrc not found."
-fi
+[[ -f ~/.work-aliasrc ]] && source ~/.work-aliasrc
 
 # source /opt/kube-ps1/kube-ps1.sh
-PROMPT='$(kube_ps1)'$PROMPT
+(( $+functions[kube_ps1] )) && PROMPT='$(kube_ps1)'$PROMPT
 
 # export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR"/ssh-agent.socket
 autoload -U compinit
 compinit
 _comp_options+=(globdots)
-source <(jj util completion zsh)
+command -v jj &>/dev/null && source <(jj util completion zsh)
 
+<<<<<<< HEAD
+=======
+# [[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
+>>>>>>> ede3830 (WIP)
 
 #source /usr/share/fzf/key-bindings.zsh
-export FLYCTL_INSTALL="/home/rodrigo/.fly"
+export FLYCTL_INSTALL="$HOME/.fly"
 export PATH="$FLYCTL_INSTALL/bin:$PATH"
 
 _uv_run_mod() {
@@ -216,7 +210,7 @@ compdef _uv_run_mod uv
 # export PATH="${PATH}:${HOME}/go/bin"
 export PATH="${PATH}:${HOME}/.local/share/gem/ruby/3.3.0"
 export PATH="${PATH}:/usr/lib/ruby/gems/3.3.0"
-eval "$(mise activate zsh)"
+command -v mise &>/dev/null && eval "$(mise activate zsh)"
 
 alias rgf='rg --files | rg'
 #. $HOME/esp/esp-idf/export.sh
@@ -226,13 +220,13 @@ export PATH="$HOME/gems/bin:$PATH"
 # . "$HOME/.atuin/bin/env"
 
 #eval "$(atuin init zsh)"
-eval "$(atuin init zsh --disable-up-arrow)"
+command -v atuin &>/dev/null && eval "$(atuin init zsh --disable-up-arrow)"
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
 
 alias vim="nvim"
 alias nano="nvim"
 alias nf="nvim ."
-alias nscala="JAVA_HOME=/home/rodrigo/.local/share/mise/installs/java/temurin-21.0.8+9.0.LTS nvim ."
+alias nscala="JAVA_HOME=$HOME/.local/share/mise/installs/java/temurin-21.0.8+9.0.LTS nvim ."
 alias nclaude="nvim ~/.claude/"
 alias nnotes="nvim ~/dev/notes"
 alias ntodo="nvim ~/dev/notes/todo.md"
@@ -240,8 +234,8 @@ alias nn="cd ~/.config/nvim && nf"
 alias nd="nvim ~/dev-pessoal/dotfiles/"
 alias cnvim="cd ~/.config/nvim && claude"
 alias cniri="cd ~/.config/niri && claude"
-alias npost="nvim /home/rodrigo/dev-pessoal/some-words"
-alias njst="nvim /home/rodrigo/dev-pessoal/dk"
+alias npost="nvim $HOME/dev-pessoal/some-words"
+alias njst="nvim $HOME/dev-pessoal/dk"
 export EDITOR=nvim
 alias mr="mise run"
 alias xc="xclip -selection clipboard"
@@ -255,7 +249,7 @@ xc1() {
     fi
     cat "$1" | xclip -selection clipboard && echo "Copied $1 to clipboard"
 }
-alias jst="just --working-directory /home/rodrigo/dev-pessoal/dk --justfile /home/rodrigo/dev-pessoal/dk/justfile"
+alias jst="just --working-directory $HOME/dev-pessoal/dk --justfile $HOME/dev-pessoal/dk/justfile"
 alias idf="cd ~/esp/esp-idf && . ./export.sh && cd -"
 
 y() {
