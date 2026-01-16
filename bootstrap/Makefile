@@ -24,7 +24,7 @@ clean:
 
 # Debug target: Run container interactively
 debug-debian:
-	@docker build -f Dockerfile.debian -t dotfiles-bootstrap-test:debian .. 2>&1 | grep -E "^(ERROR|error:|failed|FAILED)" || true
+	docker build -f Dockerfile.debian -t dotfiles-bootstrap-test:debian .. 
 	docker run --rm -it dotfiles-bootstrap-test:debian /bin/bash
 
 # Shell into completed container (after all tests pass)

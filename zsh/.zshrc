@@ -151,11 +151,6 @@ compinit
 _comp_options+=(globdots)
 command -v jj &>/dev/null && source <(jj util completion zsh)
 
-<<<<<<< HEAD
-=======
-# [[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
->>>>>>> ede3830 (WIP)
-
 #source /usr/share/fzf/key-bindings.zsh
 export FLYCTL_INSTALL="$HOME/.fly"
 export PATH="$FLYCTL_INSTALL/bin:$PATH"

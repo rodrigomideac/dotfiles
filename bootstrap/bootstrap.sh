@@ -191,7 +191,7 @@ setup_neovim_plugins() {
     sed -i '/supermaven/d' "$HOME/.config/nvim/lazyvim.json"
     sed -i '/supermaven/d' "$HOME/.config/nvim/lazy-lock.json"
 
-    nvim --headless "+Lazy! sync" "+MasonToolsInstallSync" "+TSUpdateSync" +qa || log "Warning: Neovim plugin setup had issues"
+    make -C "$HOME/.config/nvim" install || log "Warning: Neovim plugin setup had issues"
     log "Neovim plugins installed"
 }
 
