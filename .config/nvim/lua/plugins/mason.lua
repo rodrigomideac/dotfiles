@@ -15,8 +15,11 @@ return {
       "MasonToolsUpdateSync",
       "MasonToolsClean",
     },
-    opts = {
-      ensure_installed = {
+    opts = function()
+      -- Disable run_on_start in headless mode to avoid race condition with Lazy sync
+      local is_headless = #vim.api.nvim_list_uis() == 0
+      return {
+        ensure_installed = {
         -- Formatters
         "stylua", -- Lua formatter
         "shfmt", -- Shell formatter
@@ -39,7 +42,7 @@ return {
         "codelldb", -- Rust/C/C++ debugger
       },
       auto_update = false,
-      run_on_start = true,
+      run_on_start = not is_headless,
       start_delay = 3000, -- 3 second delay to not slow startup
       debounce_hours = 24, -- Only check once per day
       integrations = {
@@ -47,6 +50,7 @@ return {
         ["mason-null-ls"] = true,
         ["mason-nvim-dap"] = true,
       },
-    },
+      }
+    end,
   },
 }
