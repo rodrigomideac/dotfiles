@@ -139,8 +139,25 @@ install_ohmyzsh() {
 # Install neovim via AppImage (always required)
 install_neovim() {
     if command -v nvim &>/dev/null; then
-        log "Neovim already installed, skipping"
-        return
+        # Check version - we need at least 0.11
+        local version=$(nvim --version | head -1 | sed 's/NVIM v//' | cut -d. -f1,2)
+        local major=$(echo "$version" | cut -d. -f1)
+        local minor=$(echo "$version" | cut -d. -f2)
+
+        if [ "$major" -gt 0 ] || [ "$minor" -ge 11 ]; then
+            log "Neovim $version already installed (>= 0.11), skipping"
+            return
+        else
+            log "Neovim $version is too old (< 0.11), removing..."
+            $SUDO rm -rf /opt/nvim
+            $SUDO rm -f /usr/bin/nvim /usr/local/bin/nvim
+            # Try to remove package manager version if exists
+            if [ "$DISTRO" = "debian" ] || [ "$DISTRO" = "ubuntu" ]; then
+                $SUDO apt remove -y neovim 2>/dev/null || true
+            elif [ "$DISTRO" = "manjaro" ]; then
+                $SUDO pacman -Rs --noconfirm neovim 2>/dev/null || true
+            fi
+        fi
     fi
 
     log "Installing Neovim via AppImage..."
@@ -166,6 +183,7 @@ install_neovim() {
         $SUDO mkdir -p /opt/nvim
         $SUDO mv "$appimage_name" /opt/nvim/nvim
         $SUDO chmod +x /opt/nvim/nvim
+        $SUDO ln -sf /opt/nvim/nvim /usr/bin/nvim
         log "Neovim installed to /opt/nvim/nvim"
     else
         # AppImage doesn't work (no FUSE) - extract and install
