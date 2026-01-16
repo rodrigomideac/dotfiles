@@ -4,6 +4,8 @@
 # Supports Debian, Ubuntu, and Manjaro/Arch
 # Prompts for each package individually with dynamic .zshrc cleanup
 #
+# Designed for ephemeral machines - always cleans and reinstalls everything
+#
 
 set -e  # Exit on error
 
@@ -68,6 +70,57 @@ error() {
     exit 1
 }
 
+# Clean all existing configurations for fresh install
+clean_existing_configs() {
+    log "Cleaning existing configurations for fresh install..."
+
+    # Remove dotfiles repo
+    if [ -d "$DOTFILES_DIR" ]; then
+        log "Removing $DOTFILES_DIR..."
+        rm -rf "$DOTFILES_DIR"
+    fi
+
+    # Remove oh-my-zsh
+    if [ -d "$HOME/.oh-my-zsh" ]; then
+        log "Removing ~/.oh-my-zsh..."
+        rm -rf "$HOME/.oh-my-zsh"
+    fi
+
+    # Remove nvim config
+    if [ -d "$HOME/.config/nvim" ]; then
+        log "Removing ~/.config/nvim..."
+        rm -rf "$HOME/.config/nvim"
+    fi
+
+    # Remove nvim data/cache (lazy, mason, etc.)
+    if [ -d "$HOME/.local/share/nvim" ]; then
+        log "Removing ~/.local/share/nvim..."
+        rm -rf "$HOME/.local/share/nvim"
+    fi
+
+    if [ -d "$HOME/.local/state/nvim" ]; then
+        log "Removing ~/.local/state/nvim..."
+        rm -rf "$HOME/.local/state/nvim"
+    fi
+
+    if [ -d "$HOME/.cache/nvim" ]; then
+        log "Removing ~/.cache/nvim..."
+        rm -rf "$HOME/.cache/nvim"
+    fi
+
+    # Remove .zshrc
+    if [ -f "$HOME/.zshrc" ]; then
+        log "Removing ~/.zshrc..."
+        rm -f "$HOME/.zshrc"
+    fi
+
+    # Remove any backup files from previous runs
+    rm -f "$HOME/.zshrc.backup."* 2>/dev/null || true
+    rm -rf "$HOME/.config/nvim.backup."* 2>/dev/null || true
+
+    log "Cleanup complete"
+}
+
 # Detect Linux distribution
 detect_distro() {
     log "Detecting distribution..."
@@ -126,11 +179,6 @@ install_core_deps() {
 
 # Install oh-my-zsh (always required)
 install_ohmyzsh() {
-    if [ -d "$HOME/.oh-my-zsh" ]; then
-        log "Oh My Zsh already installed, skipping"
-        return
-    fi
-
     log "Installing Oh My Zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || error "Failed to install Oh My Zsh"
     log "Oh My Zsh installed"
@@ -209,17 +257,17 @@ setup_neovim_plugins() {
     sed -i '/supermaven/d' "$HOME/.config/nvim/lazyvim.json"
     sed -i '/supermaven/d' "$HOME/.config/nvim/lazy-lock.json"
 
+    # Run make clean first for idempotency
+    log "Running make clean..."
+    make -C "$HOME/.config/nvim" clean || log "Warning: make clean had issues (may be first run)"
+
+    log "Running make install..."
     make -C "$HOME/.config/nvim" install || log "Warning: Neovim plugin setup had issues"
     log "Neovim plugins installed"
 }
 
 # Clone dotfiles repository
 clone_dotfiles() {
-    if [ -d "$DOTFILES_DIR" ]; then
-        log "Dotfiles already present at $DOTFILES_DIR, skipping clone"
-        return
-    fi
-
     log "Cloning dotfiles from $DOTFILES_REPO_URL..."
     git clone "$DOTFILES_REPO_URL" "$DOTFILES_DIR" || error "Failed to clone dotfiles"
     log "Dotfiles cloned to $DOTFILES_DIR"
@@ -372,15 +420,7 @@ install_special_packages() {
 deploy_configs() {
     log "Deploying configurations..."
 
-    local timestamp=$(date +%Y%m%d_%H%M%S)
-
-    # Backup and deploy .zshrc
-    if [ -f "$HOME/.zshrc" ]; then
-        local backup="$HOME/.zshrc.backup.$timestamp"
-        log "Backing up existing .zshrc to $backup"
-        mv "$HOME/.zshrc" "$backup"
-    fi
-
+    # Deploy .zshrc (clean_existing_configs already removed old one)
     cp "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc" || error "Failed to deploy .zshrc"
 
     # Remove kube-ps1 plugin (not included in bootstrap)
@@ -389,13 +429,7 @@ deploy_configs() {
 
     log "Deployed .zshrc"
 
-    # Backup and deploy nvim config
-    if [ -d "$HOME/.config/nvim" ]; then
-        local backup="$HOME/.config/nvim.backup.$timestamp"
-        log "Backing up existing nvim config to $backup"
-        mv "$HOME/.config/nvim" "$backup"
-    fi
-
+    # Deploy nvim config (clean_existing_configs already removed old one)
     mkdir -p "$HOME/.config"
     cp -r "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim" || error "Failed to deploy nvim config"
     log "Deployed nvim config"
@@ -538,6 +572,9 @@ main() {
     # Environment setup
     detect_distro
     detect_sudo
+
+    # Clean existing configs for fresh install
+    clean_existing_configs
 
     # Install core dependencies
     install_core_deps
