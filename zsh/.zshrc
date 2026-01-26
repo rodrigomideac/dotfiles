@@ -236,7 +236,8 @@ alias mr="mise run"
 alias xc="xclip -selection clipboard"
 alias wakeup-cubo="wol c8:7f:54:d0:ed:a1"
 alias wakeup-pc="wol 00:d8:61:36:88:58"
-
+alias wakeup-pc="wol 00:d8:61:36:88:58"
+
 xc1() {
     if [ $# -eq 0 ]; then
         echo "Usage: xc <filename>"
