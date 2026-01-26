@@ -166,3 +166,10 @@ echo ""
 echo "==================================="
 echo "Diagnostic complete"
 echo "==================================="
+
+# Exit with proper error code for monitoring
+if [ $ISSUES_FOUND -eq 1 ]; then
+    exit 1
+fi
+
+exit 0

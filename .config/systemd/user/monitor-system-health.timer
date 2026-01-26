@@ -1,0 +1,17 @@
+[Unit]
+Description=System Health Monitoring Timer
+Documentation=man:systemd.timer(5)
+Requires=monitor-system-health.service
+
+[Timer]
+# Start 5 seconds after boot
+OnBootSec=5s
+
+# Run every 30 seconds after the service completes
+OnUnitActiveSec=30s
+
+# Persist timer across reboots (catch up missed runs)
+Persistent=true
+
+[Install]
+WantedBy=timers.target

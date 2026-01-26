@@ -1,0 +1,17 @@
+[Unit]
+Description=System Health Monitoring Service
+Documentation=man:systemd.service(5)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/monitor-system-health
+TimeoutStartSec=30
+StandardOutput=journal
+StandardError=journal
+
+# Restart on failure with 10 second delay
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target
