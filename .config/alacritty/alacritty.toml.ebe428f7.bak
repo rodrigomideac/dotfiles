@@ -45,8 +45,3 @@ style = "Italic"
 [font.bold_italic]
 family = "FiraCode Nerd Font"
 style = "Bold Italic"
-
-[[keyboard.bindings]]
-key = "Return"
-mods = "Shift"
-chars = "\u001B\r"

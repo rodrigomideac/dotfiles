@@ -112,16 +112,9 @@ function chpwd() {
 
 TIMEFMT=$'\n================\nCPU\t%P\nuser\t%*U\nsystem\t%*S\ntotal\t%*E'
 
-alias vpn-usp-connect="nmcli con up VPN\ USPNet --ask"
 alias copy-stdout="xclip -selection clipboard"
-
-# System Sources
-## SDKMAN for Java, Scala and SBT
-# source "$HOME/.sdkman/bin/sdkman-init.sh"
 [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 export PATH=$PATH:/usr/local/go/bin
-#export GO_PATH="~/devtools/go1.18"
-#export PATH=$PATH:$GO_PATH/bin
 export PATH=$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin
 export PATH=$PATH:$HOME/devtools
 
@@ -171,38 +164,6 @@ _uv_run_mod() {
 }
 compdef _uv_run_mod uv
 
-# Shell-GPT integration ZSH v0.2
-
-# if [[ -n "$BUFFER" ]]; then
-#     _sgpt_prev_cmd=$BUFFER
-#     BUFFER+="⌛"
-#     zle -I && zle redisplay
-#     BUFFER=$(sgpt --shell <<< "$_sgpt_prev_cmd" --no-interaction)
-#     zle end-of-line
-# fi
-# }
-# zle -N _sgpt_zsh
-# bindkey ^l _sgpt_zsh
-# Shell-GPT integration ZSH v0.2
-
-# Shell-GPT integration ZSH v0.2
-# _sgpt_zsh() {
-# if [[ -n "$BUFFER" ]]; then
-#     _sgpt_prev_cmd=$BUFFER
-#     BUFFER+="⌛"
-#     zle -I && zle redisplay
-#     BUFFER=$(sgpt --shell <<< "$_sgpt_prev_cmd" --no-interaction)
-#     zle end-of-line
-# fi
-# }
-# zle -N _sgpt_zsh
-# bindkey ^l _sgpt_zsh
-# Shell-GPT integration ZSH v0.2
-#
-
-# export GOPATH="${HOME}/go"
-# export PATH="${PATH}:${GOPATH}/bin"
-# export PATH="${PATH}:${HOME}/go/bin"
 export PATH="${PATH}:${HOME}/.local/share/gem/ruby/3.3.0"
 export PATH="${PATH}:/usr/lib/ruby/gems/3.3.0"
 command -v mise &>/dev/null && eval "$(mise activate zsh)"
@@ -237,26 +198,12 @@ alias xc="xclip -selection clipboard"
 alias wakeup-cubo="wol c8:7f:54:d0:ed:a1"
 alias wakeup-pc="wol 00:d8:61:36:88:58"
 alias wakeup-pc="wol 00:d8:61:36:88:58"
+alias cd="z"
+eval "$(zoxide init zsh)"
 
-xc1() {
-    if [ $# -eq 0 ]; then
-        echo "Usage: xc <filename>"
-        return 1
-    fi
-    cat "$1" | xclip -selection clipboard && echo "Copied $1 to clipboard"
-}
 alias jst="just --working-directory $HOME/dev-pessoal/dk --justfile $HOME/dev-pessoal/dk/justfile"
 alias idf="cd ~/esp/esp-idf && . ./export.sh && cd -"
 
-y() {
-    yazi --cwd-file /tmp/yazidir
-    if [ -f /tmp/yazidir ]; then
-        cd "$(cat /tmp/yazidir)"
-    fi
-}
-
-# zprof
-export YDOTOOL_SOCKET=/tmp/.ydotool_socket
 
 # G1GC somehow is broken with sbt builds
 export SBT_OPTS="-Xmx2G -Xss2M -XX:MaxMetaspaceSize=512M \
