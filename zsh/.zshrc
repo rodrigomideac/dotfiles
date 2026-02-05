@@ -200,7 +200,6 @@ alias wakeup-pc="wol 00:d8:61:36:88:58"
 alias wakeup-pc="wol 00:d8:61:36:88:58"
 alias cd="z"
 eval "$(zoxide init zsh)"
-
 alias jst="just --working-directory $HOME/dev-pessoal/dk --justfile $HOME/dev-pessoal/dk/justfile"
 alias idf="cd ~/esp/esp-idf && . ./export.sh && cd -"
 
