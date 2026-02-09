@@ -202,7 +202,37 @@ alias cd="z"
 eval "$(zoxide init zsh)"
 alias jst="just --working-directory $HOME/dev-pessoal/dk --justfile $HOME/dev-pessoal/dk/justfile"
 alias idf="cd ~/esp/esp-idf && . ./export.sh && cd -"
+alias cdan="claude --dangerously-skip-permissions"
+alias cdanc="claude --dangerously-skip-permissions -c"
 
+# Tmux dev session: dev [directory]
+dev() {
+    local dir="${1:-.}"
+    dir="$(builtin cd "$dir" > /dev/null 2>&1 && pwd)" || { echo "Directory not found: $1"; return 1; }
+    local name="$(basename "$dir" | tr '.' '_' | tr -cd '[:alnum:]_-')"
+    echo "DIR: $dir"
+    echo "NAME: $name"
+
+    if tmux has-session -t "$name" 2>/dev/null; then
+        if [[ -n "$TMUX" ]]; then tmux switch-client -t "$name"
+        else tmux attach-session -t "$name"; fi
+        return
+    fi
+
+    tmux new-session -d -s "$name" -c "$dir"
+    tmux rename-window -t "$name:0" "shell"
+    tmux send-keys -t "$name:0" "builtin cd '$dir'" C-m
+
+    tmux new-window -t "$name:8" -n "editor" -c "$dir"
+    tmux send-keys -t "$name:8" "builtin cd '$dir' && nvim ." C-m
+
+    tmux new-window -t "$name:9" -n "claude" -c "$dir"
+    tmux send-keys -t "$name:9" "builtin cd '$dir' && claude" C-m
+
+    tmux select-window -t "$name:8"
+    if [[ -n "$TMUX" ]]; then tmux switch-client -t "$name"
+    else tmux attach-session -t "$name"; fi
+}
 
 # G1GC somehow is broken with sbt builds
 export SBT_OPTS="-Xmx2G -Xss2M -XX:MaxMetaspaceSize=512M \

@@ -5,6 +5,7 @@ stow:
 	stow --target=${HOME} zsh
 	stow --target=${HOME} keyboard_layouts
 	stow --no-folding --target=${HOME}/.local/bin scripts
+	stow --target=${HOME} tmux
 
 stow-sudo:
 	sudo stow --no-folding --target=/etc/systemd/system systemd-services
