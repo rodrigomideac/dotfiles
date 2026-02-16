@@ -333,6 +333,29 @@ prepare_stow_targets() {
     log "Stow targets prepared"
 }
 
+# Setup Neovim plugins and Mason tools (requires nvim config already deployed via stow)
+install_nvim() {
+    log "Setting up Neovim plugins and Mason tools..."
+
+    # Clear all nvim state/cache for a clean install
+    for d in "$HOME/.local/share/nvim" "$HOME/.local/state/nvim" "$HOME/.cache/nvim"; do
+        if [ -d "$d" ]; then
+            log "Removing $d..."
+            rm -rf "$d"
+        fi
+    done
+
+    # Install Lazy plugins (headless)
+    log "Installing Lazy plugins..."
+    nvim --headless "+Lazy! sync" +qa || log "Warning: Lazy plugin sync had issues"
+
+    # Install Mason tools (headless)
+    log "Installing Mason tools..."
+    nvim --headless "+MasonToolsInstallSync" +qa || log "Warning: Mason tools install had issues"
+
+    log "Neovim plugins and Mason tools installed"
+}
+
 # Set zsh as default shell
 set_default_shell() {
     log "Setting zsh as default shell..."
@@ -368,7 +391,7 @@ print_summary() {
     log "What was done:"
     echo "  - Installed system packages and core dependencies"
     echo "  - Installed Oh My Zsh"
-    echo "  - Installed Neovim (AppImage)"
+    echo "  - Installed Neovim (AppImage) with plugins and Mason tools"
     echo "  - Installed mise and atuin"
     echo "  - Cloned dotfiles to $DOTFILES_DIR"
     echo "  - Deployed all configs via 'make stow'"
@@ -444,6 +467,9 @@ main() {
     log "Deploying configurations via 'make stow'..."
     make -C "$DOTFILES_DIR" stow || error "Failed to run 'make stow'"
     log "Configurations deployed"
+
+    # Setup Neovim plugins and Mason tools (after stow deploys nvim config)
+    install_nvim
 
     # Set default shell
     set_default_shell

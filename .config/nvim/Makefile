@@ -4,5 +4,5 @@ clean:
 	rm -rf ~/.cache/nvim
 
 install:
-	nvim --headless "+Lazy! sync " +qa
-	
+	nvim --headless "+Lazy! sync" +qa
+	nvim --headless "+MasonToolsInstallSync" +qa
