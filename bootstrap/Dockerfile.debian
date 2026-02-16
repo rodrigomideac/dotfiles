@@ -3,30 +3,35 @@ FROM debian:12
 # Prevent interactive prompts during apt install
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Copy dotfiles repository to simulate already-cloned state
-# (In real usage, script would clone from git, but for testing we use local copy)
-COPY . /root/.dotfiles/
+# Install git early so we can set up the local repo for testing
+RUN apt-get update && apt-get install -y git
 
-# Copy bootstrap script to a location in PATH
+# Copy dotfiles repository and commit any uncommitted changes for clone
+COPY . /tmp/dotfiles-repo/
+RUN cd /tmp/dotfiles-repo && git add -A && git commit -m "test" --allow-empty 2>/dev/null || true
+
+# Allow all users to clone from this repo
+RUN git config --system --add safe.directory '*'
+
+# Use local repo instead of GitHub for testing
+ENV DOTFILES_REPO_URL=/tmp/dotfiles-repo
+
+# Copy bootstrap script and assertions to a location in PATH
 COPY bootstrap/bootstrap.sh /usr/local/bin/bootstrap.sh
 COPY bootstrap/assertions.sh /usr/local/bin/assertions.sh
 RUN chmod +x /usr/local/bin/bootstrap.sh /usr/local/bin/assertions.sh
 
-# Test 1: Run bootstrap as root with --no-interactive
-# (No URL needed since dotfiles already at ~/.dotfiles)
-RUN bootstrap.sh --no-interactive
+# Test 1: Run bootstrap as root (cleans existing, clones from local repo, runs make stow)
+RUN bootstrap.sh
 
 # Test 2: Create non-root user and test idempotency
 RUN useradd -m -s /bin/bash testuser && \
     echo "testuser:123456" | chpasswd && \
     echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-# Copy dotfiles to testuser's home as well
-RUN cp -r /root/.dotfiles /home/testuser/.dotfiles && \
-    chown -R testuser:testuser /home/testuser/.dotfiles
 
 USER testuser
 WORKDIR /home/testuser
-RUN bootstrap.sh --no-interactive
+RUN bootstrap.sh
 
 # Run validation assertions
 RUN assertions.sh

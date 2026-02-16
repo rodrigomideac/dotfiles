@@ -2,36 +2,38 @@
 
 ## Architecture Overview
 
-The bootstrap system uses **parallel package arrays** with cleanup keys for easy extension:
+The bootstrap system installs all dependencies, clones the repo to `~/.dotfiles`, and runs `make stow` to deploy configs via GNU Stow symlinks.
+
+**No interactive prompts.** All packages are installed unconditionally. Desktop/visual tools (niri, alacritty, etc.) are listed in the summary for the user to install separately.
+
+### Package arrays
 
 - `DEBIAN_PACKAGES` - Packages for Debian/Ubuntu (apt)
 - `ARCH_PACKAGES` - Packages for Manjaro/Arch (pacman)
-- `SPECIAL_PACKAGES` - Non-package-manager installs (oh-my-zsh, mise, atuin)
 
-**Package format:** `"package_name:cleanup_key:description"`
+**Package format:** `"package_name:description"`
 - `package_name` - Package to install via package manager
-- `cleanup_key` - Identifier for .zshrc cleanup (empty if no cleanup needed)
-- `description` - User-friendly description shown in prompts
+- `description` - Human-readable description (for documentation only)
+
+### Special packages
+
+mise and atuin are installed via their official curl install scripts (not via package manager).
 
 ## How to Add New Packages
 
-### Step 1: Add to Package Arrays
+### System packages
 
-Edit `bootstrap/bootstrap.sh` around lines 20-30:
+Add to both arrays in `bootstrap/bootstrap.sh`:
 
 ```bash
 DEBIAN_PACKAGES=(
-    "neovim::Neovim text editor"
-    "build-essential::Build tools (gcc, make, etc.)"
-    # ADD NEW PACKAGES HERE:
-    "ripgrep:rg:Fast grep alternative"
+    ...
+    "new-pkg:Description of package"
 )
 
 ARCH_PACKAGES=(
-    "neovim::Neovim text editor"
-    "base-devel::Build tools (gcc, make, etc.)"
-    # ADD NEW PACKAGES HERE (may have different name):
-    "ripgrep:rg:Fast grep alternative"
+    ...
+    "new-pkg:Description of package"  # name may differ from Debian
 )
 ```
 
@@ -39,100 +41,50 @@ ARCH_PACKAGES=(
 - `build-essential` (Debian) = `base-devel` (Arch)
 - Most packages have the same name on both
 
-### Step 2: Add .zshrc Cleanup (If Needed)
+### Special packages (non-package-manager)
 
-If the package has initialization code in `.zshrc`, add cleanup logic in the `cleanup_zshrc()` function around line 330:
+Add installation logic in `install_special_packages()`:
 
 ```bash
-cleanup_zshrc() {
-    local zshrc="$HOME/.zshrc"
-
-    for cleanup_key in "${CLEANUP_KEYS[@]}"; do
-        case "$cleanup_key" in
-            # ... existing cases ...
-
-            # ADD NEW CLEANUP HERE:
-            rg)
-                echo "  Removing ripgrep aliases..."
-                sed -i '/alias rgf=/d' "$zshrc"
-                ;;
-        esac
-    done
+install_special_packages() {
+    ...
+    # new-tool
+    log "Installing new-tool..."
+    if command -v new-tool &>/dev/null; then
+        log "new-tool already installed, skipping"
+    else
+        curl -fsSL https://example.com/install.sh | sh || log "Warning: Failed to install new-tool (non-fatal)"
+    fi
 }
 ```
 
-**Common patterns:**
-- Remove specific lines: `sed -i '/pattern/d' "$zshrc"`
-- Remove multiple patterns: `sed -i '/pattern1/d; /pattern2/d' "$zshrc"`
-- Remove from plugins array: `sed -i 's/plugins=(\(.*\)plugin-name\(.*\))/plugins=(\1\2)/' "$zshrc"`
+### Stow conflicts
 
-### Step 3: Test
+If the new package creates config files that stow needs to manage, add the paths to `prepare_stow_targets()` so they get removed before `make stow` runs.
 
-```bash
-# Test in Docker
-make test
+## Main Flow
 
-# Test interactively (skip the package to test cleanup)
-./bootstrap.sh
-# Choose "n" when prompted for your new package
-# Verify references are removed: grep "pattern" ~/.zshrc
 ```
-
-## Examples
-
-### Example 1: Package with No .zshrc References
-
-```bash
-# In DEBIAN_PACKAGES and ARCH_PACKAGES:
-"htop::System monitor"
-#      ^^ Empty cleanup_key - no .zshrc cleanup needed
-```
-
-### Example 2: Package with .zshrc References
-
-```bash
-# In package arrays:
-"fzf:fzf:Fuzzy finder"
-#    ^^^ cleanup_key matches case in cleanup_zshrc()
-
-# In cleanup_zshrc():
-case "$cleanup_key" in
-    fzf)
-        echo "  Removing fzf keybindings..."
-        sed -i '/source.*fzf\/key-bindings/d' "$zshrc"
-        sed -i '/source.*fzf\/completion/d' "$zshrc"
-        ;;
-esac
-```
-
-### Example 3: Special Package (Non-Package-Manager)
-
-```bash
-# In SPECIAL_PACKAGES:
-SPECIAL_PACKAGES=(
-    "oh-my-zsh:oh-my-zsh:Oh My Zsh framework"
-    "new-tool:new-tool:Description"
-)
-
-# In install_special_packages() function (around line 260):
-case "$pkg" in
-    new-tool)
-        if [ -d "$HOME/.new-tool" ]; then
-            log "New tool already installed, skipping"
-        else
-            log "Installing new tool..."
-            # Custom installation commands here
-            curl -fsSL https://example.com/install.sh | bash
-        fi
-        ;;
-esac
+1. detect_distro          - Identify Debian/Ubuntu/Arch
+2. detect_sudo            - Root vs sudo
+3. clean_existing_configs - Remove ~/.dotfiles, ~/.oh-my-zsh, conflicting configs
+4. install_core_deps      - curl, git, zsh, stow
+5. install_ohmyzsh        - Oh My Zsh framework
+6. install_neovim         - Neovim AppImage (>= 0.11)
+7. clone_dotfiles         - Clone repo to ~/.dotfiles
+8. install_packages       - All system packages in one call
+9. install_special_packages - mise, atuin via curl
+10. prepare_stow_targets  - mkdir -p dirs, remove conflicting files
+11. make stow             - Deploy all configs as symlinks
+12. set_default_shell     - chsh to zsh
+13. print_summary         - What was done, what to install next
 ```
 
 ## File Structure
 
 ```
 bootstrap/
-├── bootstrap.sh           # Main script (~320 lines)
+├── bootstrap.sh           # Main script
 ├── Dockerfile.debian      # Debian 12 test container
 ├── assertions.sh          # Test validation
 ├── Makefile              # Test automation
@@ -140,36 +92,20 @@ bootstrap/
 └── CLAUDE.md             # This file
 ```
 
-## Key Functions in bootstrap.sh
+## Key Design Decisions
 
-- **Lines 20-35:** Package arrays definition
-- **Line 95:** `detect_sudo()` - Root/non-root detection
-- **Line 100:** `install_core_deps()` - Install curl, git, zsh
-- **Line 122:** `clone_dotfiles()` - Clone from GitHub
-- **Line 140:** `select_packages_interactive()` - Prompt for each package
-- **Line 218:** `install_packages()` - Install selected packages
-- **Line 258:** `install_special_packages()` - Special package installation
-- **Line 284:** `deploy_configs()` - Deploy .zshrc and nvim
-- **Line 311:** `cleanup_zshrc()` - Remove uninstalled package references
-- **Line 350:** `set_default_shell()` - Change to zsh
-- **Line 374:** `main()` - Entry point
+- **No interactive mode** - All packages install unconditionally. The `.zshrc` uses conditional checks (`command -v ... && ...`) for optional tools, so missing tools don't cause errors.
+- **No .zshrc modification** - Stow symlinks the `.zshrc` from the repo directly. No `sed` cleanup needed.
+- **No config copying** - `make stow` creates symlinks instead of copying files.
+- **Special packages are non-fatal** - mise and atuin install failures log a warning but don't abort the script.
+- **Desktop tools excluded** - Visual/desktop dependencies (niri, waybar, alacritty, etc.) are not installed by bootstrap. They're listed in the summary for manual installation.
 
-## Idempotency Notes
+## Testing
 
-The script is designed to be idempotent (can run multiple times):
-- Checks if packages already installed before installing
-- Skips cloning if `~/.dotfiles` already exists
-- Backs up existing configs with timestamps
-- Won't reinstall oh-my-zsh if already present
+```bash
+# Test in Docker
+make test
 
-## Testing Strategy
-
-1. **Docker tests** - Automated testing on Debian 12
-   - Runs as root (first install)
-   - Runs as testuser (idempotency test)
-   - Validates packages, configs, and .zshrc syntax
-
-2. **Manual testing** - Test interactive mode
-   - Run `./bootstrap.sh`
-   - Skip various packages
-   - Verify cleanup with `grep pattern ~/.zshrc`
+# Verify stow works
+make -C ~/.dotfiles stow
+```

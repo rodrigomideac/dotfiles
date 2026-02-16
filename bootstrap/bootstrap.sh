@@ -2,9 +2,18 @@
 #
 # Bootstrap script for dotfiles installation
 # Supports Debian, Ubuntu, and Manjaro/Arch
-# Prompts for each package individually with dynamic .zshrc cleanup
 #
-# Designed for ephemeral machines - always cleans and reinstalls everything
+# Installs all dependencies, clones the repo to ~/.dotfiles, and runs `make stow`.
+# Designed for ephemeral machines - always cleans and reinstalls everything.
+#
+# Usage:
+#   curl -fsSL https://raw.githubusercontent.com/.../bootstrap.sh | bash
+#   ./bootstrap.sh
+#
+# Environment variables:
+#   DOTFILES_REPO_URL  Git URL to clone dotfiles from (default: GitHub repo)
+#                      Supports any git-compatible URL (https, ssh, local path).
+#                      Example: DOTFILES_REPO_URL=/path/to/local/repo ./bootstrap.sh
 #
 
 set -e  # Exit on error
@@ -13,49 +22,43 @@ set -e  # Exit on error
 # Configuration
 # ==============================================================================
 
-DOTFILES_REPO_URL="https://github.com/rodrigomideac/dotfiles.git"
+DOTFILES_REPO_URL="${DOTFILES_REPO_URL:-https://github.com/rodrigomideac/dotfiles.git}"
 DOTFILES_DIR="$HOME/.dotfiles"
 
-# Package arrays: "package_name:cleanup_key:description"
-# cleanup_key is used to remove .zshrc references if package not installed
+# Package arrays: "package_name:description"
 
 DEBIAN_PACKAGES=(
-    "build-essential::Build tools (gcc, make, etc.)"
-    "fonts-powerline::Powerline fonts for zsh themes"
-    "xxd::Hex dump utility"
-    "xclip::Clipboard utility"
-    "xsel::Clipboard utility"
+    "build-essential:Build tools (gcc, make, etc.)"
+    "fonts-powerline:Powerline fonts for zsh themes"
+    "xxd:Hex dump utility"
+    "xclip:Clipboard utility"
+    "xsel:Clipboard utility"
+    "tmux:Terminal multiplexer"
+    "zoxide:Smarter cd command"
+    "ripgrep:Fast grep alternative"
+    "jq:JSON processor"
 )
 
 ARCH_PACKAGES=(
-    "base-devel::Build tools (gcc, make, etc.)"
-    "powerline-fonts::Powerline fonts for zsh themes"
-    "xxd::Hex dump utility"
-    "xclip::Clipboard utility"
-    "xsel::Clipboard utility"
-)
-
-# Special packages (not in package manager, require custom installation)
-# Note: oh-my-zsh is always installed (not optional)
-SPECIAL_PACKAGES=(
-    "mise:mise:Runtime version manager"
-    "atuin:atuin:Shell history manager"
+    "base-devel:Build tools (gcc, make, etc.)"
+    "powerline-fonts:Powerline fonts for zsh themes"
+    "xxd:Hex dump utility"
+    "xclip:Clipboard utility"
+    "xsel:Clipboard utility"
+    "tmux:Terminal multiplexer"
+    "zoxide:Smarter cd command"
+    "ripgrep:Fast grep alternative"
+    "jq:JSON processor"
 )
 
 # ==============================================================================
 # Global Variables
 # ==============================================================================
 
-INTERACTIVE=true
 DISTRO=""
 PKG_UPDATE=""
 PKG_INSTALL=""
 SUDO=""
-
-declare -a INSTALLED_PACKAGES
-declare -a SKIPPED_PACKAGES
-declare -a CLEANUP_KEYS
-declare -a INSTALLED_SPECIAL
 
 # ==============================================================================
 # Functions
@@ -68,57 +71,6 @@ log() {
 error() {
     echo "[bootstrap] ERROR: $*" >&2
     exit 1
-}
-
-# Clean all existing configurations for fresh install
-clean_existing_configs() {
-    log "Cleaning existing configurations for fresh install..."
-
-    # Remove dotfiles repo
-    if [ -d "$DOTFILES_DIR" ]; then
-        log "Removing $DOTFILES_DIR..."
-        rm -rf "$DOTFILES_DIR"
-    fi
-
-    # Remove oh-my-zsh
-    if [ -d "$HOME/.oh-my-zsh" ]; then
-        log "Removing ~/.oh-my-zsh..."
-        rm -rf "$HOME/.oh-my-zsh"
-    fi
-
-    # Remove nvim config
-    if [ -d "$HOME/.config/nvim" ]; then
-        log "Removing ~/.config/nvim..."
-        rm -rf "$HOME/.config/nvim"
-    fi
-
-    # Remove nvim data/cache (lazy, mason, etc.)
-    if [ -d "$HOME/.local/share/nvim" ]; then
-        log "Removing ~/.local/share/nvim..."
-        rm -rf "$HOME/.local/share/nvim"
-    fi
-
-    if [ -d "$HOME/.local/state/nvim" ]; then
-        log "Removing ~/.local/state/nvim..."
-        rm -rf "$HOME/.local/state/nvim"
-    fi
-
-    if [ -d "$HOME/.cache/nvim" ]; then
-        log "Removing ~/.cache/nvim..."
-        rm -rf "$HOME/.cache/nvim"
-    fi
-
-    # Remove .zshrc
-    if [ -f "$HOME/.zshrc" ]; then
-        log "Removing ~/.zshrc..."
-        rm -f "$HOME/.zshrc"
-    fi
-
-    # Remove any backup files from previous runs
-    rm -f "$HOME/.zshrc.backup."* 2>/dev/null || true
-    rm -rf "$HOME/.config/nvim.backup."* 2>/dev/null || true
-
-    log "Cleanup complete"
 }
 
 # Detect Linux distribution
@@ -155,15 +107,60 @@ detect_sudo() {
     fi
 }
 
-# Install core dependencies (curl, git, zsh)
-install_core_deps() {
-    log "Checking core dependencies (curl, git, zsh)..."
+# Clean all existing configurations for fresh install
+clean_existing_configs() {
+    log "Cleaning existing configurations for fresh install..."
 
-    # Check if already installed
+    # Remove dotfiles repo
+    if [ -d "$DOTFILES_DIR" ]; then
+        log "Removing $DOTFILES_DIR..."
+        rm -rf "$DOTFILES_DIR"
+    fi
+
+    # Remove oh-my-zsh
+    if [ -d "$HOME/.oh-my-zsh" ]; then
+        log "Removing ~/.oh-my-zsh..."
+        rm -rf "$HOME/.oh-my-zsh"
+    fi
+
+    # Remove configs that would conflict with stow
+    for f in "$HOME/.zshrc" "$HOME/.vimrc" "$HOME/.tmux.conf" "$HOME/.imwheelrc"; do
+        if [ -f "$f" ] || [ -L "$f" ]; then
+            log "Removing $f..."
+            rm -f "$f"
+        fi
+    done
+
+    # Remove nvim config
+    if [ -d "$HOME/.config/nvim" ] || [ -L "$HOME/.config/nvim" ]; then
+        log "Removing ~/.config/nvim..."
+        rm -rf "$HOME/.config/nvim"
+    fi
+
+    # Remove nvim data/cache (lazy, mason, etc.)
+    for d in "$HOME/.local/share/nvim" "$HOME/.local/state/nvim" "$HOME/.cache/nvim"; do
+        if [ -d "$d" ]; then
+            log "Removing $d..."
+            rm -rf "$d"
+        fi
+    done
+
+    # Remove any backup files from previous runs
+    rm -f "$HOME/.zshrc.backup."* 2>/dev/null || true
+    rm -rf "$HOME/.config/nvim.backup."* 2>/dev/null || true
+
+    log "Cleanup complete"
+}
+
+# Install core dependencies (curl, git, zsh, stow)
+install_core_deps() {
+    log "Checking core dependencies (curl, git, zsh, stow)..."
+
     local need_install=false
     command -v curl >/dev/null 2>&1 || need_install=true
     command -v git >/dev/null 2>&1 || need_install=true
     command -v zsh >/dev/null 2>&1 || need_install=true
+    command -v stow >/dev/null 2>&1 || need_install=true
 
     if [ "$need_install" = false ]; then
         log "Core dependencies already installed, skipping"
@@ -172,7 +169,7 @@ install_core_deps() {
 
     log "Installing core dependencies..."
     $SUDO $PKG_UPDATE || error "Failed to update package manager"
-    $SUDO $PKG_INSTALL curl git zsh sudo || error "Failed to install core dependencies"
+    $SUDO $PKG_INSTALL curl git zsh stow sudo || error "Failed to install core dependencies"
 
     log "Core dependencies installed"
 }
@@ -249,23 +246,6 @@ install_neovim() {
     log "Neovim installed"
 }
 
-# Setup neovim plugins (Lazy, Mason, Treesitter)
-setup_neovim_plugins() {
-    log "Setting up Neovim plugins..."
-
-    # Remove supermaven plugin (requires license)
-    sed -i '/supermaven/d' "$HOME/.config/nvim/lazyvim.json"
-    sed -i '/supermaven/d' "$HOME/.config/nvim/lazy-lock.json"
-
-    # Run make clean first for idempotency
-    log "Running make clean..."
-    make -C "$HOME/.config/nvim" clean || log "Warning: make clean had issues (may be first run)"
-
-    log "Running make install..."
-    make -C "$HOME/.config/nvim" install || log "Warning: Neovim plugin setup had issues"
-    log "Neovim plugins installed"
-}
-
 # Clone dotfiles repository
 clone_dotfiles() {
     log "Cloning dotfiles from $DOTFILES_REPO_URL..."
@@ -273,215 +253,84 @@ clone_dotfiles() {
     log "Dotfiles cloned to $DOTFILES_DIR"
 }
 
-# Validate dotfiles structure
-validate_dotfiles() {
-    log "Validating dotfiles structure..."
-
-    [ -f "$DOTFILES_DIR/zsh/.zshrc" ] || error "Missing zsh/.zshrc in dotfiles"
-    [ -d "$DOTFILES_DIR/.config/nvim" ] || error "Missing .config/nvim in dotfiles"
-
-    log "Dotfiles structure validated"
-}
-
-# Interactive package selection
-select_packages_interactive() {
-    log "=== Package Installation ==="
-    echo "For each package, press Y to install, n to skip (default: Y)"
-    echo ""
-
-    # Select package array based on distro
-    local packages
-    if [ "$DISTRO" = "debian" ] || [ "$DISTRO" = "ubuntu" ]; then
-        packages=("${DEBIAN_PACKAGES[@]}")
-    else
-        packages=("${ARCH_PACKAGES[@]}")
-    fi
-
-    # Prompt for each package
-    for pkg_spec in "${packages[@]}"; do
-        IFS=':' read -r pkg_name cleanup_key description <<< "$pkg_spec"
-
-        read -p "Install $description ($pkg_name)? [Y/n] " -n 1 -r
-        echo
-
-        if [[ $REPLY =~ ^[Nn]$ ]]; then
-            SKIPPED_PACKAGES+=("$pkg_name")
-            [ -n "$cleanup_key" ] && CLEANUP_KEYS+=("$cleanup_key")
-            log "Skipped: $pkg_name"
-        else
-            INSTALLED_PACKAGES+=("$pkg_name")
-            log "Selected: $pkg_name"
-        fi
-    done
-
-    # Prompt for special packages
-    echo ""
-    log "=== Special Packages ==="
-    for pkg_spec in "${SPECIAL_PACKAGES[@]}"; do
-        IFS=':' read -r pkg_name cleanup_key description <<< "$pkg_spec"
-
-        read -p "Install $description? [Y/n] " -n 1 -r
-        echo
-
-        if [[ $REPLY =~ ^[Nn]$ ]]; then
-            CLEANUP_KEYS+=("$cleanup_key")
-            log "Skipped: $pkg_name"
-        else
-            INSTALLED_SPECIAL+=("$pkg_name")
-            log "Selected: $pkg_name"
-        fi
-    done
-}
-
-# Non-interactive package selection (install all)
-select_packages_noninteractive() {
-    log "Non-interactive mode: installing all packages"
-
-    # Select package array based on distro
-    local packages
-    if [ "$DISTRO" = "debian" ] || [ "$DISTRO" = "ubuntu" ]; then
-        packages=("${DEBIAN_PACKAGES[@]}")
-    else
-        packages=("${ARCH_PACKAGES[@]}")
-    fi
-
-    # Add all packages to install list
-    for pkg_spec in "${packages[@]}"; do
-        IFS=':' read -r pkg_name cleanup_key description <<< "$pkg_spec"
-        INSTALLED_PACKAGES+=("$pkg_name")
-    done
-
-    # Add all special packages
-    for pkg_spec in "${SPECIAL_PACKAGES[@]}"; do
-        IFS=':' read -r pkg_name cleanup_key description <<< "$pkg_spec"
-        INSTALLED_SPECIAL+=("$pkg_name")
-    done
-}
-
-# Install selected packages
+# Install all system packages
 install_packages() {
-    if [ ${#INSTALLED_PACKAGES[@]} -eq 0 ]; then
-        log "No packages to install"
-        return
+    local packages
+    if [ "$DISTRO" = "debian" ] || [ "$DISTRO" = "ubuntu" ]; then
+        packages=("${DEBIAN_PACKAGES[@]}")
+    else
+        packages=("${ARCH_PACKAGES[@]}")
     fi
 
-    log "Installing packages: ${INSTALLED_PACKAGES[*]}"
-
-    local packages_to_install=()
-
-    for pkg in "${INSTALLED_PACKAGES[@]}"; do
-        # Check if package is already installed (rough check using command existence)
-        case "$pkg" in
-            neovim)
-                command -v nvim >/dev/null 2>&1 || packages_to_install+=("$pkg")
-                ;;
-            build-essential|base-devel)
-                command -v gcc >/dev/null 2>&1 || packages_to_install+=("$pkg")
-                ;;
-            *)
-                # For other packages, assume they need to be installed
-                packages_to_install+=("$pkg")
-                ;;
-        esac
+    local pkg_names=()
+    for pkg_spec in "${packages[@]}"; do
+        IFS=':' read -r pkg_name description <<< "$pkg_spec"
+        pkg_names+=("$pkg_name")
     done
 
-    if [ ${#packages_to_install[@]} -eq 0 ]; then
-        log "All selected packages already installed"
-        return
-    fi
-
-    for pkg in "${packages_to_install[@]}"; do
-        log "Installing $pkg..."
-        $SUDO $PKG_INSTALL "$pkg" || log "Warning: Failed to install $pkg (may already be installed)"
-    done
-
+    log "Installing packages: ${pkg_names[*]}"
+    $SUDO $PKG_INSTALL "${pkg_names[@]}" || error "Failed to install packages"
     log "Package installation complete"
 }
 
-# Install special packages
+# Install special packages (mise, atuin)
 install_special_packages() {
-    for pkg in "${INSTALLED_SPECIAL[@]}"; do
-        case "$pkg" in
-            mise)
-                log "Skipping mise installation (not available via package manager)"
-                log "Visit https://mise.jdx.dev for installation instructions"
-                CLEANUP_KEYS+=("mise")
-                ;;
-            atuin)
-                log "Skipping atuin installation (not available via package manager)"
-                log "Visit https://atuin.sh for installation instructions"
-                CLEANUP_KEYS+=("atuin")
-                ;;
-        esac
-    done
-}
-
-# Deploy configurations
-deploy_configs() {
-    log "Deploying configurations..."
-
-    # Deploy .zshrc (clean_existing_configs already removed old one)
-    cp "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc" || error "Failed to deploy .zshrc"
-
-    # Remove kube-ps1 plugin (not included in bootstrap)
-    sed -i 's/plugins=(git kube-ps1)/plugins=(git)/' "$HOME/.zshrc"
-    sed -i '/kube_ps1/d' "$HOME/.zshrc"
-
-    log "Deployed .zshrc"
-
-    # Deploy nvim config (clean_existing_configs already removed old one)
-    mkdir -p "$HOME/.config"
-    cp -r "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim" || error "Failed to deploy nvim config"
-    log "Deployed nvim config"
-}
-
-# Cleanup .zshrc for skipped packages
-cleanup_zshrc() {
-    if [ ${#CLEANUP_KEYS[@]} -eq 0 ]; then
-        log "No cleanup needed for .zshrc"
-        return
+    # mise
+    log "Installing mise..."
+    if command -v mise &>/dev/null; then
+        log "mise already installed, skipping"
+    else
+        curl https://mise.jdx.dev/install.sh | sh || log "Warning: Failed to install mise (non-fatal)"
     fi
 
-    log "Cleaning up .zshrc for skipped packages..."
+    # atuin
+    log "Installing atuin..."
+    if command -v atuin &>/dev/null; then
+        log "atuin already installed, skipping"
+    else
+        curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh || log "Warning: Failed to install atuin (non-fatal)"
+    fi
+}
 
-    local zshrc="$HOME/.zshrc"
+# Prepare filesystem for stow by removing conflicting files/dirs
+prepare_stow_targets() {
+    log "Preparing stow targets..."
 
-    for cleanup_key in "${CLEANUP_KEYS[@]}"; do
-        case "$cleanup_key" in
-            cargo)
-                log "  Removing cargo references..."
-                sed -i '/\.cargo\/env/d' "$zshrc"
-                ;;
-            nvm)
-                log "  Removing nvm references..."
-                sed -i '/NVM_DIR/d; /nvm\.sh/d; /init-nvm\.sh/d' "$zshrc"
-                ;;
-            kube-ps1)
-                log "  Removing kubectl/kube-ps1 references..."
-                sed -i '/kube-ps1/d; /kube_ps1/d' "$zshrc"
-                # Remove kube-ps1 from plugins array
-                sed -i 's/plugins=(\(.*\)kube-ps1\(.*\))/plugins=(\1\2)/' "$zshrc"
-                ;;
-            mise)
-                log "  Removing mise references..."
-                sed -i '/mise activate/d; /alias mr="mise run"/d' "$zshrc"
-                ;;
-            atuin)
-                log "  Removing atuin references..."
-                sed -i '/atuin/d' "$zshrc"
-                ;;
-            oh-my-zsh)
-                log "  Removing oh-my-zsh framework..."
-                sed -i '/ZSH=/d; /ZSH_THEME=/d; /plugins=/d; /source.*oh-my-zsh\.sh/d' "$zshrc"
-                ;;
-            jj)
-                log "  Removing jj references..."
-                sed -i '/jj util completion/d' "$zshrc"
-                ;;
-        esac
+    # Create directories that stow targets into
+    mkdir -p "$HOME/.config"
+    mkdir -p "$HOME/.local/bin"
+
+    # Remove files that conflict with stow symlinks from HOME-targeted packages
+    for f in "$HOME/.zshrc" "$HOME/.vimrc" "$HOME/.tmux.conf" "$HOME/.imwheelrc" \
+             "$HOME/.Xmodmap_clean" "$HOME/.Xmodmap_k56"; do
+        if [ -f "$f" ] || [ -L "$f" ]; then
+            log "Removing $f (conflicts with stow)..."
+            rm -f "$f"
+        fi
     done
 
-    log "Cleaned up .zshrc"
+    # Remove .config subdirs that conflict with stow symlinks
+    local config_dirs=(
+        alacritty atuin autostart dmenu-extended dunst feh fontconfig
+        i3 io.datasette.llm kanshi mise niri nvim picom polybar
+        ranger rofi systemd waybar
+    )
+    for d in "${config_dirs[@]}"; do
+        if [ -d "$HOME/.config/$d" ] || [ -L "$HOME/.config/$d" ]; then
+            log "Removing ~/.config/$d (conflicts with stow)..."
+            rm -rf "$HOME/.config/$d"
+        fi
+    done
+
+    # Remove nvim data/cache for clean editor state
+    for d in "$HOME/.local/share/nvim" "$HOME/.local/state/nvim" "$HOME/.cache/nvim"; do
+        if [ -d "$d" ]; then
+            log "Removing $d..."
+            rm -rf "$d"
+        fi
+    done
+
+    log "Stow targets prepared"
 }
 
 # Set zsh as default shell
@@ -516,31 +365,38 @@ print_summary() {
     log "========================================="
     echo ""
 
-    log "Installed packages:"
-    for pkg in "${INSTALLED_PACKAGES[@]}"; do
-        echo "  - $pkg"
-    done
-
-    if [ ${#INSTALLED_SPECIAL[@]} -gt 0 ]; then
-        echo ""
-        log "Installed special packages:"
-        for pkg in "${INSTALLED_SPECIAL[@]}"; do
-            echo "  - $pkg"
-        done
-    fi
-
-    if [ ${#SKIPPED_PACKAGES[@]} -gt 0 ]; then
-        echo ""
-        log "Skipped packages (references removed from .zshrc):"
-        for pkg in "${SKIPPED_PACKAGES[@]}"; do
-            echo "  - $pkg"
-        done
-    fi
+    log "What was done:"
+    echo "  - Installed system packages and core dependencies"
+    echo "  - Installed Oh My Zsh"
+    echo "  - Installed Neovim (AppImage)"
+    echo "  - Installed mise and atuin"
+    echo "  - Cloned dotfiles to $DOTFILES_DIR"
+    echo "  - Deployed all configs via 'make stow'"
+    echo "  - Set zsh as default shell"
 
     echo ""
-    log "Deployed configurations:"
-    echo "  - ~/.zshrc"
-    echo "  - ~/.config/nvim/"
+    log "Desktop/visual dependencies NOT installed (install separately):"
+    echo "  - niri          Wayland compositor (window manager)"
+    echo "  - kanshi        Display/monitor configuration"
+    echo "  - waybar        Status bar"
+    echo "  - fuzzel        Application launcher"
+    echo "  - swaylock      Screen locker"
+    echo "  - swaybg        Wallpaper setter"
+    echo "  - swayidle      Idle management daemon"
+    echo "  - alacritty     Terminal emulator"
+    echo "  - dunst         Notification daemon"
+    echo "  - brightnessctl Brightness control"
+    echo "  - picom         X11 compositor (if using i3)"
+    echo "  - i3            X11 window manager (alternative to niri)"
+    echo "  - polybar       Status bar for i3"
+    echo "  - rofi          App launcher for i3"
+    echo "  - feh           Image viewer / wallpaper setter (X11)"
+    echo "  - Browser       google-chrome-stable / firefox"
+
+    echo ""
+    log "Additional make targets you can run:"
+    echo "  make stow-sudo  - Deploy systemd services (requires sudo)"
+    echo "  make stow-work  - Deploy bash .profile config (work environments)"
 
     echo ""
     log "Next steps:"
@@ -556,19 +412,6 @@ print_summary() {
 main() {
     log "Starting bootstrap..."
 
-    # Parse arguments
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            --no-interactive)
-                INTERACTIVE=false
-                shift
-                ;;
-            *)
-                shift
-                ;;
-        esac
-    done
-
     # Environment setup
     detect_distro
     detect_sudo
@@ -576,7 +419,7 @@ main() {
     # Clean existing configs for fresh install
     clean_existing_configs
 
-    # Install core dependencies
+    # Install core dependencies (curl, git, zsh, stow)
     install_core_deps
 
     # Install oh-my-zsh (always required)
@@ -587,25 +430,20 @@ main() {
 
     # Clone dotfiles
     clone_dotfiles
-    validate_dotfiles
 
-    # Package selection
-    if [ "$INTERACTIVE" = true ]; then
-        select_packages_interactive
-    else
-        select_packages_noninteractive
-    fi
-
-    # Install packages
+    # Install all system packages
     install_packages
+
+    # Install special packages (mise, atuin)
     install_special_packages
 
-    # Deploy configs
-    deploy_configs
-    cleanup_zshrc
+    # Prepare filesystem for stow
+    prepare_stow_targets
 
-    # Setup neovim plugins
-    setup_neovim_plugins
+    # Deploy all configs via stow
+    log "Deploying configurations via 'make stow'..."
+    make -C "$DOTFILES_DIR" stow || error "Failed to run 'make stow'"
+    log "Configurations deployed"
 
     # Set default shell
     set_default_shell
