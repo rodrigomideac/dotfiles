@@ -336,23 +336,7 @@ prepare_stow_targets() {
 # Setup Neovim plugins and Mason tools (requires nvim config already deployed via stow)
 install_nvim() {
     log "Setting up Neovim plugins and Mason tools..."
-
-    # Clear all nvim state/cache for a clean install
-    for d in "$HOME/.local/share/nvim" "$HOME/.local/state/nvim" "$HOME/.cache/nvim"; do
-        if [ -d "$d" ]; then
-            log "Removing $d..."
-            rm -rf "$d"
-        fi
-    done
-
-    # Install Lazy plugins (headless)
-    log "Installing Lazy plugins..."
-    nvim --headless "+Lazy! sync" +qa || log "Warning: Lazy plugin sync had issues"
-
-    # Install Mason tools (headless)
-    log "Installing Mason tools..."
-    nvim --headless "+MasonToolsInstallSync" +qa || log "Warning: Mason tools install had issues"
-
+    "$DOTFILES_DIR/bootstrap/install-nvim-plugins.sh"
     log "Neovim plugins and Mason tools installed"
 }
 
