@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source shared helpers only if not already loaded (i.e. standalone mode)
 if [ -z "${DISTRO:-}" ]; then
-    source "$SCRIPT_DIR//lib/lib.sh"
+    source "$SCRIPT_DIR/lib.sh"
     detect_distro
     detect_sudo
 fi

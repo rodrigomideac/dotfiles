@@ -143,7 +143,7 @@ install_ohmyzsh() {
 
 # Install neovim via AppImage (always required)
 install_neovim() {
-    "$SCRIPT_DIR/install-neovim.sh"
+    "$SCRIPT_DIR/lib/install-neovim.sh"
 }
 
 # Clone dotfiles repository
