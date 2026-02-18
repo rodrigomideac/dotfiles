@@ -18,6 +18,9 @@
 
 set -e  # Exit on error
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/lib.sh"
+
 # ==============================================================================
 # Configuration
 # ==============================================================================
@@ -63,49 +66,6 @@ SUDO=""
 # ==============================================================================
 # Functions
 # ==============================================================================
-
-log() {
-    echo "[bootstrap] $*"
-}
-
-error() {
-    echo "[bootstrap] ERROR: $*" >&2
-    exit 1
-}
-
-# Detect Linux distribution
-detect_distro() {
-    log "Detecting distribution..."
-
-    if [ -f /etc/debian_version ]; then
-        if grep -qi ubuntu /etc/os-release 2>/dev/null; then
-            DISTRO="ubuntu"
-        else
-            DISTRO="debian"
-        fi
-        PKG_UPDATE="apt update"
-        PKG_INSTALL="apt install -y"
-    elif [ -f /etc/arch-release ]; then
-        DISTRO="manjaro"
-        PKG_UPDATE="pacman -Sy"
-        PKG_INSTALL="pacman -S --noconfirm"
-    else
-        error "Unsupported distribution"
-    fi
-
-    log "Detected: $DISTRO"
-}
-
-# Detect if running as root
-detect_sudo() {
-    if [ "$EUID" -eq 0 ]; then
-        log "Running as root"
-        SUDO=""
-    else
-        log "Running as non-root user, will use sudo"
-        SUDO="sudo"
-    fi
-}
 
 # Clean all existing configurations for fresh install
 clean_existing_configs() {
@@ -183,67 +143,7 @@ install_ohmyzsh() {
 
 # Install neovim via AppImage (always required)
 install_neovim() {
-    if command -v nvim &>/dev/null; then
-        # Check version - we need at least 0.11
-        local version=$(nvim --version | head -1 | sed 's/NVIM v//' | cut -d. -f1,2)
-        local major=$(echo "$version" | cut -d. -f1)
-        local minor=$(echo "$version" | cut -d. -f2)
-
-        if [ "$major" -gt 0 ] || [ "$minor" -ge 11 ]; then
-            log "Neovim $version already installed (>= 0.11), skipping"
-            return
-        else
-            log "Neovim $version is too old (< 0.11), removing..."
-            $SUDO rm -rf /opt/nvim
-            $SUDO rm -f /usr/bin/nvim /usr/local/bin/nvim
-            # Try to remove package manager version if exists
-            if [ "$DISTRO" = "debian" ] || [ "$DISTRO" = "ubuntu" ]; then
-                $SUDO apt remove -y neovim 2>/dev/null || true
-            elif [ "$DISTRO" = "manjaro" ]; then
-                $SUDO pacman -Rs --noconfirm neovim 2>/dev/null || true
-            fi
-        fi
-    fi
-
-    log "Installing Neovim via AppImage..."
-
-    # Detect architecture
-    local arch=$(uname -m)
-    local appimage_name
-    case "$arch" in
-        x86_64) appimage_name="nvim-linux-x86_64.appimage" ;;
-        aarch64|arm64) appimage_name="nvim-linux-arm64.appimage" ;;
-        *) error "Unsupported architecture: $arch" ;;
-    esac
-
-    local temp_dir=$(mktemp -d)
-    cd "$temp_dir"
-
-    curl -LO "https://github.com/neovim/neovim/releases/latest/download/$appimage_name" || error "Failed to download Neovim AppImage"
-    chmod u+x "$appimage_name"
-
-    # Try running AppImage directly, fall back to extraction if FUSE unavailable
-    if ./"$appimage_name" --version &>/dev/null; then
-        # AppImage works directly - install to /opt/nvim
-        $SUDO mkdir -p /opt/nvim
-        $SUDO mv "$appimage_name" /opt/nvim/nvim
-        $SUDO chmod +x /opt/nvim/nvim
-        $SUDO ln -sf /opt/nvim/nvim /usr/bin/nvim
-        log "Neovim installed to /opt/nvim/nvim"
-    else
-        # AppImage doesn't work (no FUSE) - extract and install
-        log "FUSE unavailable, extracting AppImage..."
-        ./"$appimage_name" --appimage-extract >/dev/null 2>&1
-        $SUDO rm -rf /opt/nvim
-        $SUDO mv squashfs-root /opt/nvim
-        $SUDO ln -sf /opt/nvim/AppRun /usr/bin/nvim
-        log "Neovim extracted and installed to /opt/nvim"
-    fi
-
-    cd - >/dev/null
-    rm -rf "$temp_dir"
-
-    log "Neovim installed"
+    "$SCRIPT_DIR/install-neovim.sh"
 }
 
 # Clone dotfiles repository
@@ -322,21 +222,13 @@ prepare_stow_targets() {
         fi
     done
 
-    # Remove nvim data/cache for clean editor state
-    for d in "$HOME/.local/share/nvim" "$HOME/.local/state/nvim" "$HOME/.cache/nvim"; do
-        if [ -d "$d" ]; then
-            log "Removing $d..."
-            rm -rf "$d"
-        fi
-    done
-
     log "Stow targets prepared"
 }
 
 # Setup Neovim plugins and Mason tools (requires nvim config already deployed via stow)
 install_nvim() {
     log "Setting up Neovim plugins and Mason tools..."
-    "$DOTFILES_DIR/bootstrap/install-nvim-plugins.sh"
+    make -C "$DOTFILES_DIR/.config/nvim" configure
     log "Neovim plugins and Mason tools installed"
 }
 
