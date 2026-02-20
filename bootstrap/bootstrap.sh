@@ -3,23 +3,27 @@
 # Bootstrap script for dotfiles installation
 # Supports Debian, Ubuntu, and Manjaro/Arch
 #
-# Installs all dependencies, clones the repo to ~/.dotfiles, and runs `make stow`.
-# Designed for ephemeral machines - always cleans and reinstalls everything.
+# Two modes of operation:
+#   Remote mode: When run via curl|bash or from outside ~/.dotfiles, clones the
+#                repo to ~/.dotfiles and re-execs itself in local mode.
+#   Local mode:  When run from inside ~/.dotfiles, performs the full setup
+#                (install deps, oh-my-zsh, neovim, stow configs, etc.).
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/rodrigomideac/dotfiles/refs/heads/master/bootstrap/bootstrap.sh | bash
-#   ./bootstrap.sh
+#   ~/.dotfiles/bootstrap/bootstrap.sh
+#
+# Options:
+#   --yes, -y          Skip interactive prompts (auto-confirm)
 #
 # Environment variables:
 #   DOTFILES_REPO_URL  Git URL to clone dotfiles from (default: GitHub repo)
 #                      Supports any git-compatible URL (https, ssh, local path).
 #                      Example: DOTFILES_REPO_URL=/path/to/local/repo ./bootstrap.sh
+#   BOOTSTRAP_YES      Set to 1 to skip interactive prompts (same as --yes)
 #
 
 set -e  # Exit on error
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/lib/lib.sh"
 
 # ==============================================================================
 # Configuration
@@ -27,6 +31,85 @@ source "$SCRIPT_DIR/lib/lib.sh"
 
 DOTFILES_REPO_URL="${DOTFILES_REPO_URL:-https://github.com/rodrigomideac/dotfiles.git}"
 DOTFILES_DIR="$HOME/.dotfiles"
+
+# ==============================================================================
+# Parse flags
+# ==============================================================================
+
+for arg in "$@"; do
+    case "$arg" in
+        --yes|-y) BOOTSTRAP_YES=1 ;;
+    esac
+done
+
+# ==============================================================================
+# Mode detection
+# ==============================================================================
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)" || SCRIPT_DIR=""
+
+if [ -f "$SCRIPT_DIR/lib/lib.sh" ] && [ "$SCRIPT_DIR" = "$DOTFILES_DIR/bootstrap" ]; then
+    MODE="local"
+else
+    MODE="remote"
+fi
+
+# ==============================================================================
+# Remote mode — clone repo and hand off to local mode
+# ==============================================================================
+
+remote_mode() {
+    echo "[bootstrap] Running in remote mode..."
+
+    if ! command -v git >/dev/null 2>&1; then
+        echo "[bootstrap] ERROR: git is required but not installed." >&2
+        echo "[bootstrap] Install it first:" >&2
+        echo "[bootstrap]   Debian/Ubuntu: apt install -y git" >&2
+        echo "[bootstrap]   Arch/Manjaro:  pacman -S --noconfirm git" >&2
+        exit 1
+    fi
+
+    if [ -d "$DOTFILES_DIR" ]; then
+        if [ "${BOOTSTRAP_YES:-0}" = "1" ]; then
+            echo "[bootstrap] Removing existing $DOTFILES_DIR..."
+            rm -rf "$DOTFILES_DIR"
+        else
+            echo "[bootstrap] $DOTFILES_DIR already exists."
+            printf "[bootstrap] Remove it and re-clone? [y/N] "
+            read -r answer < /dev/tty
+            case "$answer" in
+                [yY]|[yY][eE][sS])
+                    echo "[bootstrap] Removing $DOTFILES_DIR..."
+                    rm -rf "$DOTFILES_DIR"
+                    ;;
+                *)
+                    echo "[bootstrap] Aborting."
+                    exit 1
+                    ;;
+            esac
+        fi
+    fi
+
+    echo "[bootstrap] Cloning dotfiles from $DOTFILES_REPO_URL..."
+    git clone "$DOTFILES_REPO_URL" "$DOTFILES_DIR" || {
+        echo "[bootstrap] ERROR: Failed to clone dotfiles" >&2
+        exit 1
+    }
+    echo "[bootstrap] Dotfiles cloned to $DOTFILES_DIR"
+
+    exec "$DOTFILES_DIR/bootstrap/bootstrap.sh" "$@"
+}
+
+if [ "$MODE" = "remote" ]; then
+    remote_mode "$@"
+    exit 0
+fi
+
+# ==============================================================================
+# Local mode — full setup from inside ~/.dotfiles
+# ==============================================================================
+
+source "$SCRIPT_DIR/lib/lib.sh"
 
 # Package arrays: "package_name:description"
 
@@ -70,12 +153,6 @@ SUDO=""
 # Clean all existing configurations for fresh install
 clean_existing_configs() {
     log "Cleaning existing configurations for fresh install..."
-
-    # Remove dotfiles repo
-    if [ -d "$DOTFILES_DIR" ]; then
-        log "Removing $DOTFILES_DIR..."
-        rm -rf "$DOTFILES_DIR"
-    fi
 
     # Remove oh-my-zsh
     if [ -d "$HOME/.oh-my-zsh" ]; then
@@ -144,13 +221,6 @@ install_ohmyzsh() {
 # Install neovim via AppImage (always required)
 install_neovim() {
     "$SCRIPT_DIR/lib/install-neovim.sh"
-}
-
-# Clone dotfiles repository
-clone_dotfiles() {
-    log "Cloning dotfiles from $DOTFILES_REPO_URL..."
-    git clone "$DOTFILES_REPO_URL" "$DOTFILES_DIR" || error "Failed to clone dotfiles"
-    log "Dotfiles cloned to $DOTFILES_DIR"
 }
 
 # Install all system packages
@@ -269,7 +339,7 @@ print_summary() {
     echo "  - Installed Oh My Zsh"
     echo "  - Installed Neovim (AppImage) with plugins and Mason tools"
     echo "  - Installed mise and atuin"
-    echo "  - Cloned dotfiles to $DOTFILES_DIR"
+    echo "  - Dotfiles at $DOTFILES_DIR"
     echo "  - Deployed all configs via 'make stow'"
     echo "  - Set zsh as default shell"
 
@@ -326,9 +396,6 @@ main() {
 
     # Install neovim via AppImage (always required)
     install_neovim
-
-    # Clone dotfiles
-    clone_dotfiles
 
     # Install all system packages
     install_packages

@@ -8,7 +8,11 @@ RUN apt-get update && apt-get install -y git
 
 # Copy dotfiles repository and commit any uncommitted changes for clone
 COPY . /tmp/dotfiles-repo/
-RUN cd /tmp/dotfiles-repo && git add -A && git commit -m "test" --allow-empty 2>/dev/null || true
+RUN cd /tmp/dotfiles-repo && \
+    git config user.email "test@test" && \
+    git config user.name "test" && \
+    git add -A && \
+    git commit -m "test" --allow-empty
 
 # Allow all users to clone from this repo
 RUN git config --system --add safe.directory '*'
@@ -16,12 +20,17 @@ RUN git config --system --add safe.directory '*'
 # Use local repo instead of GitHub for testing
 ENV DOTFILES_REPO_URL=/tmp/dotfiles-repo
 
-# Copy bootstrap script and assertions to a location in PATH
+# Skip interactive prompts in Docker
+ENV BOOTSTRAP_YES=1
+
+# Copy bootstrap script and assertions to a location in PATH.
+# bootstrap.sh runs in remote mode here (not inside ~/.dotfiles), so it will
+# clone the repo to ~/.dotfiles and re-exec itself in local mode.
 COPY bootstrap/bootstrap.sh /usr/local/bin/bootstrap.sh
-COPY bootstrap/assertions.sh /usr/local/bin/assertions.sh
+COPY bootstrap/test/assertions.sh /usr/local/bin/assertions.sh
 RUN chmod +x /usr/local/bin/bootstrap.sh /usr/local/bin/assertions.sh
 
-# Test 1: Run bootstrap as root (cleans existing, clones from local repo, runs make stow)
+# Test 1: Run bootstrap as root (remote mode → clone → local mode → full setup)
 RUN bootstrap.sh
 
 # Test 2: Create non-root user and test idempotency
