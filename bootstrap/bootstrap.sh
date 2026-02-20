@@ -117,7 +117,6 @@ DEBIAN_PACKAGES=(
     "build-essential:Build tools (gcc, make, etc.)"
     "fonts-powerline:Powerline fonts for zsh themes"
     "unzip:Archive extraction (required by Mason)"
-    "npm:Node package manager (required by Mason)"
     "python3:Python interpreter (required by Mason)"
     "python3-venv:Python virtual environments (required by Mason)"
     "xxd:Hex dump utility"
@@ -133,7 +132,6 @@ ARCH_PACKAGES=(
     "base-devel:Build tools (gcc, make, etc.)"
     "powerline-fonts:Powerline fonts for zsh themes"
     "unzip:Archive extraction (required by Mason)"
-    "npm:Node package manager (required by Mason)"
     "python:Python interpreter (required by Mason)"
     "xxd:Hex dump utility"
     "xclip:Clipboard utility"
@@ -267,6 +265,34 @@ install_special_packages() {
     else
         curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh || log "Warning: Failed to install atuin (non-fatal)"
     fi
+}
+
+# Install node and go via mise (required by Mason for LSP servers, formatters, etc.)
+install_mise_tools() {
+    local mise_bin="$HOME/.local/bin/mise"
+    if [ ! -x "$mise_bin" ]; then
+        error "mise not found at $mise_bin, cannot install node/go"
+    fi
+
+    log "Installing node and go via mise..."
+
+    if ! "$mise_bin" which node &>/dev/null; then
+        log "Installing node 22..."
+        "$mise_bin" use --global node@22 || error "Failed to install node 22 via mise"
+    else
+        log "node already installed via mise, skipping"
+    fi
+
+    if ! "$mise_bin" which go &>/dev/null; then
+        log "Installing go 1.25..."
+        "$mise_bin" use --global go@1.25 || error "Failed to install go 1.25 via mise"
+    else
+        log "go already installed via mise, skipping"
+    fi
+
+    # Activate mise shims for the rest of the script
+    eval "$("$mise_bin" activate bash --shims)"
+    log "node $(node --version) and go $(go version) available"
 }
 
 # Prepare filesystem for stow by removing conflicting files/dirs
@@ -409,6 +435,9 @@ main() {
 
     # Install special packages (mise, atuin)
     install_special_packages
+
+    # Install node and go via mise (required by Mason)
+    install_mise_tools
 
     # Prepare filesystem for stow
     prepare_stow_targets
