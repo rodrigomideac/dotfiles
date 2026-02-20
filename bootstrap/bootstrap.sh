@@ -7,7 +7,7 @@
 # Designed for ephemeral machines - always cleans and reinstalls everything.
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/.../bootstrap.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/rodrigomideac/dotfiles/refs/heads/master/bootstrap/bootstrap.sh | bash
 #   ./bootstrap.sh
 #
 # Environment variables:
