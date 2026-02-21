@@ -269,29 +269,28 @@ install_special_packages() {
 
 # Install node and go via mise (required by Mason for LSP servers, formatters, etc.)
 install_mise_tools() {
-    local mise_bin="$HOME/.local/bin/mise"
-    if [ ! -x "$mise_bin" ]; then
-        error "mise not found at $mise_bin, cannot install node/go"
+    if ! which mise &>/dev/null; then
+        error "mise not found in PATH, cannot install node/go"
     fi
 
     log "Installing node and go via mise..."
 
-    if ! "$mise_bin" which node &>/dev/null; then
+    if ! mise which node &>/dev/null; then
         log "Installing node 22..."
-        "$mise_bin" use --global node@22 || error "Failed to install node 22 via mise"
+        mise use --global node@22 || error "Failed to install node 22 via mise"
     else
         log "node already installed via mise, skipping"
     fi
 
-    if ! "$mise_bin" which go &>/dev/null; then
+    if ! mise which go &>/dev/null; then
         log "Installing go 1.25..."
-        "$mise_bin" use --global go@1.25 || error "Failed to install go 1.25 via mise"
+        mise use --global go@1.25 || error "Failed to install go 1.25 via mise"
     else
         log "go already installed via mise, skipping"
     fi
 
     # Activate mise shims for the rest of the script
-    eval "$("$mise_bin" activate bash --shims)"
+    eval "$(mise activate bash --shims)"
     log "node $(node --version) and go $(go version) available"
 }
 
