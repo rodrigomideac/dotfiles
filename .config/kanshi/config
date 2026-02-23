@@ -12,7 +12,7 @@ output "PNP(AOC) 24G2W1G4 0x000004ED" {
   alias $HOME_CENTER
 }
 
-output "BOE 0x0A35 Unknown" {
+output "Lenovo Group Limited 0x403D Unknown" {
   alias $LAPTOP
 }
 

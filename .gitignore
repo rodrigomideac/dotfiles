@@ -1,3 +1,4 @@
 !.*
 *.swp
 .aider*
+.config/systemd/user/default.target.wants/

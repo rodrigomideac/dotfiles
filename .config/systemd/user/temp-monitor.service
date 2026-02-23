@@ -1,0 +1,12 @@
+[Unit]
+Description=Temperature Monitor (CSV logger every 10s)
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/temp-monitor.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
