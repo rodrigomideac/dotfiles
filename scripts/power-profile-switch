@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -euo pipefail
+
+POWER_SUPPLY_STATUS="/sys/class/power_supply/AC/online"
+
+if [[ ! -f "$POWER_SUPPLY_STATUS" ]]; then
+    logger -t power-profile-switch "ERROR: AC power supply status file not found at $POWER_SUPPLY_STATUS"
+    exit 1
+fi
+
+ac_online=$(cat "$POWER_SUPPLY_STATUS")
+
+if [[ "$ac_online" == "1" ]]; then
+    profile="balanced"
+else
+    profile="power-saver"
+fi
+
+logger -t power-profile-switch "AC online=$ac_online, switching to profile=$profile"
+powerprofilesctl set "$profile"
+
+# Notify the user (needs DBUS_SESSION_BUS_ADDRESS for udev context)
+if [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
+    notify-send "Power Profile" "Switched to $profile" --icon=battery
+else
+    for uid in /run/user/*/; do
+        uid_num=$(basename "$uid")
+        sudo -u "#$uid_num" \
+            DBUS_SESSION_BUS_ADDRESS="unix:path=${uid}bus" \
+            notify-send "Power Profile" "Switched to $profile" --icon=battery 2>/dev/null || true
+    done
+fi
