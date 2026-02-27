@@ -198,7 +198,6 @@ alias xc="xclip -selection clipboard"
 alias wakeup-cubo="wol c8:7f:54:d0:ed:a1"
 alias wakeup-pc="wol 00:d8:61:36:88:58"
 alias wakeup-pc="wol 00:d8:61:36:88:58"
-alias cd="z"
 eval "$(zoxide init zsh)"
 alias jst="just --working-directory $HOME/dev-pessoal/dk --justfile $HOME/dev-pessoal/dk/justfile"
 alias idf="cd ~/esp/esp-idf && . ./export.sh && cd -"
@@ -227,7 +226,7 @@ dev() {
     tmux send-keys -t "$name:8" "builtin cd '$dir' && nvim ." C-m
 
     tmux new-window -t "$name:9" -n "claude" -c "$dir"
-    tmux send-keys -t "$name:9" "builtin cd '$dir' && claude" C-m
+    tmux send-keys -t "$name:9" "builtin cd '$dir' && claude --dangerously-skip-permissions" C-m
 
     tmux select-window -t "$name:8"
     if [[ -n "$TMUX" ]]; then tmux switch-client -t "$name"

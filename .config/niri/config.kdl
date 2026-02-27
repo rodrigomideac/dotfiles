@@ -10,10 +10,9 @@ input {
     keyboard {
         xkb {
             // KEYBOARD_LAYOUT_MARKER_START
-            // Current layout: thinkpad
+            // Current layout: split
             layout "us"
             variant "intl"
-            options "ctrl:swapcaps"
             // KEYBOARD_LAYOUT_MARKER_END
 
             // You can set rules, model, layout, variant and options.
