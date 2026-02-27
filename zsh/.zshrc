@@ -233,6 +233,15 @@ dev() {
     else tmux attach-session -t "$name"; fi
 }
 
+dev-close() {
+    if [[ -z "$TMUX" ]]; then
+        echo "Not in a tmux session"
+        return 1
+    fi
+    local session="$(tmux display-message -p '#S')"
+    tmux kill-session -t "$session"
+}
+
 # G1GC somehow is broken with sbt builds
 export SBT_OPTS="-Xmx2G -Xss2M -XX:MaxMetaspaceSize=512M \
     -XX:+UseParallelGC \
