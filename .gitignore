@@ -1,4 +1,5 @@
 !.*
 *.swp
 .aider*
+.claude/worktrees/
 .config/systemd/user/default.target.wants/

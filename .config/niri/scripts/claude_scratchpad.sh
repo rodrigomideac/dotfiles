@@ -53,7 +53,7 @@ launch_claude() {
     --app-name="Kagi Assistant" \
     --no-default-browser-check \
     --new-window \
-    --window-size=800,800 \
+    --window-size=1800,1000 \
     --disable-extensions \
     --disable-background-mode \
     --disk-cache-dir=/tmp/kagi-assistant-cache \
@@ -63,7 +63,7 @@ launch_claude() {
 get_window_id() {
   # Query niri for the window ID of the KagiAssistant app
   # Returns the first matching window ID (there should only be one)
-  niri msg -j windows 2>/dev/null | jq -r '.[] | select(.app_id == "KagiAssistant") | .id' | head -n1
+  niri msg -j windows 2>/dev/null | jq -r '.[] | select(.app_id | test("KagiAssistant")) | .id' | head -n1
 }
 
 get_current_workspace() {

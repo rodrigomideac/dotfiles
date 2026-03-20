@@ -636,9 +636,8 @@ binds {
 
 // CUSTOM
 window-rule {
-    match app-id="KagiAssistant"
+    match app-id=r#"KagiAssistant"#
     open-floating true
-    default-column-width { fixed 1800; }
 }
 
 window-rule {
