@@ -118,16 +118,8 @@ export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin
 export PATH=$PATH:$HOME/devtools
 
-## SSH Agent to store passkeys
-if [[ -n "$XDG_RUNTIME_DIR" ]]; then
-    SSH_ENV="$XDG_RUNTIME_DIR/ssh-agent.env"
-    if [[ -f "$SSH_ENV" ]]; then
-        source "$SSH_ENV" >/dev/null
-    else
-        ssh-agent > "$SSH_ENV"
-        source "$SSH_ENV" >/dev/null
-    fi
-fi
+## SSH Agent managed by systemd user service (ssh-agent.service)
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR"/ssh-agent.socket
 
 ## NVM for Node.js
 [[ -f /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh
@@ -138,7 +130,6 @@ fi
 # source /opt/kube-ps1/kube-ps1.sh
 (( $+functions[kube_ps1] )) && PROMPT='$(kube_ps1)'$PROMPT
 
-# export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR"/ssh-agent.socket
 autoload -U compinit
 compinit
 _comp_options+=(globdots)

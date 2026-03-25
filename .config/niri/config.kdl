@@ -630,6 +630,9 @@ binds {
     // waystt - Speech to Text (clipboard copy)
     Mod+Shift+B { spawn "sh" "-c" "pgrep -x waystt >/dev/null && pkill --signal SIGUSR1 waystt || (waystt --pipe-to wl-copy &)"; }
 
+    // Cycle power profile: power-saver → balanced → performance
+    Mod+F11 { spawn-sh "$HOME/.config/niri/scripts/cycle_power_profile.sh"; }
+
     // Toggle keyboard layout between thinkpad and split
     Mod+F12 { spawn-sh "$HOME/.config/niri/scripts/switch_keyboard_layout.sh"; }
 }

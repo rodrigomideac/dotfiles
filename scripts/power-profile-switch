@@ -12,7 +12,7 @@ fi
 ac_online=$(cat "$POWER_SUPPLY_STATUS")
 
 if [[ "$ac_online" == "1" ]]; then
-    profile="balanced"
+    profile="performance"
 else
     profile="power-saver"
 fi
