@@ -307,6 +307,14 @@ animations {
 
     // Slow down all animations by this factor. Values below 1 speed them up instead.
     // slowdown 3.0
+
+    // Lowered spring stiffness (default 800-1000) gives animations more frames to settle,
+    // which noticeably reduces the stepped look on the 60 Hz left monitor.
+    workspace-switch         { spring damping-ratio=1.0 stiffness=500 epsilon=0.0001; }
+    horizontal-view-movement { spring damping-ratio=1.0 stiffness=500 epsilon=0.0001; }
+    window-movement          { spring damping-ratio=1.0 stiffness=500 epsilon=0.0001; }
+    window-resize            { spring damping-ratio=1.0 stiffness=500 epsilon=0.0001; }
+    overview-open-close      { spring damping-ratio=1.0 stiffness=500 epsilon=0.0001; }
 }
 
 // Window rules let you adjust behavior for individual windows.
@@ -599,6 +607,9 @@ binds {
     Ctrl+Print { screenshot-screen; }
     Alt+Print { screenshot-window; }
 
+    // Clipboard history picker (cliphist + fuzzel)
+    Mod+Ctrl+V { spawn-sh "cliphist list | fuzzel --dmenu | cliphist decode | wl-copy"; }
+
     // Applications such as remote-desktop clients and software KVM switches may
     // request that niri stops processing the keyboard shortcuts defined here
     // so they may, for example, forward the key presses as-is to a remote machine.
@@ -648,4 +659,5 @@ window-rule {
     open-floating true
     default-column-width { fixed 1800; }
 }
+
 

@@ -192,8 +192,8 @@ alias wakeup-pc="wol 00:d8:61:36:88:58"
 eval "$(zoxide init zsh)"
 alias jst="just --working-directory $HOME/dev-pessoal/dk --justfile $HOME/dev-pessoal/dk/justfile"
 alias idf="cd ~/esp/esp-idf && . ./export.sh && cd -"
-alias cdan="claude --dangerously-skip-permissions"
-alias cdanc="claude --dangerously-skip-permissions -c"
+alias cdan="CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1 CLAUDE_CODE_EFFORT_LEVEL=xhigh claude --dangerously-skip-permissions"
+alias cdanc="CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1 CLAUDE_CODE_EFFORT_LEVEL=xhigh claude --dangerously-skip-permissions -c "
 
 feature() {
     local base_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)" || { echo "Not in a git repo"; return 1; }
@@ -296,3 +296,9 @@ export SBT_OPTS="-Xmx2G -Xss2M -XX:MaxMetaspaceSize=512M \
     -Duser.timezone=GMT"
 
 
+
+# >>> microsandbox >>>
+export PATH="$HOME/.microsandbox/bin:$PATH"
+export PATH="/home/rodrigo/.bun/bin:$PATH"
+export LD_LIBRARY_PATH="$HOME/.microsandbox/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+# <<< microsandbox <<<

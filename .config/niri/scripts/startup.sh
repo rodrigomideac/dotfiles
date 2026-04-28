@@ -8,6 +8,14 @@ set -e
 # Wait for niri to be fully initialized
 sleep 0.2
 
+# Clipboard history via cliphist (picker bound to Mod+Ctrl+V).
+# wl-clip-persist intentionally not used: it races niri's screenshot data
+# source and clobbers the image clipboard with stale text content.
+pgrep -f "wl-paste.*cliphist store" >/dev/null || {
+    wl-paste --type text  --watch cliphist store &
+    wl-paste --type image --watch cliphist store &
+}
+
 # Principal monitor (HDMI-A-1) setup
 echo "Setting up principal monitor (HDMI-A-1)..."
 
