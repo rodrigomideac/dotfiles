@@ -301,4 +301,5 @@ export SBT_OPTS="-Xmx2G -Xss2M -XX:MaxMetaspaceSize=512M \
 export PATH="$HOME/.microsandbox/bin:$PATH"
 export PATH="/home/rodrigo/.bun/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/.microsandbox/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export PATH="/home/rodrigo/.local/bin:$PATH"
 # <<< microsandbox <<<

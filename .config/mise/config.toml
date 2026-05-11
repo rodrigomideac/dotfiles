@@ -2,6 +2,7 @@
 idiomatic_version_file_enable_tools = []
 
 [tools]
+bun = "latest"
 go = "1.24"
 gradle = "latest"
 java = "temurin-11"
