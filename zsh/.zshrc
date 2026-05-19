@@ -303,3 +303,6 @@ export PATH="/home/rodrigo/.bun/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/.microsandbox/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export PATH="/home/rodrigo/.local/bin:$PATH"
 # <<< microsandbox <<<
+
+# Turso
+export PATH="$PATH:/home/rodrigo/.turso"

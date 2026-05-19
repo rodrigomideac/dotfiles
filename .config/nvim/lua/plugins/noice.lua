@@ -1,6 +1,9 @@
 return {
   "folke/noice.nvim",
   opts = {
+    lsp = {
+      signature = { enabled = false },
+    },
     -- Disable blend/transparency which can cause invisible floating windows in tmux
     views = {
       mini = {

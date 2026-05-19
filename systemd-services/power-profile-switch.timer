@@ -1,0 +1,10 @@
+[Unit]
+Description=Periodic fallback to reconcile power profile with AC state
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+Unit=power-profile-switch.service
+
+[Install]
+WantedBy=timers.target

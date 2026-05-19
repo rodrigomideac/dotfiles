@@ -10,6 +10,7 @@ stow:
 stow-sudo:
 	sudo stow --no-folding --target=/etc/systemd/system systemd-services
 	sudo systemctl enable root-resume
+	sudo systemctl enable --now power-profile-switch.timer
 
 stow-work: stow
 	stow --target=${HOME} bash

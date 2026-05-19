@@ -53,6 +53,28 @@ end, { desc = "Replace current word with clipboard content in buffer" })
 
 vim.keymap.set("n", "<leader>P", 'viw"_dP', { desc = "Replace word with register" })
 
+-- Run current Python file with overseer + uv
+vim.keymap.set("n", "<leader>op", function()
+  require("overseer").run_template({ name = "uv run python" }, function(task)
+    if task then
+      require("overseer").open({ enter = false })
+    end
+  end)
+end, { desc = "Run Python file (uv)" })
+
+-- Run current Go package with overseer
+vim.keymap.set("n", "<leader>og", function()
+  require("overseer").run_template({ name = "go run (package)" }, function(task)
+    if task then
+      require("overseer").open({ enter = false })
+    end
+  end)
+end, { desc = "Run Go file (package)" })
+
+vim.keymap.set("n", "<leader>oh", function()
+  require("overseer").close()
+end, { desc = "Hide overseer panel" })
+
 -- Format buffer with Ctrl+Alt+L
 vim.keymap.set({ "n", "x" }, "<C-A-l>", function()
   LazyVim.format({ force = true })

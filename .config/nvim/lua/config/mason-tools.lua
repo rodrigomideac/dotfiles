@@ -9,6 +9,7 @@ return {
   "helm-ls",
   "jdtls",
   "json-lsp",
+  "kotlin-lsp",
   "lua-language-server",
   "marksman",
   "neocmakelsp",

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Vibe Typer
+Comment=Start Vibe Typer on login
+Exec="/home/rodrigo/Downloads/VibeTyper.AppImage" --autostart
+X-GNOME-Autostart-enabled=true
+X-KDE-autostart-after=panel
+X-MATE-Autostart-enabled=true
+OnlyShowIn=GNOME;KDE;LXQt;LXDE;MATE;XFCE;Unity;Pantheon;Cinnamon;Deepin;
+Terminal=false

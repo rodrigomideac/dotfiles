@@ -5,6 +5,7 @@ After=suspend.target
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/systemctl restart bluetooth
+ExecStart=/home/rodrigo/.local/bin/power-profile-switch
 
 [Install]
 WantedBy=suspend.target

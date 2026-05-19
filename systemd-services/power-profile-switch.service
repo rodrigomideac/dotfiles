@@ -1,0 +1,8 @@
+[Unit]
+Description=Reconcile power profile with AC state
+After=power-profiles-daemon.service
+Wants=power-profiles-daemon.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/rodrigo/.local/bin/power-profile-switch

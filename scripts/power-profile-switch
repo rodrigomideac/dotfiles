@@ -12,22 +12,29 @@ fi
 ac_online=$(cat "$POWER_SUPPLY_STATUS")
 
 if [[ "$ac_online" == "1" ]]; then
-    profile="performance"
+    desired="performance"
 else
-    profile="power-saver"
+    desired="power-saver"
 fi
 
-logger -t power-profile-switch "AC online=$ac_online, switching to profile=$profile"
-powerprofilesctl set "$profile"
+current=$(powerprofilesctl get 2>/dev/null || echo "unknown")
 
-# Notify the user (needs DBUS_SESSION_BUS_ADDRESS for udev context)
+if [[ "$current" == "$desired" ]]; then
+    exit 0
+fi
+
+logger -t power-profile-switch "AC online=$ac_online, switching profile $current -> $desired"
+powerprofilesctl set "$desired"
+
+notify_body="$current -> $desired (AC online=$ac_online)"
+
 if [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
-    notify-send "Power Profile" "Switched to $profile" --icon=battery
+    notify-send "Power Profile" "$notify_body" --icon=battery
 else
     for uid in /run/user/*/; do
         uid_num=$(basename "$uid")
         sudo -u "#$uid_num" \
             DBUS_SESSION_BUS_ADDRESS="unix:path=${uid}bus" \
-            notify-send "Power Profile" "Switched to $profile" --icon=battery 2>/dev/null || true
+            notify-send "Power Profile" "$notify_body" --icon=battery 2>/dev/null || true
     done
 fi

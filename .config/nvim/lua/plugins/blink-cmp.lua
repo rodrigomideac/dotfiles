@@ -4,6 +4,7 @@ return {
     snippets = {
       preset = "luasnip",
     },
+    signature = { enabled = false },
     keymap = {
       preset = "super-tab",
       ["<Tab>"] = {
