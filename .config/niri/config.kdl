@@ -518,15 +518,15 @@ binds {
     //
     // For example, with 2 workspaces + 1 empty, indices 3, 4, 5 and so on
     // will all refer to the 3rd workspace.
-    Mod+1 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 1"; }
-    Mod+2 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 2"; }
-    Mod+3 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 3"; }
-    Mod+4 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 4"; }
-    Mod+5 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 5"; }
-    Mod+6 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 6"; }
-    Mod+7 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 7"; }
-    Mod+8 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 8"; }
-    Mod+9 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 9"; }
+    Mod+1 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 1"; }
+    Mod+2 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 2"; }
+    Mod+3 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 3"; }
+    Mod+4 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 4"; }
+    Mod+5 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 5"; }
+    Mod+6 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 6"; }
+    Mod+7 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 7"; }
+    Mod+8 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 8"; }
+    Mod+9 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 9"; }
     Mod+Ctrl+1 { move-column-to-workspace 1; }
     Mod+Ctrl+2 { move-column-to-workspace 2; }
     Mod+Ctrl+3 { move-column-to-workspace 3; }
@@ -631,10 +631,10 @@ binds {
     Mod+X { spawn-sh "$HOME/.config/niri/scripts/claude_scratchpad.sh";}
     Mod+Z { spawn-sh "$HOME/.config/niri/scripts/todo_scratchpad.sh";}
 
-    // Focus workspaces on the left monitor
-    Mod+Q { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 1"; }
-    Mod+W { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 2"; }
-    Mod+E { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 3"; }
+    // Focus workspaces on the right monitor
+    Mod+Q { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 1"; }
+    Mod+W { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 2"; }
+    Mod+E { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 3"; }
     // waystt - Speech to Text (direct typing)
     Mod+B { spawn "sh" "-c" "pgrep -x waystt >/dev/null && pkill --signal SIGUSR1 waystt || (YDOTOOL_SOCKET=/tmp/.ydotool_socket waystt --pipe-to ydotool type --file - &)"; }
     
@@ -658,6 +658,18 @@ window-rule {
     match app-id="TodoScratchpad"
     open-floating true
     default-column-width { fixed 1800; }
+}
+
+window-rule {
+    match app-id="vibe-typer"
+    open-floating true
+    draw-border-with-background false
+    focus-ring {
+        off
+    }
+    shadow {
+        off
+    }
 }
 
 

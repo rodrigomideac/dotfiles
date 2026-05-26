@@ -1,13 +1,13 @@
 output "Ancor Communications Inc VX248 G3LMQS023518" {
   mode 1920x1080
-  position 0,0
+  position 1920,0
   scale 1
-  alias $HOME_LEFT
+  alias $HOME_RIGHT
 }
 
 output "PNP(AOC) 24G2W1G4 0x000004ED" {
   mode 1920x1080@144.001
-  position 1920,0
+  position 0,0
   scale 1
   alias $HOME_CENTER
 }
@@ -18,7 +18,7 @@ output "Lenovo Group Limited 0x403D Unknown" {
 
 profile home_desk {
   output $LAPTOP disable
-  output $HOME_LEFT enable
+  output $HOME_RIGHT enable
   output $HOME_CENTER enable
 }
 
