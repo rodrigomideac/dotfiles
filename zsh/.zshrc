@@ -107,7 +107,6 @@ plugins=(git)
 prompt_context () { }
 
 function chpwd() {
-    ls -a
     pwd > /tmp/whereami
 }
 
