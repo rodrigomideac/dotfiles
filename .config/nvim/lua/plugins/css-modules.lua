@@ -3,13 +3,33 @@ return {
     "neovim/nvim-lspconfig",
     opts = function(_, opts)
       -- Create a more robust CSS module navigation function
-      local function create_css_module_handler()
+      -- opts.require_styles_access: only act when the cursor is actually on the
+      -- <name> part of a `styles.<name>` expression (used by the gd override so
+      -- regular identifiers fall through to the LSP definition).
+      local function create_css_module_handler(opts)
+        opts = opts or {}
+
+        -- Returns the class name only when the cursor sits inside the <name>
+        -- part of a `styles.<name>` expression on the current line.
+        local function styles_member_under_cursor(line)
+          local col = vim.api.nvim_win_get_cursor(0)[2] + 1 -- byte col, 1-based
+          local init = 1
+          while true do
+            local s, e, name = line:find("styles%.([a-zA-Z_][a-zA-Z0-9_-]*)", init)
+            if not s then
+              return nil
+            end
+            if col >= e - #name + 1 and col <= e then
+              return name
+            end
+            init = e + 1
+          end
+        end
+
         local function go_to_css_module()
-          local current_word = vim.fn.expand("<cword>")
-          local current_file = vim.fn.expand("%:p")
           local current_dir = vim.fn.expand("%:p:h")
           local line = vim.api.nvim_get_current_line()
-          
+
           -- Pattern 1: Handle import statements
           if line:match("import.*from.*%.module%.css") then
             local css_path = line:match('from%s+["\']([^"\']+%.module%.css)["\']')
@@ -20,43 +40,43 @@ return {
               else
                 full_path = css_path
               end
-              
+
               if vim.fn.filereadable(full_path) == 1 then
                 vim.cmd("edit " .. full_path)
                 return true
               end
             end
           end
-          
-          -- Pattern 2: Handle CSS class usage (e.g., styles.className)
-          local styles_usage = line:match("styles%.([a-zA-Z_][a-zA-Z0-9_-]*)")
-          if styles_usage then
-            current_word = styles_usage
+
+          -- Pattern 2: cursor on a `styles.className` member access
+          local class_name = styles_member_under_cursor(line)
+
+          -- Lenient mode (<leader>gc): the user asked for CSS navigation
+          -- explicitly, so fall back to the raw word under the cursor.
+          if not class_name and not opts.require_styles_access then
+            local cword = vim.fn.expand("<cword>")
+            if cword:match("^[a-zA-Z_][a-zA-Z0-9_-]*$") then
+              class_name = cword
+            end
           end
-          
-          -- Pattern 3: Handle className={styles.className}
-          local classname_usage = line:match("styles%.([a-zA-Z_][a-zA-Z0-9_-]*)")
-          if classname_usage then
-            current_word = classname_usage
-          end
-          
+
           -- Look for CSS module file
-          if current_word and current_word:match("^[a-zA-Z_][a-zA-Z0-9_-]*$") then
+          if class_name then
             local base_name = vim.fn.expand("%:t:r")
             local css_module_file = current_dir .. "/" .. base_name .. ".module.css"
-            
+
             if vim.fn.filereadable(css_module_file) == 1 then
               vim.cmd("edit " .. css_module_file)
               vim.cmd("normal! gg")
-              
+
               -- Try multiple search patterns
               local patterns = {
-                "\\." .. current_word .. "\\>",
-                "\\." .. current_word:gsub("(%u)", "-%1"):lower():gsub("^-", "") .. "\\>",
-                current_word .. "\\s*{",
-                current_word:gsub("(%u)", "-%1"):lower():gsub("^-", "") .. "\\s*{"
+                "\\." .. class_name .. "\\>",
+                "\\." .. class_name:gsub("(%u)", "-%1"):lower():gsub("^-", "") .. "\\>",
+                class_name .. "\\s*{",
+                class_name:gsub("(%u)", "-%1"):lower():gsub("^-", "") .. "\\s*{"
               }
-              
+
               for _, pattern in ipairs(patterns) do
                 if vim.fn.search(pattern, "W") > 0 then
                   break
@@ -66,10 +86,10 @@ return {
               return true
             end
           end
-          
+
           return false
         end
-        
+
         return go_to_css_module
       end
       
@@ -93,14 +113,15 @@ return {
             client.name == "typescript-tools" or
             client.name == "typescript-language-server"
           ) then
-            local css_handler = create_css_module_handler()
-            
+            local css_handler = create_css_module_handler({ require_styles_access = true })
+            local css_jump = create_css_module_handler()
+
             -- Dedicated CSS module navigation
-            vim.keymap.set("n", "<leader>gc", css_handler, {
+            vim.keymap.set("n", "<leader>gc", css_jump, {
               buffer = bufnr,
               desc = "Go to CSS module",
             })
-            
+
             -- Schedule the gd override to run after LazyVim's keymaps are set
             vim.defer_fn(function()
               -- Enhanced gd handler with higher priority
@@ -125,8 +146,8 @@ return {
         group = vim.api.nvim_create_augroup("CSSModulesGlobal", { clear = true }),
         callback = function(args)
           local bufnr = args.buf
-          local css_handler = create_css_module_handler()
-          
+          local css_handler = create_css_module_handler({ require_styles_access = true })
+
           -- Override gd with delay to ensure it takes precedence
           vim.defer_fn(function()
             vim.keymap.set("n", "gd", function()
