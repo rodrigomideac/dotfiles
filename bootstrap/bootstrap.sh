@@ -312,7 +312,7 @@ prepare_stow_targets() {
 
     # Remove .config subdirs that conflict with stow symlinks
     local config_dirs=(
-        alacritty atuin autostart dmenu-extended fontconfig
+        alacritty atuin autostart fontconfig
         io.datasette.llm kanshi mise niri nvim
         ranger systemd waybar
     )
