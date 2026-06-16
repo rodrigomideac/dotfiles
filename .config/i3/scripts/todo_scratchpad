@@ -1,4 +1,0 @@
-#!/bin/bash
-
-notify-send hellooo
-#   alacritty -e nvim ~/dev/notes/todo.md &
