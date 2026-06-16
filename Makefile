@@ -1,9 +1,7 @@
 stow:
 	stow --restow --target=${HOME}/.config .config
 	stow --target=${HOME} vim
-	stow --target=${HOME} imwheel
 	stow --target=${HOME} zsh
-	stow --target=${HOME} keyboard_layouts
 	stow --no-folding --target=${HOME}/.local/bin scripts
 	stow --target=${HOME} tmux
 

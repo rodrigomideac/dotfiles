@@ -166,7 +166,7 @@ clean_existing_configs() {
     fi
 
     # Remove configs that would conflict with stow
-    for f in "$HOME/.zshrc" "$HOME/.vimrc" "$HOME/.tmux.conf" "$HOME/.imwheelrc"; do
+    for f in "$HOME/.zshrc" "$HOME/.vimrc" "$HOME/.tmux.conf"; do
         if [ -f "$f" ] || [ -L "$f" ]; then
             log "Removing $f..."
             rm -f "$f"
@@ -303,8 +303,7 @@ prepare_stow_targets() {
     mkdir -p "$HOME/.local/bin"
 
     # Remove files that conflict with stow symlinks from HOME-targeted packages
-    for f in "$HOME/.zshrc" "$HOME/.vimrc" "$HOME/.tmux.conf" "$HOME/.imwheelrc" \
-             "$HOME/.Xmodmap_clean" "$HOME/.Xmodmap_k56"; do
+    for f in "$HOME/.zshrc" "$HOME/.vimrc" "$HOME/.tmux.conf"; do
         if [ -f "$f" ] || [ -L "$f" ]; then
             log "Removing $f (conflicts with stow)..."
             rm -f "$f"
@@ -313,9 +312,9 @@ prepare_stow_targets() {
 
     # Remove .config subdirs that conflict with stow symlinks
     local config_dirs=(
-        alacritty atuin autostart dmenu-extended dunst feh fontconfig
-        i3 io.datasette.llm kanshi mise niri nvim picom polybar
-        ranger rofi systemd waybar
+        alacritty atuin autostart dmenu-extended fontconfig
+        io.datasette.llm kanshi mise niri nvim
+        ranger systemd waybar
     )
     for d in "${config_dirs[@]}"; do
         if [ -d "$HOME/.config/$d" ] || [ -L "$HOME/.config/$d" ]; then
@@ -385,13 +384,8 @@ print_summary() {
     echo "  - swaybg        Wallpaper setter"
     echo "  - swayidle      Idle management daemon"
     echo "  - alacritty     Terminal emulator"
-    echo "  - dunst         Notification daemon"
+    echo "  - mako          Notification daemon"
     echo "  - brightnessctl Brightness control"
-    echo "  - picom         X11 compositor (if using i3)"
-    echo "  - i3            X11 window manager (alternative to niri)"
-    echo "  - polybar       Status bar for i3"
-    echo "  - rofi          App launcher for i3"
-    echo "  - feh           Image viewer / wallpaper setter (X11)"
     echo "  - Browser       google-chrome-stable / firefox"
 
     echo ""

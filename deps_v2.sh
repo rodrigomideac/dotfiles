@@ -10,12 +10,13 @@ echo "Updating system..."
 yay -Syu --noconfirm
 
 echo ""
-echo "=== Installing Core Window Manager & Desktop ==="
-yay -S --noconfirm i3-wm polybar picom rofi dunst feh stow
+echo "=== Installing Core Window Manager & Desktop (niri / Wayland) ==="
+yay -S --noconfirm niri fuzzel waybar mako swaybg swayidle swaylock kanshi \
+    xwayland-satellite xdg-desktop-portal-hyprland plasma-polkit-agent udiskie stow
 
 echo ""
 echo "=== Installing Terminal & Shell ==="
-yay -S --noconfirm alacritty terminator zsh
+yay -S --noconfirm alacritty zsh
 
 # Install Oh My Zsh (if not already installed)
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
@@ -25,15 +26,15 @@ fi
 
 echo ""
 echo "=== Installing System Utilities ==="
-yay -S --noconfirm networkmanager network-manager-applet blueman xorg-xrandr arandr xorg-setxkbmap numlockx xdotool yad redshift
+yay -S --noconfirm networkmanager network-manager-applet blueman brightnessctl ydotool
 
 echo ""
 echo "=== Installing Audio & Media Controls ==="
 yay -S --noconfirm pavucontrol alsa-utils playerctl
 
 echo ""
-echo "=== Installing Screen & Session Management ==="
-yay -S --noconfirm i3lock-fancy  maim xclip
+echo "=== Installing Screen & Session Management (Wayland) ==="
+yay -S --noconfirm grim slurp wl-clipboard cliphist
 
 echo ""
 echo "=== Installing File Management ==="
@@ -62,7 +63,7 @@ yay -S --noconfirm kwallet ksshaskpass kwalletmanager openssh notification-daemo
 
 echo ""
 echo "=== Installing Additional Utilities ==="
-yay -S --noconfirm atuin i3-battery-popup solaar qalculate-gtk zenity kdialog curl
+yay -S --noconfirm atuin solaar qalculate-gtk zenity kdialog curl
 
 echo ""
 echo "=== Installing Development Environment (Optional) ==="

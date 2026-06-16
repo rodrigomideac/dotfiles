@@ -6,8 +6,8 @@ reboot="󰜉  Restart"
 logout="󰍃  Logout"
 lock="  Lock"
 
-# Show menu using rofi
-chosen=$(echo -e "$shutdown\n$reboot\n$logout\n$lock" | rofi -dmenu -i -p "Power Menu" -theme-str 'window {width: 500px;}')
+# Show menu using fuzzel
+chosen=$(echo -e "$shutdown\n$reboot\n$logout\n$lock" | fuzzel --dmenu --prompt "Power Menu: ")
 
 case "$chosen" in
 "$shutdown")
