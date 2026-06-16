@@ -194,6 +194,7 @@ alias jst="just --working-directory $HOME/dev-pessoal/dk --justfile $HOME/dev-pe
 alias idf="cd ~/esp/esp-idf && . ./export.sh && cd -"
 alias cdan="CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1 CLAUDE_CODE_EFFORT_LEVEL=xhigh claude --dangerously-skip-permissions"
 alias cdanc="CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1 CLAUDE_CODE_EFFORT_LEVEL=xhigh claude --dangerously-skip-permissions -c "
+alias codex="codex --dangerously-bypass-approvals-and-sandbox"
 
 feature() {
     local base_branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)" || { echo "Not in a git repo"; return 1; }
