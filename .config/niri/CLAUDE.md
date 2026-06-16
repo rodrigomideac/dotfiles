@@ -63,75 +63,15 @@ niri msg action quit
 
 ### Interacting with niri via IPC
 
-```bash
-# Execute any niri action programmatically
-niri msg action <action-name> [args]
+Drive niri programmatically with `niri msg action <action-name> [args]`. Run
+`niri msg action --help` for the full list — the common families are:
 
-# Examples:
-niri msg action focus-workspace 3
-niri msg action move-window-to-workspace --window-id <id> 5
-niri msg action toggle-overview
-```
+- `focus-workspace <ref>`, `focus-workspace-{up,down,previous}`
+- `move-window-to-workspace <ref>`, `move-window-to-monitor[-{left,right,up,down,previous,next}] [OUTPUT]`
+- `focus-monitor[-{left,right,up,down,previous,next}] [OUTPUT]`
+- `toggle-overview`
 
-### Common Window and Monitor Operations
-
-#### Moving Windows to Monitors
-
-```bash
-# Move focused window to a specific monitor by name
-niri msg action move-window-to-monitor <OUTPUT>
-
-# Examples with actual monitor names:
-niri msg action move-window-to-monitor DP-2      # Left monitor
-niri msg action move-window-to-monitor HDMI-A-1  # Right monitor
-
-# Move specific window by ID
-niri msg action move-window-to-monitor --id <window-id> DP-2
-
-# Directional movement
-niri msg action move-window-to-monitor-left
-niri msg action move-window-to-monitor-right
-niri msg action move-window-to-monitor-up
-niri msg action move-window-to-monitor-down
-niri msg action move-window-to-monitor-previous
-niri msg action move-window-to-monitor-next
-```
-
-#### Focusing Monitors
-
-```bash
-# Focus a monitor by name
-niri msg action focus-monitor <OUTPUT>
-
-# Examples:
-niri msg action focus-monitor DP-2
-niri msg action focus-monitor HDMI-A-1
-
-# Directional focus
-niri msg action focus-monitor-left
-niri msg action focus-monitor-right
-niri msg action focus-monitor-up
-niri msg action focus-monitor-down
-niri msg action focus-monitor-previous  # Previously focused monitor
-niri msg action focus-monitor-next      # Next monitor in sequence
-```
-
-#### Focusing and Changing Workspaces
-
-```bash
-# Focus workspace by index or name
-niri msg action focus-workspace <REFERENCE>
-
-# Examples:
-niri msg action focus-workspace 1
-niri msg action focus-workspace 5
-niri msg action focus-workspace "Development"  # If workspace has a name
-
-# Relative workspace movement
-niri msg action focus-workspace-down      # Workspace below
-niri msg action focus-workspace-up        # Workspace above
-niri msg action focus-workspace-previous  # Previously focused workspace
-```
+Outputs are named like `HDMI-A-1` / `DP-2` (see `niri msg outputs`).
 
 ## Architecture and Key Concepts
 
@@ -185,11 +125,13 @@ The Claude scratchpad script (bound to `Mod+X`) demonstrates:
 
 ## Configuration Locations
 
-The repository is in `/home/rodrigo/dev-pessoal/dotfiles/.config/niri/` with an additional reference directory at `/home/rodrigo/.config/niri`.
+This config lives in `~/.dotfiles/.config/niri/` and is symlinked to
+`~/.config/niri/` via GNU Stow (`make stow` from the repo root). Editing a file
+here edits the live config.
 
 When making changes:
 
-- Edit files in the main repository directory
+- Edit files in the repo (`~/.dotfiles/.config/niri/`)
 - Reload niri configuration to apply changes
 - Some changes require restarting affected applications (noted in config comments)
 
@@ -200,10 +142,6 @@ When making changes:
 - **Focus behavior**: `focus-follows-mouse` is enabled with `max-scroll-amount="0%"`
 - **Visual styling**: Shadows enabled, focus ring active, borders disabled
 - **Touchpad**: Natural scrolling and tap-to-click enabled
-
-## Git Branch
-
-Current work is on branch `rmc-introduce-niri` which should be merged to `master`.
 
 # Monitor Configuration
 
