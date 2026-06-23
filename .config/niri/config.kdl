@@ -3,6 +3,16 @@
 // Check the wiki for a full description of the configuration:
 // https://yalter.github.io/niri/Configuration:-Introduction
 
+// Session-wide environment variables.
+// XDG_MENU_PREFIX lets KDE apps (Dolphin, kbuildsycoca) find the XDG menu
+// file (plasma-applications.menu). Without it they look for a bare
+// "applications.menu" that doesn't exist on a niri session, so the app
+// database is never built and Dolphin shows "no associated application"
+// for every file type.
+environment {
+    XDG_MENU_PREFIX "plasma-"
+}
+
 // Input device configuration.
 // Find the full list of options on the wiki:
 // https://yalter.github.io/niri/Configuration:-Input
