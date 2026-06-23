@@ -71,6 +71,13 @@ input {
     focus-follows-mouse max-scroll-amount="0%"
 }
 
+// Pointer cursor. Match the Breeze cursor used under Plasma instead of niri's
+// default, so the cursor over Chrome and other apps looks consistent.
+cursor {
+    xcursor-theme "breeze_cursors"
+    xcursor-size 24
+}
+
 // You can configure outputs by their name, which you can find
 // by running `niri msg outputs` while inside a niri instance.
 // The built-in laptop monitor is usually called "eDP-1".
