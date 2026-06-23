@@ -15,12 +15,21 @@
 #
 # Options:
 #   --yes, -y          Skip interactive prompts (auto-confirm)
+#   --desktop          Install the niri desktop environment without prompting
+#   --no-desktop       Skip the desktop environment without prompting
+#
+# By default the script installs only the CLI/dev toolchain and, at the end,
+# interactively asks whether to also install the niri desktop environment
+# (compositor, bar, launcher, notifications, lock/idle, wallpaper, clipboard,
+# screenshots, portals). The desktop install is independent of --yes: an
+# unattended run installs the desktop only when --desktop is passed.
 #
 # Environment variables:
 #   DOTFILES_REPO_URL  Git URL to clone dotfiles from (default: GitHub repo)
 #                      Supports any git-compatible URL (https, ssh, local path).
 #                      Example: DOTFILES_REPO_URL=/path/to/local/repo ./bootstrap.sh
 #   BOOTSTRAP_YES      Set to 1 to skip interactive prompts (same as --yes)
+#   INSTALL_DESKTOP    Set to 1 (same as --desktop) or 0 (same as --no-desktop)
 #
 
 set -e  # Exit on error
@@ -39,6 +48,8 @@ DOTFILES_DIR="$HOME/.dotfiles"
 for arg in "$@"; do
     case "$arg" in
         --yes|-y) BOOTSTRAP_YES=1 ;;
+        --desktop) INSTALL_DESKTOP=1 ;;
+        --no-desktop) INSTALL_DESKTOP=0 ;;
     esac
 done
 
@@ -115,6 +126,7 @@ source "$SCRIPT_DIR/lib/lib.sh"
 
 DEBIAN_PACKAGES=(
     "build-essential:Build tools (gcc, make, etc.)"
+    "fontconfig:Font cache/management (fc-cache, fc-list)"
     "fonts-powerline:Powerline fonts for zsh themes"
     "unzip:Archive extraction (required by Mason)"
     "python3:Python interpreter (required by Mason)"
@@ -130,6 +142,7 @@ DEBIAN_PACKAGES=(
 
 ARCH_PACKAGES=(
     "base-devel:Build tools (gcc, make, etc.)"
+    "fontconfig:Font cache/management (fc-cache, fc-list)"
     "powerline-fonts:Powerline fonts for zsh themes"
     "unzip:Archive extraction (required by Mason)"
     "python:Python interpreter (required by Mason)"
@@ -142,6 +155,10 @@ ARCH_PACKAGES=(
     "jq:JSON processor"
 )
 
+# The optional niri desktop environment is defined in (and installed by)
+# lib/install-desktop.sh, which can also be run standalone to install ONLY the
+# desktop stack.
+
 # ==============================================================================
 # Global Variables
 # ==============================================================================
@@ -150,6 +167,7 @@ DISTRO=""
 PKG_UPDATE=""
 PKG_INSTALL=""
 SUDO=""
+DESKTOP_INSTALLED=0
 
 # ==============================================================================
 # Functions
@@ -228,6 +246,11 @@ install_neovim() {
     "$SCRIPT_DIR/lib/install-neovim.sh"
 }
 
+# Install the Nerd Fonts referenced by the desktop configs
+install_fonts() {
+    "$SCRIPT_DIR/lib/install-fonts.sh"
+}
+
 # Install all system packages
 install_packages() {
     local packages
@@ -246,6 +269,49 @@ install_packages() {
     log "Installing packages: ${pkg_names[*]}"
     $SUDO $PKG_INSTALL "${pkg_names[@]}" || error "Failed to install packages"
     log "Package installation complete"
+}
+
+# Install the niri desktop environment (compositor + companion stack).
+# The package list, niri PPA handling, and install logic live in the standalone
+# lib/install-desktop.sh so they can also be run on their own.
+install_desktop_packages() {
+    "$SCRIPT_DIR/lib/install-desktop.sh"
+    DESKTOP_INSTALLED=1
+}
+
+# Decide whether to install the desktop environment (flag or interactive prompt)
+maybe_install_desktop() {
+    case "${INSTALL_DESKTOP:-}" in
+        1)
+            log "Installing desktop environment (requested via --desktop)"
+            ;;
+        0)
+            log "Skipping desktop environment (--no-desktop)"
+            return
+            ;;
+        *)
+            # No explicit flag: prompt interactively. A piped install
+            # (curl|bash) still has a controlling terminal at /dev/tty.
+            if [ ! -e /dev/tty ]; then
+                log "Non-interactive run without --desktop; skipping desktop environment"
+                log "  (re-run with --desktop to install niri and the companion stack)"
+                return
+            fi
+            echo ""
+            log "Optional: install the niri desktop environment?"
+            log "  niri, waybar, fuzzel, mako, swaylock, swayidle, swaybg, kanshi,"
+            log "  alacritty, xwayland-satellite, wl-clipboard, cliphist, grim, slurp,"
+            log "  and the GNOME/GTK XDG portal backends."
+            printf "[bootstrap] Install the desktop environment now? [y/N] "
+            local answer=""
+            read -r answer < /dev/tty || answer=""
+            case "$answer" in
+                [yY]|[yY][eE][sS]) ;;
+                *) log "Skipping desktop environment install"; return ;;
+            esac
+            ;;
+    esac
+    install_desktop_packages
 }
 
 # Install special packages (mise, atuin)
@@ -369,24 +435,36 @@ print_summary() {
     echo "  - Installed system packages and core dependencies"
     echo "  - Installed Oh My Zsh"
     echo "  - Installed Neovim (AppImage) with plugins and Mason tools"
+    echo "  - Installed Nerd Fonts (FiraCode, Iosevka) into ~/.local/share/fonts"
     echo "  - Installed mise and atuin"
     echo "  - Dotfiles at $DOTFILES_DIR"
     echo "  - Deployed all configs via 'make stow'"
     echo "  - Set zsh as default shell"
 
     echo ""
-    log "Desktop/visual dependencies NOT installed (install separately):"
-    echo "  - niri          Wayland compositor (window manager)"
-    echo "  - kanshi        Display/monitor configuration"
-    echo "  - waybar        Status bar"
-    echo "  - fuzzel        Application launcher"
-    echo "  - swaylock      Screen locker"
-    echo "  - swaybg        Wallpaper setter"
-    echo "  - swayidle      Idle management daemon"
-    echo "  - alacritty     Terminal emulator"
-    echo "  - mako          Notification daemon"
-    echo "  - brightnessctl Brightness control"
-    echo "  - Browser       google-chrome-stable / firefox"
+    if [ "$DESKTOP_INSTALLED" = "1" ]; then
+        log "Installed the niri desktop environment:"
+        echo "  - niri / xwayland-satellite   Compositor + X11 support"
+        echo "  - waybar / fuzzel / mako      Bar, launcher, notifications"
+        echo "  - swaylock / swayidle / swaybg  Lock, idle, wallpaper"
+        echo "  - kanshi                      Display/monitor configuration"
+        echo "  - alacritty                   Terminal emulator"
+        echo "  - wl-clipboard / cliphist     Clipboard + history"
+        echo "  - grim / slurp                Screenshots"
+        echo "  - playerctl / brightnessctl   Media + backlight keys"
+        echo "  - xdg-desktop-portal-gnome/-gtk  Portal backends"
+        echo ""
+        log "Not installed (opinionated / machine-specific — add yourself if needed):"
+        echo "  - A display manager (GDM, etc.) — or start niri from a TTY with 'niri-session'"
+        echo "  - PipeWire + WirePlumber — the volume keys call 'wpctl' (install if missing)"
+        echo "  - A browser       google-chrome-stable / firefox"
+    else
+        log "Desktop environment NOT installed."
+        echo "  Re-run with --desktop (or answer 'y' at the prompt) to install:"
+        echo "  niri, waybar, fuzzel, mako, swaylock, swayidle, swaybg, kanshi,"
+        echo "  alacritty, xwayland-satellite, wl-clipboard, cliphist, grim, slurp, portals."
+        echo "  Still install separately: a display manager, brightnessctl, a browser."
+    fi
 
     echo ""
     log "Additional make targets you can run:"
@@ -396,7 +474,14 @@ print_summary() {
     echo ""
     log "Next steps:"
     echo "  1. Logout and log back in (or run 'exec zsh')"
-    echo "  2. Enjoy your new environment!"
+    if [ "$DESKTOP_INSTALLED" = "1" ]; then
+        echo "  2. Log out and choose 'niri' in your display manager (or run 'niri-session' from a TTY)"
+        echo "  3. niri spawns waybar/mako/swaybg/etc. via 'spawn-at-startup' in"
+        echo "     ~/.config/niri/config.kdl — make sure those are enabled, or the bar/"
+        echo "     notifications won't appear even though they're installed."
+    else
+        echo "  2. Enjoy your new environment!"
+    fi
     echo ""
 }
 
@@ -426,6 +511,9 @@ main() {
     # Install all system packages
     install_packages
 
+    # Install Nerd Fonts required by alacritty/waybar (needs unzip + fontconfig)
+    install_fonts
+
     # Install special packages (mise, atuin)
     install_special_packages
 
@@ -445,6 +533,9 @@ main() {
 
     # Set default shell
     set_default_shell
+
+    # Optionally install the niri desktop environment (opt-in prompt)
+    maybe_install_desktop
 
     # Summary
     print_summary

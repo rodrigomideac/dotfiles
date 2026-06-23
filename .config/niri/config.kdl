@@ -10,9 +10,10 @@ input {
     keyboard {
         xkb {
             // KEYBOARD_LAYOUT_MARKER_START
-            // Current layout: split
+            // Current layout: thinkpad
             layout "us"
             variant "intl"
+            options "ctrl:swapcaps"
             // KEYBOARD_LAYOUT_MARKER_END
 
             // You can set rules, model, layout, variant and options.
@@ -276,13 +277,27 @@ layout {
 // which may be more convenient to use.
 // See the binds section below for more spawn examples.
 
-// This line starts waybar, a commonly used bar for Wayland compositors.
-// spawn-at-startup "waybar"
+// Desktop daemons. Spawned here (not in startup.sh) so they are independent
+// of that script's `set -e` — a failure in one app launch must not stop the
+// bar/notifications/monitor config from coming up.
+spawn-at-startup "waybar"   // status bar
+spawn-at-startup "mako"     // notification daemon
+spawn-at-startup "kanshi"   // dynamic monitor configuration (~/.config/kanshi/config)
+
+// Wallpaper: uncomment and point at an image once you have one.
+// spawn-at-startup "swaybg" "-m" "fill" "-i" "~/Pictures/wallpaper.png"
+
+// Lock-on-idle: uncomment to lock after 5 min and power off monitors after 10.
+// spawn-sh-at-startup "swayidle -w \
+//   timeout 300 'swaylock -f' \
+//   timeout 600 'niri msg action power-off-monitors' \
+//   resume 'niri msg action power-on-monitors' \
+//   before-sleep 'swaylock -f'"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
 
-// Custom startup script
+// Custom startup script (launches apps onto the right monitors/workspaces)
 spawn-at-startup "~/.config/niri/scripts/startup.sh"
 
 hotkey-overlay {

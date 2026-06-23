@@ -13,3 +13,7 @@ stow-sudo:
 stow-work: stow
 	stow --target=${HOME} bash
 
+# Install only the niri desktop environment (no CLI/dev toolchain, no config wipe)
+desktop:
+	bootstrap/lib/install-desktop.sh
+
