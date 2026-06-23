@@ -2,7 +2,8 @@
 #
 # Install the niri desktop environment (compositor + companion stack):
 # bar, launcher, notifications, lock/idle, wallpaper, clipboard, screenshots,
-# media/backlight keys, and the XDG portal backends.
+# media/backlight keys, Solaar (Logitech), and the XDG portal backends. Also
+# installs the Solaar Logitech udev rule so it works without root.
 #
 # Distro-agnostic. Most packages come from the official repos (Ubuntu
 # 'universe' / Arch 'extra'). niri and xwayland-satellite are not in Ubuntu's
@@ -45,6 +46,7 @@ DEBIAN_DESKTOP_PACKAGES=(
     "slurp:Screen-region selector"
     "playerctl:Media player control (waybar module + media keys)"
     "brightnessctl:Backlight control (niri/waybar brightness keys)"
+    "solaar:Logitech receiver/device manager (niri user service + keymaps)"
     "xdg-desktop-portal-gnome:XDG portal backend (screencast, global shortcuts)"
     "xdg-desktop-portal-gtk:XDG portal backend (file chooser, settings)"
 )
@@ -66,6 +68,7 @@ ARCH_DESKTOP_PACKAGES=(
     "slurp:Screen-region selector"
     "playerctl:Media player control (waybar module + media keys)"
     "brightnessctl:Backlight control (niri/waybar brightness keys)"
+    "solaar:Logitech receiver/device manager (niri user service + keymaps)"
     "xdg-desktop-portal-gnome:XDG portal backend (screencast, global shortcuts)"
     "xdg-desktop-portal-gtk:XDG portal backend (file chooser, settings)"
 )
@@ -116,4 +119,30 @@ install_desktop_packages() {
     log "Desktop environment installed"
 }
 
+# Solaar needs a udev rule granting the seated user raw hidraw access to
+# Logitech receivers — without it Solaar runs read-only (or needs root). The
+# solaar package ships a rule in /usr/lib/udev/rules.d, but the repo's rule
+# (udev/42-logitech-unify-permissions.rules) also covers the Lenovo nano
+# receiver and uses uaccess tagging, so install that one into /etc/udev (higher
+# precedence). solaar.service itself is deployed + enabled by 'make stow' via
+# niri.service.wants, so nothing to enable here. Idempotent.
+install_solaar_udev_rule() {
+    local repo_root rule
+    repo_root="$(cd "$SCRIPT_DIR/../.." && pwd)"
+    rule="$repo_root/udev/42-logitech-unify-permissions.rules"
+
+    if [ ! -f "$rule" ]; then
+        log "Solaar udev rule not found at $rule, skipping"
+        return
+    fi
+
+    log "Installing Solaar Logitech udev rule into /etc/udev/rules.d"
+    $SUDO cp "$rule" /etc/udev/rules.d/ || error "Failed to copy Solaar udev rule"
+    $SUDO chown root:root /etc/udev/rules.d/42-logitech-unify-permissions.rules
+    $SUDO chmod 644 /etc/udev/rules.d/42-logitech-unify-permissions.rules
+    $SUDO udevadm control --reload-rules || true
+    $SUDO udevadm trigger || true
+}
+
 install_desktop_packages
+install_solaar_udev_rule

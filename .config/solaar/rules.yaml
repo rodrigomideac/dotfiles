@@ -1,0 +1,11 @@
+%YAML 1.3
+---
+- Key: [Back Button, pressed]
+- Execute: [niri, msg, action, toggle-overview]
+---
+- Test: [thumb_wheel_up, 1]
+- Execute: [niri, msg, action, focus-column-left]
+---
+- Test: [thumb_wheel_down, 1]
+- Execute: [niri, msg, action, focus-column-right]
+...

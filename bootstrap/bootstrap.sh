@@ -301,7 +301,7 @@ maybe_install_desktop() {
             log "Optional: install the niri desktop environment?"
             log "  niri, waybar, fuzzel, mako, swaylock, swayidle, swaybg, kanshi,"
             log "  alacritty, xwayland-satellite, wl-clipboard, cliphist, grim, slurp,"
-            log "  and the GNOME/GTK XDG portal backends."
+            log "  solaar, and the GNOME/GTK XDG portal backends."
             printf "[bootstrap] Install the desktop environment now? [y/N] "
             local answer=""
             read -r answer < /dev/tty || answer=""
@@ -380,7 +380,7 @@ prepare_stow_targets() {
     local config_dirs=(
         alacritty atuin autostart fontconfig
         io.datasette.llm kanshi mise niri nvim
-        ranger systemd waybar
+        ranger solaar systemd waybar
     )
     for d in "${config_dirs[@]}"; do
         if [ -d "$HOME/.config/$d" ] || [ -L "$HOME/.config/$d" ]; then
@@ -452,6 +452,7 @@ print_summary() {
         echo "  - wl-clipboard / cliphist     Clipboard + history"
         echo "  - grim / slurp                Screenshots"
         echo "  - playerctl / brightnessctl   Media + backlight keys"
+        echo "  - solaar                      Logitech device manager (+ udev rule)"
         echo "  - xdg-desktop-portal-gnome/-gtk  Portal backends"
         echo ""
         log "Not installed (opinionated / machine-specific — add yourself if needed):"
@@ -462,7 +463,7 @@ print_summary() {
         log "Desktop environment NOT installed."
         echo "  Re-run with --desktop (or answer 'y' at the prompt) to install:"
         echo "  niri, waybar, fuzzel, mako, swaylock, swayidle, swaybg, kanshi,"
-        echo "  alacritty, xwayland-satellite, wl-clipboard, cliphist, grim, slurp, portals."
+        echo "  alacritty, xwayland-satellite, wl-clipboard, cliphist, grim, slurp, solaar, portals."
         echo "  Still install separately: a display manager, brightnessctl, a browser."
     fi
 
