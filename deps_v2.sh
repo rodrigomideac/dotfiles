@@ -58,6 +58,10 @@ echo "=== Installing Communication & Entertainment ==="
 yay -S --noconfirm spotify slack-desktop discord
 
 echo ""
+echo "=== Installing Game Streaming (Sunshine) ==="
+yay -S --noconfirm sunshine-bin
+
+echo ""
 echo "=== Installing System Services & Security ==="
 yay -S --noconfirm kwallet ksshaskpass kwalletmanager openssh notification-daemon
 
@@ -91,6 +95,18 @@ sudo systemctl enable NetworkManager.service
 sudo systemctl start NetworkManager.service
 sudo systemctl enable bluetooth.service
 sudo systemctl start bluetooth.service
+
+# SSH server: generate host keys (first run) then enable + start sshd.
+# NOTE: authorized_keys and key-only hardening (sshd_config.d) are machine-specific
+# and intentionally not managed here.
+sudo ssh-keygen -A
+sudo systemctl enable --now sshd.service
+
+# Sunshine runs as a user service (needs the live Wayland session to capture).
+# Enable it so it auto-starts with the graphical session on every login.
+# Guarded: enabling can fail if run without a user systemd instance (e.g. headless).
+systemctl --user enable app-dev.lizardbyte.app.Sunshine.service \
+    || echo "WARN: could not enable Sunshine user service now; run 'systemctl --user enable --now app-dev.lizardbyte.app.Sunshine.service' after logging into your session."
 
 echo ""
 echo "=== Installation Complete! ==="
