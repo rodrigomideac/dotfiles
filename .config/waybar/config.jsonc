@@ -9,7 +9,9 @@
     "custom/weather-tomorrow",
     "custom/multiline"
   ],
-  "modules-center": [], //battery   //disk     // uptime      //updates        // systray
+  "modules-center": [
+    "custom/playerctl"
+  ], //battery   //disk     // uptime      //updates        // systray
   "modules-right": [
     "pulseaudio",
     // "backlight",
