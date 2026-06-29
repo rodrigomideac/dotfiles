@@ -164,9 +164,10 @@ alias rgf='rg --files | rg'
 export GEM_HOME="$HOME/gems"
 export PATH="$HOME/gems/bin:$PATH"
 
-# . "$HOME/.atuin/bin/env"
-
-#eval "$(atuin init zsh)"
+# atuin: source the official-installer env shim first so ~/.atuin/bin is on
+# PATH and the shell uses the same binary as everything else (not a stray
+# system/apt atuin). Then init the zsh integration.
+[ -f "$HOME/.atuin/bin/env" ] && . "$HOME/.atuin/bin/env"
 command -v atuin &>/dev/null && eval "$(atuin init zsh --disable-up-arrow)"
 [[ "$TERM_PROGRAM" == "vscode" ]] && . "$(code --locate-shell-integration-path zsh)"
 
