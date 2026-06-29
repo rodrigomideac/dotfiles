@@ -453,6 +453,7 @@ print_summary() {
         echo "  - grim / slurp                Screenshots"
         echo "  - playerctl / brightnessctl   Media + backlight keys"
         echo "  - solaar                      Logitech device manager (+ udev rule)"
+        echo "  - blueman                     Bluetooth device manager"
         echo "  - xdg-desktop-portal-gnome/-gtk  Portal backends"
         echo ""
         log "Not installed (opinionated / machine-specific — add yourself if needed):"
@@ -463,7 +464,7 @@ print_summary() {
         log "Desktop environment NOT installed."
         echo "  Re-run with --desktop (or answer 'y' at the prompt) to install:"
         echo "  niri, waybar, fuzzel, mako, swaylock, swayidle, swaybg, kanshi,"
-        echo "  alacritty, xwayland-satellite, wl-clipboard, cliphist, grim, slurp, solaar, portals."
+        echo "  alacritty, xwayland-satellite, wl-clipboard, cliphist, grim, slurp, solaar, blueman, portals."
         echo "  Still install separately: a display manager, brightnessctl, a browser."
     fi
 

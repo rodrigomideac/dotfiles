@@ -45,8 +45,10 @@ DEBIAN_DESKTOP_PACKAGES=(
     "grim:Screenshot capture"
     "slurp:Screen-region selector"
     "playerctl:Media player control (waybar module + media keys)"
+    "pavucontrol:PulseAudio/PipeWire volume + per-app output routing (waybar pulseaudio click)"
     "brightnessctl:Backlight control (niri/waybar brightness keys)"
     "solaar:Logitech receiver/device manager (niri user service + keymaps)"
+    "blueman:Bluetooth device manager (GTK applet + pairing)"
     "xdg-desktop-portal-gnome:XDG portal backend (screencast, global shortcuts)"
     "xdg-desktop-portal-gtk:XDG portal backend (file chooser, settings)"
 )
@@ -67,8 +69,10 @@ ARCH_DESKTOP_PACKAGES=(
     "grim:Screenshot capture"
     "slurp:Screen-region selector"
     "playerctl:Media player control (waybar module + media keys)"
+    "pavucontrol:PulseAudio/PipeWire volume + per-app output routing (waybar pulseaudio click)"
     "brightnessctl:Backlight control (niri/waybar brightness keys)"
     "solaar:Logitech receiver/device manager (niri user service + keymaps)"
+    "blueman:Bluetooth device manager (GTK applet + pairing)"
     "xdg-desktop-portal-gnome:XDG portal backend (screencast, global shortcuts)"
     "xdg-desktop-portal-gtk:XDG portal backend (file chooser, settings)"
 )
@@ -144,5 +148,23 @@ install_solaar_udev_rule() {
     $SUDO udevadm trigger || true
 }
 
+# The Ubuntu niri PPA ships systemd user services for these and enables them
+# system-wide (via graphical-session.target). But our niri config already
+# spawns waybar/mako/kanshi through spawn-at-startup, so leaving the services
+# enabled launches a SECOND copy of each (e.g. two waybars). Disable them so
+# niri is the only launcher. dms.service is DankMaterialShell, the PPA's own
+# desktop shell, which this waybar/niri setup doesn't use. swaybg/swayidle are
+# left alone — niri doesn't spawn them, so their services aren't duplicated.
+# No-op on Arch, where none of these are enabled by default.
+disable_redundant_services() {
+    local units=(waybar.service mako.service kanshi.service dms.service)
+    log "Disabling redundant services (niri spawns its own): ${units[*]}"
+    # Global scope = system-wide PPA enablement. Needs root; no user bus required.
+    $SUDO systemctl --global disable "${units[@]}" 2>/dev/null || true
+    # User scope too, if a user systemd instance is reachable here.
+    systemctl --user disable --now "${units[@]}" 2>/dev/null || true
+}
+
 install_desktop_packages
 install_solaar_udev_rule
+disable_redundant_services
