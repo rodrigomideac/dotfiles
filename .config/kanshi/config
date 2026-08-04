@@ -1,8 +1,8 @@
 output "Ancor Communications Inc VX248 G3LMQS023518" {
   mode 1920x1080
-  position 1920,0
+  position -1920,0
   scale 1
-  alias $HOME_RIGHT
+  alias $HOME_LEFT
 }
 
 output "PNP(AOC) 24G2W1G4 0x000004ED" {
@@ -12,22 +12,16 @@ output "PNP(AOC) 24G2W1G4 0x000004ED" {
   alias $HOME_CENTER
 }
 
-output "Lenovo Group Limited 0x403D Unknown" {
-  alias $LAPTOP
+output "PNP(VCS) Connector 0x00451531" {
+  alias $NANOKVM
 }
 
-profile home_desk {
-  output $LAPTOP disable
-  output $HOME_RIGHT enable
+profile desk_pc_kvm {
   output $HOME_CENTER enable
+  output $NANOKVM disable
 }
 
-profile home_desk_alternative {
-  output $LAPTOP disable
+profile desk_pc {
   output $HOME_CENTER enable
+  output $HOME_LEFT enable
 }
-
-profile mobile {
-  output $LAPTOP enable
-}
-

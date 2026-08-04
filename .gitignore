@@ -6,3 +6,4 @@
 # atuin's official-installer receipt is rewritten on every self-update; the
 # config dir is a symlink into this repo, so ignore it to avoid churn.
 .config/atuin/atuin-receipt.json
+*drata*

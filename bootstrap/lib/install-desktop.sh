@@ -119,7 +119,18 @@ install_desktop_packages() {
     log "Installing niri desktop environment: ${pkg_names[*]}"
     # Refresh the package index first — it may not have run yet in this context.
     $SUDO $PKG_UPDATE || error "Failed to update package manager"
-    $SUDO $PKG_INSTALL "${pkg_names[@]}" || error "Failed to install desktop packages"
+    if [ "$DISTRO" = "debian" ] || [ "$DISTRO" = "ubuntu" ]; then
+        # --no-install-recommends: without this, apt pulls in Recommends
+        # transitively (e.g. xdg-desktop-portal-gnome -> gnome-shell ->
+        # gnome-session-bin -> gdm3), which on a system with an existing
+        # display manager (e.g. Kubuntu's sddm) triggers an interactive
+        # debconf prompt asking which display manager should be default.
+        # This setup deliberately doesn't install a display manager (see
+        # print_summary in bootstrap.sh), so skip recommends entirely.
+        $SUDO apt install -y --no-install-recommends "${pkg_names[@]}" || error "Failed to install desktop packages"
+    else
+        $SUDO $PKG_INSTALL "${pkg_names[@]}" || error "Failed to install desktop packages"
+    fi
     log "Desktop environment installed"
 }
 
