@@ -1,0 +1,16 @@
+# Handler for http/https. Wraps Chrome so links land as a tab in the window
+# you're looking at instead of a new window on another workspace — see
+# scripts/open-url for why.
+#
+# Exec must be absolute: ~/.local/bin is not on the graphical session's PATH
+# (nor on snap userd's, which is what routes URLs out of snap apps like Slack).
+[Desktop Entry]
+Type=Application
+Name=Chrome (existing window)
+Comment=Open links as a tab in the already-running Chrome
+Exec=/home/rodrigo/.local/bin/open-url %U
+Icon=google-chrome
+Terminal=false
+NoDisplay=true
+StartupNotify=true
+MimeType=x-scheme-handler/http;x-scheme-handler/https;text/html;

@@ -308,3 +308,4 @@ export PATH="/home/rodrigo/.local/bin:$PATH"
 
 # Turso
 export PATH="$PATH:/home/rodrigo/.turso"
+export PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64

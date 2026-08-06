@@ -371,6 +371,52 @@ window-rule {
     open-floating true
 }
 
+// Float all Zoom windows (meeting controls, notifications, menus, share bar)
+// except the main window, which stays tiled in the scrollable layout.
+// Zoom's app-id has varied across versions ("zoom", "us.zoom.Zoom",
+// "Zoom Workplace") — run `niri msg windows` while Zoom is open to confirm
+// what yours reports and adjust the match below if needed.
+window-rule {
+    match app-id=r#"^(zoom|us\.zoom\.Zoom|Zoom Workplace)$"#
+    // Keep only the real main windows tiled; float every helper/popup.
+    // Main window titles: "Zoom Workplace - Licensed account" and "Meeting".
+    // (Anchored so "Meeting chat"/"Meeting security" etc. are NOT excluded.)
+    exclude title=" - Licensed account$"
+    exclude title="^Meeting$"
+    open-floating true
+    // Default any floating Zoom helper (annotate palette, floating video,
+    // previews, popups) to the top-left corner instead of dead-center.
+    // Specific windows below (share bar, chat) override this.
+    default-floating-position x=32 y=32 relative-to="top-left"
+    // Stop buggy helpers (e.g. the rich-text format toolbar) from opening
+    // near-fullscreen. Small popups keep their own smaller size.
+    max-width 720
+    max-height 560
+}
+
+// Zoom popup menus: keep them a sane minimum width and grab focus on open.
+window-rule {
+    match app-id="Zoom Workplace" title=".*menu.*"
+    open-floating true
+    open-focused true
+    min-width 250
+}
+
+// Pin the Zoom screen-share control bar (title "as_toolbar") to bottom-center.
+// You can still reposition any floating window with Super+left-drag.
+window-rule {
+    match app-id="zoom" title="^as_toolbar$"
+    open-floating true
+    default-floating-position x=0 y=40 relative-to="bottom"
+}
+
+// Keep the Zoom chat panel docked to the right edge, not top-left.
+window-rule {
+    match app-id="zoom" title="^Meeting chat$"
+    open-floating true
+    default-floating-position x=16 y=32 relative-to="top-right"
+}
+
 // Example: block out two password managers from screen capture.
 // (This example rule is commented out with a "/-" in front.)
 /-window-rule {
@@ -549,15 +595,15 @@ binds {
     //
     // For example, with 2 workspaces + 1 empty, indices 3, 4, 5 and so on
     // will all refer to the 3rd workspace.
-    Mod+1 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 1"; }
-    Mod+2 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 2"; }
-    Mod+3 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 3"; }
-    Mod+4 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 4"; }
-    Mod+5 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 5"; }
-    Mod+6 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 6"; }
-    Mod+7 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 7"; }
-    Mod+8 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 8"; }
-    Mod+9 { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 9"; }
+    Mod+1 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 1"; }
+    Mod+2 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 2"; }
+    Mod+3 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 3"; }
+    Mod+4 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 4"; }
+    Mod+5 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 5"; }
+    Mod+6 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 6"; }
+    Mod+7 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 7"; }
+    Mod+8 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 8"; }
+    Mod+9 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 9"; }
     Mod+Ctrl+1 { move-column-to-workspace 1; }
     Mod+Ctrl+2 { move-column-to-workspace 2; }
     Mod+Ctrl+3 { move-column-to-workspace 3; }
@@ -662,10 +708,10 @@ binds {
     Mod+X { spawn-sh "$HOME/.config/niri/scripts/claude_scratchpad.sh";}
     Mod+Z { spawn-sh "$HOME/.config/niri/scripts/todo_scratchpad.sh";}
 
-    // Focus workspaces on the right monitor
-    Mod+Q { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 1"; }
-    Mod+W { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 2"; }
-    Mod+E { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 3"; }
+    // Focus workspaces on the left monitor
+    Mod+Q { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 1"; }
+    Mod+W { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 2"; }
+    Mod+E { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 3"; }
     // waystt - Speech to Text (direct typing)
     Mod+B { spawn "sh" "-c" "pgrep -x waystt >/dev/null && pkill --signal SIGUSR1 waystt || (YDOTOOL_SOCKET=/tmp/.ydotool_socket waystt --pipe-to ydotool type --file - &)"; }
     

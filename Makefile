@@ -3,6 +3,7 @@ stow:
 	stow --target=${HOME} vim
 	stow --target=${HOME} zsh
 	stow --no-folding --target=${HOME}/.local/bin scripts
+	stow --no-folding --target=${HOME}/.local/share/applications applications
 	stow --target=${HOME} tmux
 
 stow-sudo:

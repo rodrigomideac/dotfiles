@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Install Nemo and make it the default file manager (niri / pure-Wayland).
+#
+# Note: the open/save "file picker" dialog is served by xdg-desktop-portal
+# (gtk/gnome backends) and cannot be replaced by Nemo. What this sets is the
+# *default file manager*: opening folders, "Open Containing Folder", and the
+# org.freedesktop.FileManager1 D-Bus interface all launch Nemo instead of
+# Nautilus.
+#
+# Idempotent and re-runnable. Persisted via dotfiles (stowed to ~/.local/bin).
+
+set -euo pipefail
+
+# 1. Install nemo if missing.
+if ! command -v nemo >/dev/null 2>&1; then
+    echo ":: Installing nemo..."
+    sudo apt-get update
+    sudo apt-get install -y nemo
+else
+    echo ":: nemo already installed."
+fi
+
+# 2. Default handler for directories (folders, "Open Containing Folder").
+echo ":: Setting nemo as default for inode/directory..."
+xdg-mime default nemo.desktop inode/directory
+
+# 3. Make nemo findable in fuzzel (Super+D). Its stock entry is Name=Files
+#    (identical to Nautilus) with no "nemo" keyword, so typing "nemo" finds
+#    nothing. A same-named user override shadows the system entry: rename it to
+#    "Nemo" and add a nemo keyword. Regenerated from the system file each run so
+#    it stays in sync with the installed nemo version.
+user_apps="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+mkdir -p "$user_apps"
+echo ":: Writing nemo.desktop override (Name=Nemo, +nemo keyword)..."
+sed -e 's/^Name=Files$/Name=Nemo/' \
+    -e 's/^Keywords=/Keywords=nemo;/' \
+    /usr/share/applications/nemo.desktop > "$user_apps/nemo.desktop"
+update-desktop-database "$user_apps" >/dev/null 2>&1 || true
+
+# 4. Point the org.freedesktop.FileManager1 D-Bus interface at nemo.
+#    The system service file (owned by nautilus) lives in /usr and is not ours
+#    to edit; a user-level service file shadows it.
+svc_dir="${XDG_DATA_HOME:-$HOME/.local/share}/dbus-1/services"
+mkdir -p "$svc_dir"
+
+# nautilus runs its service headless with --gapplication-service; nemo supports
+# the same flag. Detect it so we don't hard-code an unsupported invocation.
+if nemo --help-all 2>&1 | grep -q -- '--gapplication-service'; then
+    exec_line='/usr/bin/nemo --gapplication-service'
+else
+    exec_line='/usr/bin/nemo'
+fi
+
+echo ":: Writing user FileManager1 D-Bus service -> $exec_line"
+cat > "$svc_dir/org.freedesktop.FileManager1.service" <<EOF
+[D-BUS Service]
+Name=org.freedesktop.FileManager1
+Exec=$exec_line
+EOF
+
+# 5. Release the name from a running nautilus daemon so nemo gets activated
+#    on the next request (no relog needed).
+if pgrep -x nautilus >/dev/null 2>&1; then
+    echo ":: Stopping running nautilus daemon so the change takes effect..."
+    nautilus -q >/dev/null 2>&1 || true
+fi
+
+echo ":: Done. Nemo is now the default file manager."
