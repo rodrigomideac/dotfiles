@@ -118,8 +118,8 @@ export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:$HOME/.local/share/gem/ruby/3.4.0/bin
 export PATH=$PATH:$HOME/devtools
 
-## SSH Agent managed by systemd user service (ssh-agent.service)
-export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR"/ssh-agent.socket
+## SSH Agent: socket-activated by the stock ssh-agent.socket user unit
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR"/openssh_agent
 
 ## NVM for Node.js
 [[ -f /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh

@@ -1,6 +1,6 @@
 [ "$XDG_CURRENT_DESKTOP" = "KDE" ] || [ "$XDG_CURRENT_DESKTOP" = "GNOME" ] || export QT_QPA_PLATFORMTHEME="qt5ct"
 
-# SSH agent is managed by systemd user service (ssh-agent.service)
+# SSH agent is socket-activated by the stock ssh-agent.socket user unit
 # SSH_AUTH_SOCK is set in .zshrc pointing to the systemd socket
 
 export PATH="$HOME/.cargo/bin:$PATH"
