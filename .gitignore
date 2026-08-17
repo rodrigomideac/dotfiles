@@ -7,3 +7,6 @@
 # config dir is a symlink into this repo, so ignore it to avoid churn.
 .config/atuin/atuin-receipt.json
 *drata*
+CLAUDE.local.md
+# Points at a versioned AppImage under ~/Downloads, so it's machine-specific.
+.config/autostart/linphone.desktop

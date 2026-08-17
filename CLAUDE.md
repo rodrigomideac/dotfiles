@@ -5,8 +5,8 @@ Guidance for Claude Code when working in this repository.
 ## What this is
 
 Personal dotfiles for a **niri** (scrollable-tiling Wayland compositor) desktop on
-Arch/Manjaro. Configs are deployed as symlinks with **GNU Stow**, so editing a file
-in this repo edits the live config.
+**Kubuntu** (Ubuntu 26.04 base, packages via `apt`). Configs are deployed as
+symlinks with **GNU Stow**, so editing a file in this repo edits the live config.
 
 The repo lives at `~/.dotfiles`. `make stow` symlinks it into `~` and `~/.config`.
 
@@ -17,7 +17,8 @@ The repo lives at `~/.dotfiles`. `make stow` symlinks it into `~` and `~/.config
 - `vim/`, `zsh/`, `tmux/`, `bash/` — dotfiles stowed into `~`
 - `systemd-services/` — system-level units (`make stow-sudo`)
 - `bootstrap/` — automated installer for a fresh Debian/Ubuntu/Manjaro machine
-- `deps_v2.sh` — Manjaro/Arch dependency installer (yay)
+- `deps_v2.sh` — dependency installer for Arch/Manjaro machines only (yay); not
+  used on this Kubuntu box
 
 ## Desktop stack
 
