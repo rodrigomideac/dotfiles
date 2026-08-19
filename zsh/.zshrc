@@ -193,6 +193,18 @@ alias wakeup-pc="wol 00:d8:61:36:88:58"
 eval "$(zoxide init zsh)"
 alias jst="just --working-directory $HOME/dev-pessoal/dk --justfile $HOME/dev-pessoal/dk/justfile"
 alias idf="cd ~/esp/esp-idf && . ./export.sh && cd -"
+# Claude Code account switching. ~/dev is work, so it keeps the default
+# ~/.claude config (credentials, settings, history). Everywhere else runs against
+# a separate config dir under the personal account. Bootstrap that account once:
+#   CLAUDE_CONFIG_DIR="$HOME/.claude-personal" command claude
+claude() {
+  if [[ "$PWD" == "$HOME/dev" || "$PWD" == "$HOME/dev/"* ]]; then
+    command claude "$@"
+  else
+    CLAUDE_CONFIG_DIR="$HOME/.claude-personal" command claude "$@"
+  fi
+}
+
 alias cdan="CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1 CLAUDE_CODE_EFFORT_LEVEL=xhigh claude --dangerously-skip-permissions"
 alias cdanc="CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1 CLAUDE_CODE_EFFORT_LEVEL=xhigh claude --dangerously-skip-permissions -c "
 alias codex="codex --dangerously-bypass-approvals-and-sandbox"
