@@ -306,8 +306,26 @@ spawn-at-startup "kanshi"   // dynamic monitor configuration (~/.config/kanshi/c
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
 
-// Custom startup script (launches apps onto the right monitors/workspaces)
+// Custom startup script (brings up the anchor workspaces)
 spawn-at-startup "~/.config/niri/scripts/startup.sh"
+
+// Anchor workspaces: the three permanent, named workspaces on the principal
+// monitor. Everything on HDMI-A-1 is reference material you check; DP-3 holds
+// only task workspaces, named after their Jira key and created on demand by
+// Mod+T / Mod+Shift+T. See docs/adr/0001-niri-task-workspace-workflow.md.
+//
+// Declared here so they exist at login, persist while empty, and keep this
+// order. Addressing is by name only — there are deliberately no numeric
+// workspace binds, because indices are positions and positions move.
+workspace "comm-tools" {
+    open-on-output "HDMI-A-1"
+}
+workspace "slack" {
+    open-on-output "HDMI-A-1"
+}
+workspace "personal" {
+    open-on-output "HDMI-A-1"
+}
 
 hotkey-overlay {
     // Uncomment this line to disable the "Important Hotkeys" pop-up at startup.
@@ -360,6 +378,38 @@ window-rule {
     // You can get away with just app-id="wezterm" if you want.
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
     default-column-width {}
+}
+
+// --- anchor workspace routing ------------------------------------------------
+// Slack, Firefox and the Outlook PWA have stable, distinct app-ids, so they can
+// be routed by rule. Deliberately absent: a rule for `google-chrome`. Its app-id
+// is identical for the anchor window holding the Jira board and for every
+// per-task browser window, so any rule here would hijack all of them; the anchor
+// window is placed by startup.sh instead. `--class` is no help either — it only
+// affects windows created by the process it was passed to, and a second
+// `google-chrome-stable --new-window` just messages the running instance.
+window-rule {
+    match app-id=r#"^slack$"#
+    open-on-workspace "slack"
+}
+
+// Note the app-id is "firefox_firefox", not "firefox" — matched on a suffix,
+// like the picture-in-picture rule below, so both host and packaged builds hit.
+window-rule {
+    match app-id=r#"firefox$"#
+    open-on-workspace "personal"
+}
+
+window-rule {
+    match app-id=r#"^chrome-eoficlgicibekocmfdomjbfnjmehnhcd-Default$"#   // Outlook PWA
+    open-on-workspace "comm-tools"
+}
+
+// IntelliJ under XWayland maps its splash screen and completion popups as
+// separate windows titled win0/win1/…; left tiled they each become a column.
+window-rule {
+    match app-id=r#"^jetbrains-"# title=r#"^win\d+$"#
+    open-floating true
 }
 
 // Open the Firefox picture-in-picture player as floating by default.
@@ -481,13 +531,25 @@ binds {
 
     Mod+Shift+Q repeat=false { close-window; }
 
+    // hjkl navigates everything: h/l scroll through columns, j/k move down and up
+    // through *named* workspaces — the task workspaces on DP-3, the anchors on
+    // HDMI-A-1. Unnamed workspaces are skipped, including the always-empty one at
+    // the bottom of each output, which the built-in focus-workspace-down would
+    // otherwise stop on. Scoped to the focused output, and wraps around.
+    //
+    // A script because niri has no action for "next named workspace"; cooldown-ms
+    // rate-limits key repeat so holding the key cannot pile up spawns.
+    //
+    // The arrow keys keep the plain within-column behaviour, so both are
+    // available: Mod+Down steps through windows inside a column and never leaves
+    // the workspace, Mod+J leaves it.
     Mod+Left  { focus-column-left; }
     Mod+Down  { focus-window-down; }
     Mod+Up    { focus-window-up; }
     Mod+Right { focus-column-right; }
     Mod+H     { focus-column-left; }
-    Mod+J     { focus-window-down; }
-    Mod+K     { focus-window-up; }
+    Mod+J cooldown-ms=100 { spawn-sh "$HOME/.config/niri/scripts/niri-named-workspace.sh down"; }
+    Mod+K cooldown-ms=100 { spawn-sh "$HOME/.config/niri/scripts/niri-named-workspace.sh up"; }
     Mod+L     { focus-column-right; }
 
     Mod+Ctrl+Left  { move-column-left; }
@@ -495,16 +557,11 @@ binds {
     Mod+Ctrl+Up    { move-window-up; }
     Mod+Ctrl+Right { move-column-right; }
     Mod+Ctrl+H     { move-column-left; }
-    Mod+Ctrl+J     { move-window-down; }
-    Mod+Ctrl+K     { move-window-up; }
+    // Paired with Mod+J/K above, so "down" means the same thing for both verbs:
+    // send this column to the next named workspace, not merely the adjacent one.
+    Mod+Ctrl+J cooldown-ms=100 { spawn-sh "$HOME/.config/niri/scripts/niri-named-workspace.sh down move"; }
+    Mod+Ctrl+K cooldown-ms=100 { spawn-sh "$HOME/.config/niri/scripts/niri-named-workspace.sh up move"; }
     Mod+Ctrl+L     { move-column-right; }
-
-    // Alternative commands that move across workspaces when reaching
-    // the first or last window in a column.
-    // Mod+J     { focus-window-or-workspace-down; }
-    // Mod+K     { focus-window-or-workspace-up; }
-    // Mod+Ctrl+J     { move-window-down-or-to-workspace-down; }
-    // Mod+Ctrl+K     { move-window-up-or-to-workspace-up; }
 
     Mod+Home { focus-column-first; }
     Mod+End  { focus-column-last; }
@@ -587,38 +644,25 @@ binds {
     // Mod+TouchpadScrollDown { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02+"; }
     // Mod+TouchpadScrollUp   { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.02-"; }
 
-    // You can refer to workspaces by index. However, keep in mind that
-    // niri is a dynamic workspace system, so these commands are kind of
-    // "best effort". Trying to refer to a workspace index bigger than
-    // the current workspace count will instead refer to the bottommost
-    // (empty) workspace.
+    // Workspaces are addressed by name, never by index — an index is a position
+    // on the focused output, and positions shift whenever a workspace is added,
+    // removed or reordered. The numeric binds that used to live here are gone.
     //
-    // For example, with 2 workspaces + 1 empty, indices 3, 4, 5 and so on
-    // will all refer to the 3rd workspace.
-    Mod+1 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 1"; }
-    Mod+2 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 2"; }
-    Mod+3 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 3"; }
-    Mod+4 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 4"; }
-    Mod+5 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 5"; }
-    Mod+6 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 6"; }
-    Mod+7 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 7"; }
-    Mod+8 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 8"; }
-    Mod+9 { spawn-sh "niri msg action focus-monitor-right && niri msg action focus-workspace 9"; }
-    Mod+Ctrl+1 { move-column-to-workspace 1; }
-    Mod+Ctrl+2 { move-column-to-workspace 2; }
-    Mod+Ctrl+3 { move-column-to-workspace 3; }
-    Mod+Ctrl+4 { move-column-to-workspace 4; }
-    Mod+Ctrl+5 { move-column-to-workspace 5; }
-    Mod+Ctrl+6 { move-column-to-workspace 6; }
-    Mod+Ctrl+7 { move-column-to-workspace 7; }
-    Mod+Ctrl+8 { move-column-to-workspace 8; }
-    Mod+Ctrl+9 { move-column-to-workspace 9; }
+    // Task workspaces (one per Jira key, on DP-3) are reached with Mod+T, walked
+    // with Mod+U / Mod+I, and toggled between with Mod+Tab.
+    Mod+T hotkey-overlay-title="Go to a task or ticket worktree" {
+        spawn-sh "$HOME/.config/niri/scripts/niri-task.sh"
+    }
+    Mod+Shift+T hotkey-overlay-title="Create a task from a Jira key" {
+        spawn-sh "$HOME/.config/niri/scripts/niri-task-new.sh"
+    }
+    // Release this workspace: drops its name so niri reaps it once it empties.
+    // Windows are left alone — closing them is Mod+Shift+Q, deliberately.
+    Mod+Ctrl+T { unset-workspace-name; }
 
-    // Alternatively, there are commands to move just a single window:
-    // Mod+Ctrl+1 { move-window-to-workspace 1; }
-
-    // Switches focus between the current and the previous workspace.
-    // Mod+Tab { focus-workspace-previous; }
+    // Switches focus between the current and the previous workspace: the fastest
+    // way to bounce between two tickets.
+    Mod+Tab { focus-workspace-previous; }
 
     // The following binds move the focused window in and out of a column.
     // If the window is alone, they will consume it into the nearby column to the side.
@@ -708,10 +752,11 @@ binds {
     Mod+X { spawn-sh "$HOME/.config/niri/scripts/claude_scratchpad.sh";}
     Mod+Z { spawn-sh "$HOME/.config/niri/scripts/todo_scratchpad.sh";}
 
-    // Focus workspaces on the left monitor
-    Mod+Q { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 1"; }
-    Mod+W { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 2"; }
-    Mod+E { spawn-sh "niri msg action focus-monitor-left && niri msg action focus-workspace 3"; }
+    // The three anchor workspaces on the principal monitor. By name, so they
+    // stay correct however the workspace stack is reordered.
+    Mod+Q { focus-workspace "comm-tools"; }
+    Mod+W { focus-workspace "slack"; }
+    Mod+E { focus-workspace "personal"; }
     // waystt - Speech to Text (direct typing)
     Mod+B { spawn "sh" "-c" "pgrep -x waystt >/dev/null && pkill --signal SIGUSR1 waystt || (YDOTOOL_SOCKET=/tmp/.ydotool_socket waystt --pipe-to ydotool type --file - &)"; }
     

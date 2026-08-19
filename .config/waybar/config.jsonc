@@ -5,9 +5,10 @@
   "spacing": 1,
   "margin": 0,
   "modules-left": [
+    "niri/workspaces",
+    "niri/window",
     "custom/weather",
-    "custom/weather-tomorrow",
-    "custom/multiline"
+    "custom/weather-tomorrow"
   ],
   "modules-center": [
     "custom/playerctl"
@@ -27,29 +28,34 @@
     "clock",
     "custom/power"
   ],
-  "sway/workspaces": {
-    "disable-scroll": true,
-    "all-outputs": true,
-    "format": "{name}",
+  // all-outputs is false so each bar describes its own screen: the anchors on
+  // HDMI-A-1, the Jira-keyed task workspaces on DP-3.
+  //
+  // format-icons match on the workspace name, so only the anchors get their own
+  // glyph; task workspaces are named after a ticket and fall through to the
+  // state icons. This module has no "rewrite" and no "tooltip", and {value}
+  // prints in full -- which is why a workspace is named with the bare ticket
+  // key while the summary lives in the picker instead.
+  "niri/workspaces": {
+    "all-outputs": false,
+    "format": "{icon} {value}",
     "format-icons": {
-      "1": "󰖟",
-      "2": "",
-      "3": "",
-      "4": "󰭹",
-      "5": "󰕧",
-      "6": "",
-      "7": "",
-      "8": "󰣇",
-      "9": "",
-      "10": ""
-    },
-    "persistent_workspaces": {
-      "1": [],
-      "2": [],
-      "3": [],
-      "4": [],
-      "5": []
+      "comm-tools": "󰭹",
+      "slack": "",
+      "personal": "󰖟",
+      "focused": "",
+      "active": "",
+      "urgent": "",
+      "empty": "",
+      "default": ""
     }
+  },
+  // The only context line. With IntelliJ focused this reads
+  // "<slug>-<ticket> - Foo.java", naming the ticket the workspace belongs to.
+  "niri/window": {
+    "format": "{title}",
+    "max-length": 60,
+    "separate-outputs": true
   },
   "sway/mode": {
     "format": "<span style=\"italic\">{}</span>"
@@ -221,11 +227,5 @@
     "format": "⏻",
     "tooltip": false,
     "on-click": "~/.config/waybar/scripts/power-menu.sh"
-  },
-  "custom/multiline": {
-    "exec": "echo '<span font=\"10\" line_height=\"1.2\">Line 1\nLine 2\nLine 3\nLine 4</span>'",
-    "interval": 60,
-    "format": "{}",
-    "escape": false
   }
 }

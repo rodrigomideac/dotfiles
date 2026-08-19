@@ -25,6 +25,9 @@ All niri configuration files use **KDL (KDL Document Language)** format. The mai
 
 - `keymap.xkb` - XKB keyboard layout configuration (US International)
 
+- `scripts/niri-task*.sh` - the ticket-keyed task workspace workflow; see the
+  "Workspace model" section at the end of this file
+
 - `scripts/claude_scratchpad.sh` - Bash script that provides dropdown/scratchpad behavior for Claude AI web app
   - Launches Claude in a Chrome app window with custom class `KagiAssistant`
   - Toggles window visibility by moving it between current workspace and workspace 99
@@ -145,5 +148,40 @@ When making changes:
 
 # Monitor Configuration
 
-Principal monitor: HDMI-A-1
-Side monitor: DP-2
+Principal monitor: HDMI-A-1 (positioned to the **left**, x = -1920)
+Side monitor: DP-3 (positioned to the **right**, x = 0)
+
+Note the geometry: `focus-monitor-right` reaches the *side* monitor and
+`focus-monitor-left` the principal one. An older `DP-2` no longer exists.
+
+# Workspace model
+
+Workspaces are addressed **by name only** — there are deliberately no numeric
+workspace binds, because a niri workspace index is a position on the focused
+output and positions move. See `docs/adr/0001-niri-task-workspace-workflow.md`
+for the full rationale.
+
+- **HDMI-A-1** holds three permanent anchors declared in `config.kdl`:
+  `comm-tools`, `slack`, `personal` (`Mod+Q` / `Mod+W` / `Mod+E`).
+- **DP-3** holds only task workspaces, one per ticket key, created on demand.
+
+| Bind | Action |
+| --- | --- |
+| `Mod+T` | picker: go to a task workspace or a dormant ticket worktree |
+| `Mod+Shift+T` | create a task from a ticket key (worktree, branch, windows) |
+| `Mod+Ctrl+T` | `unset-workspace-name` — release the current workspace |
+| `Mod+Tab` | previous workspace |
+| `Mod+U` / `Mod+I` | walk the task stack |
+
+The scripts behind these live in `scripts/` here: `niri-task.sh`,
+`niri-task-new.sh`, `niri-task-place.sh`, `niri-jira-cache.sh`, with shared
+helpers in `niri-task-lib.sh`.
+
+Work-specific values are **not** committed. `niri-task-lib.sh` sources
+`~/.work-env` (repository path, project key, tracker host — a POSIX-clean file in
+a separate private repository) and `~/.secrets` (credentials). It sources them
+explicitly rather than inheriting them, because scripts spawned by niri get the
+compositor's environment, not an interactive shell's. Since KDL cannot
+interpolate environment variables, anything that must stay uncommitted cannot be
+matched in a window rule — `startup.sh` places those windows by window id
+instead.
