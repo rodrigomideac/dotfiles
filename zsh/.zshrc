@@ -203,7 +203,7 @@ export PATH="/home/rodrigo/.bun/bin:$PATH"
 export LD_LIBRARY_PATH="$HOME/.microsandbox/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export PATH="/home/rodrigo/.local/bin:$PATH"
 # <<< microsandbox <<<
+#
+alias ll="ls -larth"
 
-# Turso
-export PATH="$PATH:/home/rodrigo/.turso"
 export PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64
