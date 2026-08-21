@@ -117,7 +117,7 @@ window#waybar {
 #mode, #mpd, #custom-weather, #custom-playerctl, #clock, #cpu,
 #memory, #temperature, #battery, #network, #pulseaudio,
 #backlight, #disk, #custom-uptime, #custom-updates, #custom-quote,
-#idle_inhibitor, #tray, #custom-power, #custom-multiline {
+#idle_inhibitor, #tray, #custom-power, #custom-multiline, #custom-task-slug {
     padding: 0 10px;
     margin: 0 2px;
     border-bottom: 2px solid transparent;
@@ -306,6 +306,12 @@ window#waybar {
     border-bottom-color: @power-color;
     font-size: 16px;
     font-weight: bold;
+}
+
+#custom-task-slug {
+    color: @workspaces-focused-fg;
+    font-size: 20px;
+    font-weight: 900;
 }
 
 #custom-power:hover {

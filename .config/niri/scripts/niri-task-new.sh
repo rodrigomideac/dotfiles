@@ -79,6 +79,6 @@ else
         || nt_die "worktree add failed from $BASE_BRANCH"
 fi
 
-nt_open_task "$key" "$dir"
+nt_open_task "$key" "$dir" fresh
 nt_jira_refresh_async
 nt_notify "$key → ${dir##*/}"

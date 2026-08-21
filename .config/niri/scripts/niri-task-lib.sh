@@ -76,6 +76,15 @@ nt_key_of_path() {
     fi
 }
 
+# The slug typed in niri-task-new.sh, recovered from a worktree path by
+# stripping the same "-key" suffix nt_key_of_path matches on.
+nt_slug_of_path() {
+    local base="${1##*/}" lc="${PROJECT,,}"
+    if [[ "$base" =~ ^(.+)-${lc}-[0-9]+(-v[0-9]+)?$ ]]; then
+        printf '%s\n' "${BASH_REMATCH[1]}"
+    fi
+}
+
 # "KEY<TAB>PATH" for every ticket worktree, most recently used first. Recency
 # comes from the mtime of the worktree's admin directory under .git/worktrees,
 # which git touches on checkout, commit and index updates.
@@ -174,25 +183,58 @@ nt_claim_workspace() {
     niri msg action set-workspace-name "$name" >/dev/null 2>&1
 }
 
+# What the task terminal runs. `dev` opens the tmux session for the worktree
+# and is a function from the interactive shell, not a command, so this goes
+# through `zsh -ic` rather than being exec'd directly.
+#
+# On a worktree that was just created, POST_HOOK_PATH runs first. What it does
+# is repository-specific and lives outside this repo (~/.work-env names it);
+# all that matters here is that it runs to completion in the visible terminal
+# before tmux takes the screen. Chained with `&&`, so a hook that fails leaves
+# you in a plain shell looking at the error instead of behind a tmux session
+# that hides it. The trailing `exec zsh` keeps the terminal alive afterwards,
+# whether tmux was detached or the hook never got that far.
+nt_term_command() {
+    local hook=""
+    [[ "${1:-}" == "fresh" ]] && hook="${POST_HOOK_PATH:-}"
+    if [[ -n "$hook" && -x "$hook" ]]; then
+        printf '%s && dev; exec zsh\n' "$(printf '%q' "$hook")"
+    else
+        printf 'dev; exec zsh\n'
+    fi
+}
+
 # Build a task workspace: three full-width columns, left to right browser,
-# terminal, IDE. All three are spawned while the new workspace is focused so
-# they land there natively; the placer only corrects the IDE window if focus
-# moved away before it mapped.
+# terminal, IDE. They are spawned while the new workspace is focused so they
+# land there natively; the placer only corrects the IDE window if focus moved
+# away before it mapped.
+#
+# Pass "fresh" as the third argument for a worktree that has just been created.
+# Besides running the setup hook, that hook is also what opens the IDE — it is
+# the only thing that can, since a brand new worktree has no IDE workspace yet
+# — so the direct spawn is skipped and the placer is told to wait much longer,
+# the hook having a build to get through first.
 nt_open_task() {
-    local key="$1" dir="$2" before
+    local key="$1" dir="$2" fresh="${3:-}" before place_timeout=""
 
     nt_remember "$key" "$dir"
     nt_claim_workspace "$key"
 
     setsid "$BROWSER_CMD" --new-window "$JIRA_URL/browse/$key" >/dev/null 2>&1 &
-    setsid "$TERM_CMD" --working-directory "$dir" >/dev/null 2>&1 &
+    setsid "$TERM_CMD" --working-directory "$dir" \
+        -e zsh -ic "$(nt_term_command "$fresh")" >/dev/null 2>&1 &
 
     # The title filter is the worktree directory name, which IntelliJ puts at the
     # front of its project window title. Without it the placer matches IntelliJ's
     # empty-titled splash window first and the real one arrives unplaced.
     before="$(nt_window_ids | paste -sd,)"
-    setsid "$IDE_CMD" "$dir" >/dev/null 2>&1 &
-    setsid "$SCRIPT_DIR/niri-task-place.sh" "$key" "$IDE_APP_ID" "$before" \
+    if [[ "$fresh" == "fresh" ]]; then
+        place_timeout=3600
+    else
+        setsid "$IDE_CMD" "$dir" >/dev/null 2>&1 &
+    fi
+    NIRI_TASK_PLACE_TIMEOUT="$place_timeout" \
+        setsid "$SCRIPT_DIR/niri-task-place.sh" "$key" "$IDE_APP_ID" "$before" \
         "${dir##*/}" >/dev/null 2>&1 &
 }
 

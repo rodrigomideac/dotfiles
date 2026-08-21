@@ -17,7 +17,11 @@
 # directory name is unique per worktree and IntelliJ puts it at the front of the
 # project window title, so it is the right discriminator.
 #
-# Gives up after two minutes.
+# Runs for two minutes, or NIRI_TASK_PLACE_TIMEOUT seconds when that is set, and
+# places every new match it sees in that window rather than stopping at the
+# first. Callers that spawn the IDE at the end of a long setup run, rather than
+# immediately, need both: the longer patience, and the tolerance for a setup
+# that opens the IDE, closes it and opens it again.
 
 set -uo pipefail
 
@@ -25,6 +29,8 @@ workspace="${1:?workspace name required}"
 app_re="${2:?app-id regex required}"
 before="${3:-}"
 title_needle="${4:-}"
+timeout="${NIRI_TASK_PLACE_TIMEOUT:-120}"
+[[ "$timeout" =~ ^[0-9]+$ ]] || timeout=120
 
 # First window matching the app-id whose id was not present before the spawn, and
 # whose title contains the needle if one was given.
@@ -39,8 +45,10 @@ read -r -d '' NEW_WINDOW_JQ <<'JQ'
   ) // empty
 JQ
 
-for _ in $(seq 1 120); do
+elapsed=0
+while (( elapsed < timeout )); do
     sleep 1
+    elapsed=$(( elapsed + 1 ))
 
     # The workspace may have been released in the meantime; keep waiting rather
     # than moving the window somewhere arbitrary.
@@ -60,5 +68,11 @@ for _ in $(seq 1 120); do
         niri msg action move-window-to-workspace "$workspace" \
             --window-id "$id" --focus false >/dev/null 2>&1
     fi
-    exit 0
+
+    # Keep watching instead of exiting on the first match. A setup run can open
+    # the IDE, close it again and reopen it — the intermediate window matches
+    # first, and it is the *last* one that has to land in the right place. The
+    # id joins the seen set so it is not reconsidered; everything else opened
+    # since the snapshot is still fair game until the timeout runs out.
+    before="${before:+$before,}$id"
 done

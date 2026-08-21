@@ -177,9 +177,18 @@ The scripts behind these live in `scripts/` here: `niri-task.sh`,
 `niri-task-new.sh`, `niri-task-place.sh`, `niri-jira-cache.sh`, with shared
 helpers in `niri-task-lib.sh`.
 
+A task workspace's terminal runs `dev` (the tmux-session function from the
+interactive shell), and on a **newly created** worktree runs `$POST_HOOK_PATH`
+before it, chained with `&&`. The hook is the repository-specific setup run —
+install, build, open the IDE — so it is named in `~/.work-env` and lives
+outside this repo. When it is set, the fresh path skips the direct IDE spawn
+(the hook opens it) and raises `NIRI_TASK_PLACE_TIMEOUT` so the placer outlasts
+the build. Unset it and task terminals just run `dev`.
+
 Work-specific values are **not** committed. `niri-task-lib.sh` sources
-`~/.work-env` (repository path, project key, tracker host — a POSIX-clean file in
-a separate private repository) and `~/.secrets` (credentials). It sources them
+`~/.work-env` (repository path, project key, tracker host, `POST_HOOK_PATH` — a
+POSIX-clean file in a separate private repository) and `~/.secrets`
+(credentials). It sources them
 explicitly rather than inheriting them, because scripts spawned by niri get the
 compositor's environment, not an interactive shell's. Since KDL cannot
 interpolate environment variables, anything that must stay uncommitted cannot be

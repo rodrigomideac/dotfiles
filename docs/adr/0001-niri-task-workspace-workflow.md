@@ -69,6 +69,39 @@ layout configuration — `default-column-width { proportion 1.0 }` was already s
 so every window is already full width and navigation is horizontal scrolling
 rather than splitting.
 
+### The task terminal runs `dev`, and a setup hook before it on a new worktree
+
+The terminal is not a bare shell. It runs `dev`, the interactive-shell function
+that opens the worktree's tmux session, so the workspace arrives with the
+editor and agent windows already up. It goes through `zsh -ic` because `dev` is
+a shell function, not a command, and ends in `exec zsh` so detaching from tmux
+leaves a usable terminal rather than closing the window.
+
+A worktree that was *just created* runs `$POST_HOOK_PATH` first, chained with
+`&&`. What that hook does is repository-specific — install, build, open the IDE
+— so it is named in `~/.work-env` and lives outside this repo, alongside the
+other uncommitted work configuration. With the variable unset, or pointing at
+nothing executable, the terminal simply runs `dev`; nothing here depends on the
+hook existing.
+
+Two consequences follow from the hook, not from taste:
+
+- **It runs in the visible terminal, before tmux.** A build takes tens of
+  minutes and its output is the whole point of watching it. Chained with `&&`,
+  so a hook that fails leaves you in a plain shell looking at the error instead
+  of behind a tmux session that hides it.
+- **On a fresh worktree the hook opens the IDE, so the direct spawn is
+  skipped.** It is the only thing that can: a brand new worktree has no IDE
+  workspace for the toolchain to open. That pushes the IDE's appearance to the
+  far end of the build, well past the placer's two-minute patience, so the
+  fresh path raises `NIRI_TASK_PLACE_TIMEOUT` to an hour. Reopening an existing
+  worktree does not run the hook and keeps spawning the IDE directly.
+- **The placer no longer stops at the first window it places.** A setup run
+  that customizes the IDE has to open it, close it and open it again, and it is
+  the last window that has to land in the right place. Placed ids join the seen
+  set, so each new window is handled once and the run ends on the timeout
+  rather than on the first match.
+
 ### Creation and navigation are separate keys
 
 `Mod+T` navigates only; its list contains exclusively things that already exist.

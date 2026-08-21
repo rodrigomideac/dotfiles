@@ -161,6 +161,11 @@ layout {
     // If you leave the brackets empty, the windows themselves will decide their initial width.
     // default-column-width {}
 
+    // New columns start in tabbed display: windows consumed into a column
+    // (Mod+Comma) stack as vertical tabs instead of splitting the height.
+    // Mod+Shift+W toggles an individual column back to "normal".
+    default-column-display "tabbed"
+
     // By default focus ring and border are rendered as a solid background rectangle
     // behind windows. That is, they will show up through semitransparent windows.
     // This is because windows using client-side decorations can have an arbitrary shape.
