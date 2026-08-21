@@ -30,10 +30,13 @@ else
 fi
 
 # Already open, or already checked out: go there instead of building anything.
-if nt_named_workspaces 2>/dev/null | cut -f1 | grep -qxF "$key"; then
-    niri msg action focus-workspace "$key" >/dev/null 2>&1
+# A task workspace is named after its worktree directory, so the match is on the
+# key that name carries rather than on the name itself.
+while IFS=$'\t' read -r ws_name _output _count; do
+    [[ "$(nt_key_of_path "$ws_name")" == "$key" ]] || continue
+    niri msg action focus-workspace "$ws_name" >/dev/null 2>&1
     exit 0
-fi
+done < <(nt_named_workspaces 2>/dev/null)
 if existing="$(nt_resolve_worktree "$key")"; then
     nt_notify "$key already has a worktree — opening it."
     nt_open_task "$key" "$existing"

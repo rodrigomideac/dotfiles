@@ -97,25 +97,29 @@ ticket_label() {
 
 declare -A LISTED=()
 
-# 1. Live task workspaces, in worktree MRU order.
+# 1. Live task workspaces, in worktree MRU order. Rows are tracked by workspace
+# name — the worktree directory — rather than by key, so two worktrees sharing a
+# key each get their own row instead of the second one being swallowed.
 for line in "${WORKTREES[@]}"; do
     IFS=$'\t' read -r key path <<<"$line"
-    [[ -v LISTED["$key"] ]] && continue
-    [[ -v WS_WINDOWS["$key"] ]] || continue
+    name="${path##*/}"
+    [[ -v LISTED["$name"] ]] && continue
+    [[ -v WS_WINDOWS["$name"] ]] || continue
     add_row "$(printf '%s %s %-11s %s' \
-        "$(occupancy_glyph "$key")" "$(status_glyph "$key")" "$key" \
-        "$(ticket_label "$key" "$path")")" "ws:$key"
-    LISTED["$key"]=1
+        "$(occupancy_glyph "$name")" "$(status_glyph "$key")" "$key" \
+        "$(ticket_label "$key" "$path")")" "ws:$name"
+    LISTED["$name"]=1
 done
 
 # A named task workspace whose worktree has since been removed still deserves a
 # row — otherwise its windows become unreachable by name.
 for name in "${!WS_WINDOWS[@]}"; do
-    nt_is_ticket_key "$name" || continue
+    nt_is_task_workspace "$name" || continue
     [[ -v LISTED["$name"] ]] && continue
+    key="$(nt_key_of_path "$name")"
     add_row "$(printf '%s %s %-11s %s' \
-        "$(occupancy_glyph "$name")" "$(status_glyph "$name")" "$name" \
-        "$(trim "${SUMMARY[$name]:-no worktree}" 64)")" "ws:$name"
+        "$(occupancy_glyph "$name")" "$(status_glyph "$key")" "$key" \
+        "$(trim "${SUMMARY[$key]:-no worktree}" 64)")" "ws:$name"
     LISTED["$name"]=1
 done
 
@@ -127,7 +131,7 @@ done
 # 3. Dormant ticket worktrees.
 for line in "${WORKTREES[@]}"; do
     IFS=$'\t' read -r key path <<<"$line"
-    [[ -v LISTED["$key"] ]] && continue
+    [[ -v LISTED["${path##*/}"] ]] && continue
     add_row "$(printf '○ %s %-11s %s' \
         "$(status_glyph "$key")" "$key" "$(ticket_label "$key" "$path")")" \
         "open:$key:$path"

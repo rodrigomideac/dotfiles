@@ -41,7 +41,9 @@ JIRA_TTL="${NIRI_TASK_JIRA_TTL:-43200}"   # 12h
 # Maps a key to the worktree it was opened from. Lives in the runtime dir
 # because its useful lifetime is exactly the workspace's — neither survives a
 # reboot. It only matters when two worktrees share one key (…-N and …-N-v2),
-# where the recency fallback would otherwise have to guess.
+# where the recency fallback would otherwise have to guess. Only the key →
+# worktree direction needs it; going the other way, the workspace name is the
+# directory name (nt_worktree_of_workspace).
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}/niri-task"
 WS_MAP="$RUNTIME_DIR/map"
 
@@ -84,6 +86,16 @@ nt_slug_of_path() {
         printf '%s\n' "${BASH_REMATCH[1]}"
     fi
 }
+
+# The workspace name for a worktree: the directory name itself. Workspaces are
+# named after the directory rather than after the bare key, so the name says
+# what the work is and two worktrees sharing a key (…-N and …-N-v2) get two
+# distinguishable workspaces. See docs/adr/0002-workspace-named-after-worktree.md
+nt_workspace_name_of_path() { printf '%s\n' "${1##*/}"; }
+
+# True when a workspace name is a task workspace rather than an anchor: it is
+# one exactly when it parses as a worktree directory name.
+nt_is_task_workspace() { [[ -n "$(nt_key_of_path "$1")" ]]; }
 
 # "KEY<TAB>PATH" for every ticket worktree, most recently used first. Recency
 # comes from the mtime of the worktree's admin directory under .git/worktrees,
@@ -131,7 +143,20 @@ nt_window_ids() {
     niri msg -j windows 2>/dev/null | jq -r '.[].id' | sort -n
 }
 
-nt_is_ticket_key() { [[ "$1" =~ ^[A-Z][A-Z0-9]*-[0-9]+$ ]]; }
+# Worktree path for a task workspace name. The name *is* the directory name, so
+# this is an exact match against the worktree list — no recency guess and no
+# runtime map. That exactness is what naming workspaces after the directory buys
+# over naming them after the key.
+nt_worktree_of_workspace() {
+    local name="$1" path
+    while IFS=$'\t' read -r _ path; do
+        if [[ "${path##*/}" == "$name" ]]; then
+            printf '%s\n' "$path"
+            return 0
+        fi
+    done < <(nt_ticket_worktrees)
+    return 1
+}
 
 nt_remember() {
     mkdir -p "$RUNTIME_DIR"
@@ -209,16 +234,22 @@ nt_term_command() {
 # land there natively; the placer only corrects the IDE window if focus moved
 # away before it mapped.
 #
+# The workspace is named after the worktree directory, not the ticket key, so
+# the name on the bar reads like the work and stays unique when one key has two
+# worktrees. The key survives inside it and every lookup recovers it with
+# nt_key_of_path.
+#
 # Pass "fresh" as the third argument for a worktree that has just been created.
 # Besides running the setup hook, that hook is also what opens the IDE — it is
 # the only thing that can, since a brand new worktree has no IDE workspace yet
 # — so the direct spawn is skipped and the placer is told to wait much longer,
 # the hook having a build to get through first.
 nt_open_task() {
-    local key="$1" dir="$2" fresh="${3:-}" before place_timeout=""
+    local key="$1" dir="$2" fresh="${3:-}" name before place_timeout=""
 
+    name="$(nt_workspace_name_of_path "$dir")"
     nt_remember "$key" "$dir"
-    nt_claim_workspace "$key"
+    nt_claim_workspace "$name"
 
     setsid "$BROWSER_CMD" --new-window "$JIRA_URL/browse/$key" >/dev/null 2>&1 &
     setsid "$TERM_CMD" --working-directory "$dir" \
@@ -226,7 +257,9 @@ nt_open_task() {
 
     # The title filter is the worktree directory name, which IntelliJ puts at the
     # front of its project window title. Without it the placer matches IntelliJ's
-    # empty-titled splash window first and the real one arrives unplaced.
+    # empty-titled splash window first and the real one arrives unplaced. It is
+    # the same string as the workspace name now, passed twice because the two
+    # arguments mean different things.
     before="$(nt_window_ids | paste -sd,)"
     if [[ "$fresh" == "fresh" ]]; then
         place_timeout=3600
@@ -234,8 +267,8 @@ nt_open_task() {
         setsid "$IDE_CMD" "$dir" >/dev/null 2>&1 &
     fi
     NIRI_TASK_PLACE_TIMEOUT="$place_timeout" \
-        setsid "$SCRIPT_DIR/niri-task-place.sh" "$key" "$IDE_APP_ID" "$before" \
-        "${dir##*/}" >/dev/null 2>&1 &
+        setsid "$SCRIPT_DIR/niri-task-place.sh" "$name" "$IDE_APP_ID" "$before" \
+        "$name" >/dev/null 2>&1 &
 }
 
 # True when the Jira cache is missing or older than the TTL.

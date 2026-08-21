@@ -5,8 +5,9 @@
 # The old behaviour was to always use /tmp/whereami, a single file overwritten by
 # every shell prompt. With more than one worktree open that opens a terminal in
 # whichever worktree most recently drew a prompt, not the one on screen. The
-# workspace name is authoritative and is also what the bar shows, so it wins;
-# /tmp/whereami remains the fallback everywhere else.
+# workspace name is authoritative and is also what the bar shows — it is the
+# worktree's directory name — so it wins; /tmp/whereami remains the fallback
+# everywhere else.
 
 set -uo pipefail
 
@@ -17,8 +18,8 @@ fi
 source "$(dirname -- "$(readlink -f -- "$0")")/niri-task-lib.sh"
 
 workspace="$(nt_focused_workspace_name)"
-if [[ -n "$workspace" ]] && nt_is_ticket_key "$workspace"; then
-    if worktree="$(nt_resolve_worktree "$workspace")"; then
+if [[ -n "$workspace" ]] && nt_is_task_workspace "$workspace"; then
+    if worktree="$(nt_worktree_of_workspace "$workspace")"; then
         exec alacritty --working-directory="$worktree"
     fi
 fi

@@ -1,6 +1,7 @@
 # 1. Ticket-keyed task workspaces in niri
 
-- **Status:** accepted
+- **Status:** accepted; the workspace *name* is superseded by
+  [ADR 0002](0002-workspace-named-after-worktree.md)
 - **Date:** 2026-08-17
 - **Scope:** `.config/niri/`, `.config/waybar/`, `scripts/`
 
@@ -36,6 +37,11 @@ Several pre-existing defects made this worse and are fixed here:
 ## Decision
 
 ### One identifier
+
+> Superseded by [ADR 0002](0002-workspace-named-after-worktree.md): the
+> workspace is named after the worktree directory, `<slug>-proj-1234`, rather
+> than after the bare key. The key remains the identifier that ties the three
+> together — it is simply carried inside the longer name.
 
 The ticket key is the only identifier. Workspace `PROJ-1234` ↔ worktree
 `$NIRI_TASK_DEV_ROOT/<slug>-proj-1234` ↔ branch `<prefix>/<slug>-PROJ-1234`. The
@@ -189,7 +195,7 @@ look like live work. The picker is MRU-ordered, so resuming yesterday's ticket i
 | `Mod+T` | task picker — navigate to an existing workspace or dormant worktree |
 | `Mod+Shift+T` | create a new task from a ticket key |
 | `Mod+Ctrl+T` | `unset-workspace-name` — release this workspace |
-| `Mod+Tab` | `focus-workspace-previous` |
+| `Mod+Tab` | `focus-workspace-previous` (since repointed: cycles `DP-3`'s task workspaces from either output, `Mod+Shift+Tab` reverses) |
 | `Mod+Q` / `Mod+W` / `Mod+E` | `comm-tools` / `slack` / `personal` |
 | `Mod+U` / `Mod+I` | walk the task stack on `DP-3` (unchanged) |
 | `Mod+Return` | terminal in the focused workspace's worktree |

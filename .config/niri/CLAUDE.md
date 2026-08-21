@@ -25,7 +25,7 @@ All niri configuration files use **KDL (KDL Document Language)** format. The mai
 
 - `keymap.xkb` - XKB keyboard layout configuration (US International)
 
-- `scripts/niri-task*.sh` - the ticket-keyed task workspace workflow; see the
+- `scripts/niri-task*.sh` - the per-ticket task workspace workflow; see the
   "Workspace model" section at the end of this file
 
 - `scripts/claude_scratchpad.sh` - Bash script that provides dropdown/scratchpad behavior for Claude AI web app
@@ -159,19 +159,34 @@ Note the geometry: `focus-monitor-right` reaches the *side* monitor and
 Workspaces are addressed **by name only** — there are deliberately no numeric
 workspace binds, because a niri workspace index is a position on the focused
 output and positions move. See `docs/adr/0001-niri-task-workspace-workflow.md`
-for the full rationale.
+for the full rationale, and `docs/adr/0002-workspace-named-after-worktree.md`
+for the naming.
 
 - **HDMI-A-1** holds three permanent anchors declared in `config.kdl`:
   `comm-tools`, `slack`, `personal` (`Mod+Q` / `Mod+W` / `Mod+E`).
-- **DP-3** holds only task workspaces, one per ticket key, created on demand.
+- **DP-3** holds only task workspaces, created on demand, one per ticket
+  worktree and **named after that worktree's directory** —
+  `<slug>-<key-lowercased>`, e.g. `fix-parsing-error-cron-schedule-proj-1234`.
+  The ticket key is recovered from the name with `nt_key_of_path` and the
+  worktree with `nt_worktree_of_workspace`; both are exact, since the workspace
+  name is the directory name.
 
 | Bind | Action |
 | --- | --- |
 | `Mod+T` | picker: go to a task workspace or a dormant ticket worktree |
 | `Mod+Shift+T` | create a task from a ticket key (worktree, branch, windows) |
 | `Mod+Ctrl+T` | `unset-workspace-name` — release the current workspace |
-| `Mod+Tab` | previous workspace |
-| `Mod+U` / `Mod+I` | walk the task stack |
+| `Mod+Tab` / `Mod+Shift+Tab` | cycle DP-3's task workspaces, from either screen |
+| `Mod+U` / `Mod+I` | walk the task stack on the focused output |
+| `Mod+J` / `Mod+K` | walk *named* workspaces on the focused output |
+
+Releasing a workspace drops its name; niri reaps it as soon as it is empty, so
+an empty named workspace disappears the moment it is released. `Mod+Ctrl+T` does
+the focused one, and any of them can be released without going there first:
+
+```bash
+niri msg action unset-workspace-name <name>   # positional, unlike set-workspace-name
+```
 
 The scripts behind these live in `scripts/` here: `niri-task.sh`,
 `niri-task-new.sh`, `niri-task-place.sh`, `niri-jira-cache.sh`, with shared

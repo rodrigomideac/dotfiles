@@ -316,8 +316,9 @@ spawn-at-startup "~/.config/niri/scripts/startup.sh"
 
 // Anchor workspaces: the three permanent, named workspaces on the principal
 // monitor. Everything on HDMI-A-1 is reference material you check; DP-3 holds
-// only task workspaces, named after their Jira key and created on demand by
-// Mod+T / Mod+Shift+T. See docs/adr/0001-niri-task-workspace-workflow.md.
+// only task workspaces, named after their worktree directory and created on
+// demand by Mod+T / Mod+Shift+T. See docs/adr/0001-niri-task-workspace-workflow.md
+// and docs/adr/0002-workspace-named-after-worktree.md.
 //
 // Declared here so they exist at login, persist while empty, and keep this
 // order. Addressing is by name only — there are deliberately no numeric
@@ -653,8 +654,9 @@ binds {
     // on the focused output, and positions shift whenever a workspace is added,
     // removed or reordered. The numeric binds that used to live here are gone.
     //
-    // Task workspaces (one per Jira key, on DP-3) are reached with Mod+T, walked
-    // with Mod+U / Mod+I, and toggled between with Mod+Tab.
+    // Task workspaces (one per ticket worktree, on DP-3) are reached with Mod+T,
+    // walked with Mod+U / Mod+I on that screen, and cycled from either screen
+    // with Mod+Tab.
     Mod+T hotkey-overlay-title="Go to a task or ticket worktree" {
         spawn-sh "$HOME/.config/niri/scripts/niri-task.sh"
     }
@@ -665,9 +667,21 @@ binds {
     // Windows are left alone — closing them is Mod+Shift+Q, deliberately.
     Mod+Ctrl+T { unset-workspace-name; }
 
-    // Switches focus between the current and the previous workspace: the fastest
-    // way to bounce between two tickets.
-    Mod+Tab { focus-workspace-previous; }
+    // Cycles the task workspaces on DP-3 from either screen — the one thing
+    // Mod+J and Mod+U cannot do, since they walk whichever output already has
+    // focus. Pressed from HDMI-A-1 it lands on the task DP-3 is already
+    // showing and steps on only from the next press, so coming back from Slack
+    // never skips the ticket you left. Wraps at both ends; Shift reverses.
+    //
+    // The output is named here rather than read from ~/.work-env because KDL
+    // cannot interpolate environment variables — same reason the uncommitted
+    // PWA gets no window rule.
+    Mod+Tab cooldown-ms=100 hotkey-overlay-title="Cycle task workspaces (DP-3)" {
+        spawn-sh "$HOME/.config/niri/scripts/niri-named-workspace.sh down focus DP-3"
+    }
+    Mod+Shift+Tab cooldown-ms=100 hotkey-overlay-title="Cycle task workspaces back (DP-3)" {
+        spawn-sh "$HOME/.config/niri/scripts/niri-named-workspace.sh up focus DP-3"
+    }
 
     // The following binds move the focused window in and out of a column.
     // If the window is alone, they will consume it into the nearby column to the side.
