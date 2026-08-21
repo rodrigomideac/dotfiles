@@ -12,14 +12,10 @@
     "height": 65,
     "spacing": 1,
     "margin": 0,
-    "modules-left": [
-      "niri/workspaces",
-      "custom/weather",
-      "custom/weather-tomorrow"
-    ],
-    "modules-center": [
-      "custom/playerctl"
-    ],
+    // disabled: "niri/workspaces", "custom/weather", "custom/weather-tomorrow"
+    "modules-left": [],
+    // disabled: "custom/playerctl"
+    "modules-center": [],
     "modules-right": [
       "pulseaudio",
       "network",
@@ -39,14 +35,10 @@
     "height": 65,
     "spacing": 1,
     "margin": 0,
-    "modules-left": [
-      "niri/workspaces",
-      "custom/task-slug",
-      "niri/window"
-    ],
-    "modules-center": [
-      "custom/playerctl"
-    ],
+    // disabled: "niri/workspaces", "niri/window"
+    "modules-left": ["custom/task-slug"],
+    // disabled: "custom/playerctl"
+    "modules-center": [],
     "modules-right": [
       "pulseaudio",
       "network",
