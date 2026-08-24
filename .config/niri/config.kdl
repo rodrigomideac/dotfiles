@@ -768,6 +768,12 @@ binds {
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
 
+    // The case power button suspends instead of powering off. niri holds a
+    // block inhibitor on the power key, so logind never sees it and this bind
+    // is the only thing that acts on it. swayidle's before-sleep hook locks
+    // the screen on the way down.
+    XF86PowerOff allow-when-locked=true { spawn "systemctl" "suspend"; }
+
     Mod+X { spawn-sh "$HOME/.config/niri/scripts/claude_scratchpad.sh";}
     Mod+Z { spawn-sh "$HOME/.config/niri/scripts/todo_scratchpad.sh";}
 
