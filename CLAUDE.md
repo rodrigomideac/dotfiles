@@ -33,6 +33,7 @@ window manager here.
 make stow          # re-symlink everything
 make stow-sudo     # systemd system services (needs sudo)
 make stow-work     # stow + bash .profile (work machines)
+make tools         # compile the niri helpers into ~/.local/bin
 ```
 
 Restart the affected service after editing its config, e.g.

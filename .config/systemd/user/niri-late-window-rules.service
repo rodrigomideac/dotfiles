@@ -1,0 +1,16 @@
+[Unit]
+Description=Apply niri window rules that can only match after a window is mapped
+Documentation=file:%h/.config/niri/scripts/niri-late-window-rules.sh
+BindsTo=niri.service
+After=niri.service
+
+[Service]
+Type=simple
+ExecStart=%h/.config/niri/scripts/niri-late-window-rules.sh
+# Non-zero only when the event stream dropped while niri kept answering; a
+# compositor that has gone away is a clean exit, left to the BindsTo stop.
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=niri.service

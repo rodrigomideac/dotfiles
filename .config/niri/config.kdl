@@ -427,6 +427,12 @@ window-rule {
     open-floating true
 }
 
+// No rule here floats Bitwarden's popped-out vault, and none can: the only
+// thing telling it apart from any other Firefox window is its title, and
+// Firefox maps every window as "Mozilla Firefox" before setting the real title.
+// open-floating is evaluated at map time, so it would never see the match.
+// scripts/niri-late-window-rules.sh floats it by window id instead.
+
 // Float all Zoom windows (meeting controls, notifications, menus, share bar)
 // except the main window, which stays tiled in the scrollable layout.
 // Zoom's app-id has varied across versions ("zoom", "us.zoom.Zoom",
@@ -450,6 +456,23 @@ window-rule {
     max-height 560
 }
 
+// Zoom's meeting-start toasts. They float via the catch-all above, live a
+// couple of seconds and then close themselves — but on the way in they grabbed
+// focus and landed stacked in the top-left corner, half a screen from wherever
+// you were working.
+//
+// The corner is not fixable here: `default-floating-position` takes only the
+// eight screen edges and corners, and nothing in niri's IPC knows where the
+// pointer is. scripts/niri-late-window-rules.sh moves *every* Zoom popup under
+// the pointer instead, via niri-place-at-cursor.sh — no title list to maintain.
+// What is fixable here is the focus theft, and that one does need naming: a
+// bottom-bar popup or a menu should take focus, an auto-closing toast should
+// not. Catch a new toast title with Mod+F2 during a meeting and add it here.
+window-rule {
+    match app-id="zoom" title=r#"^(Zoom AI is on|Transcription is on|Meeting security)$"#
+    open-focused false
+}
+
 // Zoom popup menus: keep them a sane minimum width and grab focus on open.
 window-rule {
     match app-id="Zoom Workplace" title=".*menu.*"
@@ -471,6 +494,31 @@ window-rule {
     match app-id="zoom" title="^Meeting chat$"
     open-floating true
     default-floating-position x=16 y=32 relative-to="top-right"
+}
+
+// The 200x40 toolbar Zoom pops up when text is selected in the chat. It maps
+// with the bare title "Zoom Workplace" (the main window is "Zoom Workplace -
+// Licensed account", so the catch-all above already floats this one) and niri
+// has no pointer-relative placement — `default-floating-position` only takes
+// the eight screen edges and corners, so the toolbar cannot follow the caret.
+//
+// The catch-all's top-left default is the worst case for it: the chat panel is
+// docked top-right, so reaching the toolbar dragged the pointer the full width
+// of the meeting window, and focus-follows-mouse handed focus to the meeting on
+// the way, which is what made Zoom dismiss it. Pinning it over the chat panel
+// keeps that trip inside the chat's own rectangle.
+//
+// scripts/niri-late-window-rules.sh now moves this one to the pointer a moment
+// after it opens, which is a shorter trip still; this position is what it opens
+// at, and where it stays if that service is not running.
+window-rule {
+    match app-id="zoom" title="^Zoom Workplace$"
+    open-floating true
+    // Negative x is measured outward: with relative-to="right", the window's
+    // right edge lands at (output width - x), so x=-16 hangs 16px off the right
+    // edge. Measured on a 1920-wide output with an 800px probe window:
+    // x=100 → window at 1020, x=-100 → window at 1220.
+    default-floating-position x=-16 y=0 relative-to="right"
 }
 
 // Example: block out two password managers from screen capture.
@@ -787,6 +835,17 @@ binds {
     
     // waystt - Speech to Text (clipboard copy)
     Mod+Shift+B { spawn "sh" "-c" "pgrep -x waystt >/dev/null && pkill --signal SIGUSR1 waystt || (waystt --pipe-to wl-copy &)"; }
+
+    // Report a window's app-id and title, so a window-rule can be written for
+    // it. F1 dumps the focused window; F2 watches the event stream for a few
+    // seconds — press it, then make the popup appear — and reports what showed
+    // up. Both write to ~/Documents/niri-windows/ and notify with the path.
+    Mod+F1 hotkey-overlay-title="Inspect the focused window" {
+        spawn-sh "$HOME/.config/niri/scripts/niri-window-inspect.sh focused";
+    }
+    Mod+F2 hotkey-overlay-title="Watch for new windows (3s)" {
+        spawn-sh "$HOME/.config/niri/scripts/niri-window-inspect.sh watch 3";
+    }
 
     // Cycle power profile: power-saver → balanced → performance
     Mod+F11 { spawn-sh "$HOME/.config/niri/scripts/cycle_power_profile.sh"; }

@@ -6,6 +6,12 @@ stow:
 	stow --no-folding --target=${HOME}/.local/share/applications applications
 	stow --target=${HOME} tmux
 
+# Compiled niri helpers (niri-cursor-pos) -> ~/.local/bin. Sources and the
+# vendored Wayland protocol XML live in .config/niri/tools/; nothing built is
+# committed.
+tools:
+	.config/niri/tools/build.sh
+
 stow-sudo:
 	sudo stow --no-folding --target=/etc/systemd/system systemd-services
 	sudo systemctl enable root-resume

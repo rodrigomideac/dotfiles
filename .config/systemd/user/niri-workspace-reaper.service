@@ -1,0 +1,17 @@
+[Unit]
+Description=Release niri task workspaces once their last window closes
+Documentation=file:%h/.config/niri/scripts/niri-workspace-reaper.sh
+BindsTo=niri.service
+After=niri.service
+
+[Service]
+Type=simple
+ExecStart=%h/.config/niri/scripts/niri-workspace-reaper.sh
+# The reaper exits non-zero only when the event stream dropped while niri kept
+# answering; a compositor that has gone away is a clean exit, which leaves the
+# BindsTo stop to do its work unraced.
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=niri.service
