@@ -48,6 +48,11 @@ All niri configuration files use **KDL (KDL Document Language)** format. The mai
 - `scripts/niri-place-at-cursor.sh` - moves a floating window to the mouse
   pointer, by id or focused; see "Placing a window at the pointer"
 
+- `scripts/stream-scale.sh` - raises the output scale while this desktop is
+  being watched over Moonlight from a laptop; bound to `Mod+Ctrl+Equal` /
+  `Mod+Ctrl+Minus` and driven automatically by Sunshine's `global_prep_cmd`.
+  See "Remote sessions" at the end of this file
+
 - `tools/niri-cursor-pos.c` - prints the pointer position, which nothing else
   can; built by `make tools` into `~/.local/bin/niri-cursor-pos`
 
@@ -403,3 +408,34 @@ read by anything here: nothing in the compositor talks to Jira any more.
 Since KDL cannot interpolate environment variables, anything that must stay
 uncommitted cannot be matched in a window rule — `startup.sh` places those
 windows by window id instead.
+
+## Remote sessions
+
+Sunshine streams this desktop to Moonlight on a 13" laptop. It captures through
+`wlr-screencopy`, which hands over the output's *framebuffer* — so the stream is
+always the output's mode, 1920x1080, whatever the scale is. That is the whole
+reason scale is the knob to reach for: text laid out for a 24" monitor is barely
+half its physical size on a 13" panel, and raising the scale fixes that without
+the stream losing a single pixel. Lowering the mode would buy the same glyph
+size by making the entire picture coarser.
+
+```bash
+stream-scale status      # which output is being driven, and its scale
+stream-scale up / down   # step through 1 / 1.25 / 1.5 / 1.75 / 2
+stream-scale on 1.75     # a specific scale
+stream-scale off         # back to 1x for sitting at the desk again
+```
+
+The output is `$STREAM_SCALE_OUTPUT`, else Sunshine's `output_name`, else the
+only enabled output, else the focused one — set `STREAM_SCALE_OUTPUT` when both
+desk monitors are on and the wrong one gets scaled.
+
+`~/.config/sunshine/sunshine.conf` calls `on` and `off` from `global_prep_cmd`,
+so a stream scales the desktop up on connect and puts it back on disconnect.
+That file is not stowed: Sunshine's web UI rewrites it, and its logs, state and
+credentials live in the same directory.
+
+Everything on this desktop is a native Wayland client (`xlsclients` lists only
+Zoom's webview), so fractional scales stay sharp. An X11 client arriving through
+xwayland-satellite would be upscaled and blurry at anything but 1x or 2x.
+

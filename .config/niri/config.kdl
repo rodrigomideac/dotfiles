@@ -802,6 +802,16 @@ binds {
     Mod+Shift+Minus { set-window-height "-10%"; }
     Mod+Shift+Equal { set-window-height "+10%"; }
 
+    // Scale the whole output, for when this desktop is being watched from a
+    // 13" laptop over Moonlight instead of the 24" monitor it is sized for.
+    // The mode is untouched, so the captured frame stays 1920x1080.
+    Mod+Ctrl+Minus hotkey-overlay-title="Shrink the desktop" {
+        spawn-sh "$HOME/.local/bin/stream-scale down";
+    }
+    Mod+Ctrl+Equal hotkey-overlay-title="Enlarge the desktop" {
+        spawn-sh "$HOME/.local/bin/stream-scale up";
+    }
+
     // Move the focused window between the floating and the tiling layout.
     Mod+V       { toggle-window-floating; }
     Mod+Shift+V { switch-focus-between-floating-and-tiling; }
