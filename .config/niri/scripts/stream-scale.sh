@@ -16,8 +16,9 @@
 set -euo pipefail
 
 STEPS=(1 1.25 1.5 1.75 2)
-DEFAULT_SCALE="${STREAM_SCALE:-1.5}"
+FALLBACK_SCALE="${STREAM_SCALE:-1.5}"
 SUNSHINE_CONF="$HOME/.config/sunshine/sunshine.conf"
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/stream-scale"
 
 # Sunshine's user service keeps the NIRI_SOCKET it inherited when it started,
 # which goes stale the moment niri is restarted under it.
@@ -51,6 +52,23 @@ resolve_output() {
     niri msg -j focused-output | jq -r '.name'
 }
 
+# A scale reached by hand is the one wanted next time the laptop connects, so
+# Sunshine's prep command asks for "the usual" rather than a number.
+preferred_scale() {
+    local saved
+    saved=$(cat "$STATE" 2>/dev/null) || true
+    if [[ "${saved:-}" =~ ^[0-9]+(\.[0-9]+)?$ ]] && [[ $(awk -v s="$saved" 'BEGIN { print (s > 1) }') == 1 ]]; then
+        echo "$saved"
+    else
+        echo "$FALLBACK_SCALE"
+    fi
+}
+
+remember() {
+    mkdir -p "$(dirname "$STATE")"
+    printf '%s\n' "$1" > "$STATE.tmp" && mv "$STATE.tmp" "$STATE"
+}
+
 current_scale() {
     niri msg -j outputs | jq -r --arg o "$1" '.[$o].logical.scale // empty'
 }
@@ -73,9 +91,10 @@ usage() {
     cat >&2 <<'USAGE'
 usage: stream-scale [on [SCALE] | off | toggle | up | down | status]
 
-  on [SCALE]  scale the streamed output up (default $STREAM_SCALE, or 1.5)
-  off         back to 1x
-  toggle      between 1x and the default scale
+  on [SCALE]  scale the streamed output up; with no SCALE, the last one
+              reached by hand, else $STREAM_SCALE, else 1.5
+  off         back to 1x, without forgetting the scale to come back to
+  toggle      between 1x and that remembered scale
   up | down   one step along 1 / 1.25 / 1.5 / 1.75 / 2
   status      print the output being driven and its current scale
 
@@ -92,7 +111,10 @@ fi
 
 case "${1:-toggle}" in
     on)
-        apply "$output" "${2:-$DEFAULT_SCALE}"
+        if [[ -n "${2:-}" ]]; then
+            remember "$2"
+        fi
+        apply "$output" "${2:-$(preferred_scale)}"
         ;;
     off)
         apply "$output" 1
@@ -101,7 +123,7 @@ case "${1:-toggle}" in
         if [[ $(awk -v c="$(current_scale "$output")" 'BEGIN { print (c > 1.01) }') == 1 ]]; then
             apply "$output" 1
         else
-            apply "$output" "$DEFAULT_SCALE"
+            apply "$output" "$(preferred_scale)"
         fi
         ;;
     up|down)
@@ -110,6 +132,9 @@ case "${1:-toggle}" in
             index=$(( index + 1 ))
         elif [[ "$1" == "down" ]] && (( index > 0 )); then
             index=$(( index - 1 ))
+        fi
+        if [[ "${STEPS[$index]}" != "1" ]]; then
+            remember "${STEPS[$index]}"
         fi
         apply "$output" "${STEPS[$index]}"
         ;;

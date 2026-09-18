@@ -43,9 +43,12 @@ Remote sessions raise the scale of the streamed output and touch nothing else.
 - **`.config/niri/scripts/stream-scale.sh`** drives it, symlinked into
   `~/.local/bin/stream-scale` like `alacritty_launcher`. It takes `on [SCALE]`,
   `off`, `toggle`, `up`, `down` and `status`, stepping through
-  1 / 1.25 / 1.5 / 1.75 / 2. The default is 1.5: 1280x720 logical, which is
-  about the apparent size the desk monitor has, and the largest step that still
-  leaves room for two columns.
+  1 / 1.25 / 1.5 / 1.75 / 2. A scale reached by hand is written to
+  `~/.local/state/stream-scale` and is what plain `on` asks for afterwards, so
+  the laptop is tuned once with the binds rather than by editing a number in
+  two places. 1.5 is only the fallback before anything has been chosen:
+  1280x720 logical, about the apparent size the desk monitor has, and the
+  largest step that still leaves room for two columns.
 - **The output is resolved, not hardcoded** — `$STREAM_SCALE_OUTPUT`, else
   Sunshine's `output_name`, else the only enabled output, else the focused one.
   The desk runs one monitor at a time often enough that a hardcoded `DP-3`

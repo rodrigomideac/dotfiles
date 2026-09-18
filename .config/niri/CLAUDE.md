@@ -423,8 +423,14 @@ size by making the entire picture coarser.
 stream-scale status      # which output is being driven, and its scale
 stream-scale up / down   # step through 1 / 1.25 / 1.5 / 1.75 / 2
 stream-scale on 1.75     # a specific scale
+stream-scale on          # the last scale reached by hand, else 1.5
 stream-scale off         # back to 1x for sitting at the desk again
 ```
+
+Any scale reached by hand is written to `~/.local/state/stream-scale`, and
+plain `on` — which is what Sunshine calls — asks for that one. Tune the steps
+once from the laptop and every later connect comes up the same. `off` does not
+forget it.
 
 The output is `$STREAM_SCALE_OUTPUT`, else Sunshine's `output_name`, else the
 only enabled output, else the focused one — set `STREAM_SCALE_OUTPUT` when both
