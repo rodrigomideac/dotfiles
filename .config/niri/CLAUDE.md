@@ -25,11 +25,18 @@ All niri configuration files use **KDL (KDL Document Language)** format. The mai
 
 - `keymap.xkb` - XKB keyboard layout configuration (US International)
 
-- `scripts/niri-task*.sh` - the per-ticket task workspace workflow; see the
-  "Workspace model" section at the end of this file
+- `scripts/niri-desk-lib.sh` - shared helpers for the fixed desk workspaces; see
+  the "Workspace model" section at the end of this file
 
-- `scripts/niri-workspace-reaper.sh` - drops a task workspace's name once its
-  last window closes, so niri reaps the workspace
+- `scripts/desk-branch.sh` - waybar feed: the branch checked out on the desk
+  showing on DP-3
+
+- `scripts/niri-repair-order.sh` - re-pins anchors and desks to their declared
+  order on both outputs; bound to `Mod+Shift+T`
+
+- `scripts/niri-window-place.sh` - corrective placement for a slow-starting
+  window, by window-id set difference; used by `startup.sh` for Chrome and the
+  Outlook/internal PWAs
 
 - `scripts/niri-window-inspect.sh` - discovers the `app-id`/`title` of a window
   so a rule can be written for it; bound to `Mod+F1`/`Mod+F2`, see "Window Rules"
@@ -308,85 +315,91 @@ Note the geometry: `focus-monitor-right` reaches the *side* monitor and
 
 Workspaces are addressed **by name only** — there are deliberately no numeric
 workspace binds, because a niri workspace index is a position on the focused
-output and positions move. See `docs/adr/0001-niri-task-workspace-workflow.md`
-for the full rationale, and `docs/adr/0002-workspace-named-after-worktree.md`
-for the naming.
+output and positions move. See `docs/adr/0003-fixed-colour-desks.md`, which
+supersedes 0001's lifecycle and 0002 entirely.
 
-- **HDMI-A-1** holds three permanent anchors declared in `config.kdl`:
-  `comm-tools`, `slack`, `personal` (`Mod+Q` / `Mod+W` / `Mod+E`).
-- **DP-3** holds only task workspaces, created on demand, one per ticket
-  worktree and **named after that worktree's directory** —
-  `<slug>-<key-lowercased>`, e.g. `fix-parsing-error-cron-schedule-proj-1234`.
-  The ticket key is recovered from the name with `nt_key_of_path` and the
-  worktree with `nt_worktree_of_workspace`; both are exact, since the workspace
-  name is the directory name.
+- **HDMI-A-1** holds three permanent anchors: `comm-tools`, `slack`, `personal`
+  (`Mod+Q` / `Mod+W` / `Mod+E`).
+- **DP-3** holds five permanent **desks**: `blue`, `red`, `green`, `yellow`,
+  `crab`. Each is a fixed worktree at `~/dev/<name>` that you point at a branch
+  with a plain `git checkout`. Nothing creates, renames or releases them.
+
+All eight are declared in `config.kdl`, so they exist at login and survive a
+reboot. There is no picker and no creation keybind; a desk is reached by cycling.
 
 | Bind | Action |
 | --- | --- |
-| `Mod+T` | picker: go to a task workspace or a dormant ticket worktree |
-| `Mod+Shift+T` | create a task from a ticket key (worktree, branch, windows) |
-| `Mod+Ctrl+T` | `unset-workspace-name` — release the current workspace |
-| `Mod+Tab` / `Mod+Shift+Tab` | cycle DP-3's task workspaces, from either screen |
-| `Mod+U` / `Mod+I` | walk the task stack on the focused output |
-| `Mod+J` / `Mod+K` | walk *named* workspaces on the focused output |
+| `Mod+Tab` / `Mod+Shift+Tab` | cycle DP-3's *occupied* desks, from either screen |
+| `Mod+J` / `Mod+K` | walk occupied named workspaces on the focused output |
+| `Mod+Ctrl+J` / `Mod+Ctrl+K` | carry the focused column across *all* named ones |
+| `Mod+U` / `Mod+I` | walk the workspace stack on the focused output |
+| `Mod+Shift+T` | re-pin workspace order after a dock/undock |
+| `Mod+Q` / `Mod+W` / `Mod+E` | the anchors, directly |
 
-Releasing a workspace drops its name; niri reaps it as soon as it is empty, so
-an empty named workspace disappears the moment it is released. `Mod+Ctrl+T` does
-the focused one, and any of them can be released without going there first —
-both actions take an optional workspace reference:
+**Cycling skips empty desks.** All five exist from login whether or not anything
+is open in them, so without the filter most presses land on a bare desk.
+`niri-named-workspace.sh` treats a workspace as occupied when its
+`active_window_id` is non-null — the workspace JSON carries no window count.
+
+Moving deliberately does *not* filter: carrying a column onto an empty desk is
+the only way into one, since there are no direct desk binds. The same asymmetry
+means a desk you empty drops out of the cycle until you move something back to
+it.
+
+**Order is load-bearing.** With no direct desk binds, the order of the five on
+DP-3 *is* the navigation. Declaration order in `config.kdl` is not honoured on a
+live reload — each newly declared workspace is inserted at the top, so a fresh
+set comes out reversed — and docking or undocking scrambles it again.
+`startup.sh` pins it at login via `desk_order`, and `Mod+Shift+T` repairs it in
+between. Both are idempotent and safe to re-run.
+
+When acting on a workspace from a script, prefer an explicit reference over
+focusing it first:
 
 ```bash
-niri msg action unset-workspace-name <name>              # positional
+niri msg action move-workspace-to-index <n> --reference <name>
 niri msg action set-workspace-name --workspace <ref> <new-name>
 ```
 
-Prefer those references to focusing a workspace and acting on the focused one.
 `focus-monitor` lands on whatever workspace that output already had active, not
-on the one you had in mind, so a focus-then-rename pair can silently rename the
+on the one you had in mind, so a focus-then-act pair can silently act on the
 wrong workspace.
 
-Closing a task's last window releases it too: `niri-workspace-reaper.sh` watches
-the event stream and unsets the name of any empty *task* workspace, which is how
-a finished ticket leaves `Mod+Tab` and the overview without a keypress. Only
-names that parse as a worktree directory are candidates (`nt_is_task_workspace`),
-so the three anchors are never touched. A workspace seen holding a window and
-then emptied settles for `NIRI_TASK_REAP_SETTLE` seconds (3) before it goes; one
-that has never held a window waits `NIRI_TASK_REAP_GRACE` (60), because
-`nt_open_task` names a workspace before spawning anything into it.
+# Desk colours
 
-It runs as a user unit, `niri-workspace-reaper.service`, rather than as another
-`startup.sh` spawn: it is the only long-lived process in this workflow, and the
-only one that has to come back if it dies. `BindsTo=niri.service` ties it to the
-compositor's lifetime and the checked-in symlink under
-`.config/systemd/user/niri.service.wants/` means it needs no `systemctl enable`
-on a new machine. niri exports `NIRI_SOCKET` and `WAYLAND_DISPLAY` into the
-systemd user environment, so `niri msg` works from the unit; the work-specific
-values it needs come from `~/.work-env`, which `niri-task-lib.sh` sources
-explicitly anyway.
+niri cannot colour a workspace. `focus-ring` is global, and window rules match on
+`app-id` and `title` only — there is **no `at-workspace`** in niri 26.04, and
+`niri validate` rejects it. So each desk tints the focus ring of the two windows
+it owns, matched on a title the desk controls:
 
-```bash
-systemctl --user restart niri-workspace-reaper   # after editing the script
-journalctl --user -u niri-workspace-reaper -f
-```
+- IntelliJ puts the project directory name at the front of its frame title.
+- `alacritty_launcher.sh` passes `--title <desk>` together with
+  `-o window.dynamic_title=false`, because tmux and the shell otherwise rewrite
+  the title within a second of the window mapping.
 
-The scripts behind these live in `scripts/` here: `niri-task.sh`,
-`niri-task-new.sh`, `niri-task-place.sh`, `niri-jira-cache.sh`, with shared
-helpers in `niri-task-lib.sh`.
+The rules use a word boundary (`^blue\b`) so `blue` does not match a window
+called `blueprint`. `crab` is deliberately uncoloured.
 
-A task workspace's terminal runs `dev` (the tmux-session function from the
-interactive shell), and on a **newly created** worktree runs `$POST_HOOK_PATH`
-before it, chained with `&&`. The hook is the repository-specific setup run —
-install, build, open the IDE — so it is named in `~/.work-env` and lives
-outside this repo. When it is set, the fresh path skips the direct IDE spawn
-(the hook opens it) and raises `NIRI_TASK_PLACE_TIMEOUT` so the placer outlasts
-the build. Unset it and task terminals just run `dev`.
+The same match also carries `open-on-workspace "<desk>"`, so a desk's windows
+land on the desk. `sq ide` is run from a shell, not from the desk it belongs to,
+and without this the IDE opens wherever focus happened to be — setting up four
+desks in one sitting put two IDEs on the wrong desk and a third on an *unnamed*
+workspace, which cycling skips, leaving it unreachable by keyboard. `crab` has a
+placement rule despite having no colour.
 
-Work-specific values are **not** committed. `niri-task-lib.sh` sources
-`~/.work-env` (repository path, project key, tracker host, `POST_HOOK_PATH` — a
-POSIX-clean file in a separate private repository) and `~/.secrets`
-(credentials). It sources them
-explicitly rather than inheriting them, because scripts spawned by niri get the
-compositor's environment, not an interactive shell's. Since KDL cannot
-interpolate environment variables, anything that must stay uncommitted cannot be
-matched in a window rule — `startup.sh` places those windows by window id
-instead.
+The same four hues appear in three places and must be changed together:
+`config.kdl`'s window rules (bright Gruvbox, for the ring), waybar's `style.css`
+(dim Gruvbox, for the bar), and `customColor` in the work repo's `setup-ide`
+(bright, for the IntelliJ window header).
+
+# Work-specific values
+
+Not committed. `niri-desk-lib.sh` sources `~/.work-env` — a POSIX-clean file in a
+separate private repository — for `CRAB_WORKTREES` and the PWA app-id. It sources
+it explicitly rather than inheriting it, because scripts spawned by niri get the
+compositor's environment, not an interactive shell's. `~/.secrets` is no longer
+read by anything here: nothing in the compositor talks to Jira any more.
+
+Since KDL cannot interpolate environment variables, anything that must stay
+uncommitted cannot be matched in a window rule — `startup.sh` places those
+windows by window id instead.

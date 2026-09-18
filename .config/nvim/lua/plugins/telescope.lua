@@ -12,9 +12,7 @@ return {
         "--smart-case",
         "--hidden", -- Include dotfiles and hidden files
         "--glob=!.git/", -- Exclude .git directory
-        "--glob=!.metals/", -- Exclude Scala metals directory
-        "--glob=!.bloop/", -- Exclude Bloop build directory
-        "--glob=!target/", -- Exclude Bloop build directory
+        "--glob=!target/", -- Exclude Rust/Maven build directory
       },
       layout_strategy = "vertical", -- Stack panels vertically
       layout_config = {
@@ -33,9 +31,7 @@ return {
           "--files",
           "--hidden",
           "--glob=!.git/",
-          "--glob=!.metals/",
-          "--glob=!.bloop/",
-          "--glob=!target/", -- Exclude Bloop build directory
+          "--glob=!target/", -- Exclude Rust/Maven build directory
           "--glob=!node_modules/",
           "--glob=!.mastra/",
         },

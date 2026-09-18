@@ -15,12 +15,26 @@ if [[ -n "${1:-}" ]]; then
     exec alacritty -e "$1"
 fi
 
-source "$(dirname -- "$(readlink -f -- "$0")")/niri-task-lib.sh"
+# shellcheck source=/dev/null
+source "$(dirname -- "$(readlink -f -- "$0")")/niri-desk-lib.sh"
 
-workspace="$(nt_focused_workspace_name)"
-if [[ -n "$workspace" ]] && nt_is_task_workspace "$workspace"; then
-    if worktree="$(nt_worktree_of_workspace "$workspace")"; then
-        exec alacritty --working-directory="$worktree"
+# The title is set to the desk name because niri cannot colour a workspace:
+# window rules match on app-id and title only, there is no at-workspace (checked
+# against niri 26.04), so a title the desk owns is the only handle a per-desk
+# focus-ring rule has.
+#
+# dynamic_title is turned off with it, or the title would not survive: tmux and
+# the shell rewrite it through an escape sequence within a second of the window
+# mapping, which is why a terminal on a worktree currently reads "dev". The cost
+# is that the window title stops tracking the running program — tmux's own status
+# line already says that, and niri only shows the title in the overview.
+workspace="$(desk_focused_workspace)"
+if desk_is_desk "$workspace"; then
+    if worktree="$(desk_worktree "$workspace")"; then
+        exec alacritty \
+            --title "$workspace" \
+            -o window.dynamic_title=false \
+            --working-directory="$worktree"
     fi
 fi
 

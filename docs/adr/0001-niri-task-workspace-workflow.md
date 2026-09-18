@@ -1,7 +1,11 @@
 # 1. Ticket-keyed task workspaces in niri
 
-- **Status:** accepted; the workspace *name* is superseded by
-  [ADR 0002](0002-workspace-named-after-worktree.md)
+- **Status:** superseded by
+  [ADR 0003](0003-fixed-colour-desks.md), which replaces the per-ticket
+  workspace lifecycle with five fixed desks. The addressing principle it
+  establishes — workspaces are reached by name, never by index — still holds and
+  is carried forward. The workspace *name* was already superseded by
+  [ADR 0002](0002-workspace-named-after-worktree.md).
 - **Date:** 2026-08-17
 - **Scope:** `.config/niri/`, `.config/waybar/`, `scripts/`
 

@@ -117,7 +117,7 @@ window#waybar {
 #mode, #mpd, #custom-weather, #custom-playerctl, #clock, #cpu,
 #memory, #temperature, #battery, #network, #pulseaudio,
 #backlight, #disk, #custom-uptime, #custom-updates, #custom-quote,
-#idle_inhibitor, #tray, #custom-power, #custom-multiline, #custom-task-slug {
+#idle_inhibitor, #tray, #custom-power, #custom-multiline, #custom-desk-branch {
     padding: 0 10px;
     margin: 0 2px;
     border-bottom: 2px solid transparent;
@@ -308,7 +308,7 @@ window#waybar {
     font-weight: bold;
 }
 
-#custom-task-slug {
+#custom-desk-branch {
     color: @workspaces-focused-fg;
     font-size: 20px;
     font-weight: 900;
@@ -325,4 +325,53 @@ window#waybar {
     margin: 0 2px;
     border-bottom: 2px solid @magenta;
     color: @magenta;
+}
+
+/* Desk colours. The workspace button and the branch readout beside it carry the
+   same hue, so the bar says which desk is on screen before you read a word of
+   it. crab has no rule on purpose -- it is the neutral desk.
+
+   These are the dim Gruvbox values defined in the palette above. niri's focus
+   ring and IntelliJ's window header use the bright variants of the same hues,
+   because a dim ring on a dark background is hard to see; change one and change
+   the other (niri config.kdl, and the customColor in setup-ide).
+
+   Two ids out-specify the .focused rule above, so a desk keeps its colour
+   whether or not it is focused; the underline is what still marks focus, and it
+   is restated here in the desk's own colour so it does not clash. */
+
+#workspaces button#niri-workspace-blue,
+#custom-desk-branch.blue {
+    color: @blue;
+}
+
+#workspaces button#niri-workspace-blue.focused {
+    box-shadow: inset 0 -2px @blue;
+}
+
+#workspaces button#niri-workspace-red,
+#custom-desk-branch.red {
+    color: @red;
+}
+
+#workspaces button#niri-workspace-red.focused {
+    box-shadow: inset 0 -2px @red;
+}
+
+#workspaces button#niri-workspace-green,
+#custom-desk-branch.green {
+    color: @green;
+}
+
+#workspaces button#niri-workspace-green.focused {
+    box-shadow: inset 0 -2px @green;
+}
+
+#workspaces button#niri-workspace-yellow,
+#custom-desk-branch.yellow {
+    color: @yellow;
+}
+
+#workspaces button#niri-workspace-yellow.focused {
+    box-shadow: inset 0 -2px @yellow;
 }

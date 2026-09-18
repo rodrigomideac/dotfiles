@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
-# niri-task-place.sh WORKSPACE APP_ID_REGEX BEFORE_IDS_CSV [TITLE_SUBSTRING]
+# niri-window-place.sh WORKSPACE APP_ID_REGEX BEFORE_IDS_CSV [TITLE_SUBSTRING]
 #
 # Corrective placement for a slow-starting application. Windows are normally
 # spawned while their destination workspace is focused, so they land there by
 # themselves; this only matters when focus moved away before the window mapped
 # (IntelliJ takes seconds, and Chrome's first window at login does too).
 #
-# Candidate windows are identified by window-id set difference — never by the
-# ticket key, because two worktrees can share one key (…-N and …-N-v2) and a
-# key-based title match would pick whichever it found first.
+# Candidate windows are identified by window-id set difference rather than by
+# title, because a title is whatever the application decides to put there and it
+# changes under you while the window is still mapping.
 #
 # TITLE_SUBSTRING, when given, additionally requires the title to contain it. This
 # exists because IntelliJ maps a splash/loading window with an *empty* title
 # before its project window: without the filter the splash is matched first, the
-# script exits, and the real project window arrives unplaced. The worktree
-# directory name is unique per worktree and IntelliJ puts it at the front of the
-# project window title, so it is the right discriminator.
+# script exits, and the real project window arrives unplaced. The desk name is
+# unique and IntelliJ puts it at the front of the project window title, so it is
+# the right discriminator.
 #
-# Runs for two minutes, or NIRI_TASK_PLACE_TIMEOUT seconds when that is set, and
+# Runs for two minutes, or NIRI_PLACE_TIMEOUT seconds when that is set, and
 # places every new match it sees in that window rather than stopping at the
 # first. Callers that spawn the IDE at the end of a long setup run, rather than
 # immediately, need both: the longer patience, and the tolerance for a setup
@@ -29,7 +29,7 @@ workspace="${1:?workspace name required}"
 app_re="${2:?app-id regex required}"
 before="${3:-}"
 title_needle="${4:-}"
-timeout="${NIRI_TASK_PLACE_TIMEOUT:-120}"
+timeout="${NIRI_PLACE_TIMEOUT:-120}"
 [[ "$timeout" =~ ^[0-9]+$ ]] || timeout=120
 
 # First window matching the app-id whose id was not present before the spawn, and

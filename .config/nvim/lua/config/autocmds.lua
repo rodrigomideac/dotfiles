@@ -82,3 +82,20 @@ vim.api.nvim_create_autocmd("BufEnter", {
   pattern = { "Makefile", "makefile", "*.mk", "GNUmakefile" },
   callback = apply_makefile_settings,
 })
+
+-- Soft-wrap inside diff windows (DiffviewOpen, Octo review, :diffthis). The
+-- w: flag makes this a default rather than a policy: turn 'wrap' off by hand in
+-- a diff window and it stays off instead of coming back on the next WinEnter.
+vim.api.nvim_create_autocmd({ "DiffUpdated", "BufWinEnter", "WinEnter" }, {
+  group = vim.api.nvim_create_augroup("user_diff_wrap", { clear = true }),
+  callback = function()
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+      if vim.api.nvim_win_is_valid(win) and vim.wo[win].diff and not vim.w[win].user_diff_wrap then
+        vim.wo[win].wrap = true
+        vim.wo[win].linebreak = true
+        vim.wo[win].breakindent = true
+        vim.w[win].user_diff_wrap = true
+      end
+    end
+  end,
+})

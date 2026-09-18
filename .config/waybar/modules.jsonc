@@ -1,11 +1,13 @@
 {
   // Shared module definitions, included by both bar entries in config.jsonc.
   //
-  // format-icons match on the workspace name, so only the anchors get their own
-  // glyph; task workspaces are named after a ticket and fall through to the
-  // state icons. This module has no "rewrite" and no "tooltip", and {value}
-  // prints in full -- which is why a workspace is named with the bare ticket
-  // key while the summary lives in the picker instead.
+  // Back on the DP-3 bar. It was taken off when workspaces were named after a
+  // ticket worktree: this module has no "rewrite" and no "tooltip" and prints
+  // {value} in full, so a 40-character name swamped the bar. Desks are called
+  // "blue", so that objection is gone and all five fit at once.
+  //
+  // format-icons match on the workspace name: the anchors keep their glyphs and
+  // each desk gets a dot, which style.css paints in that desk's colour.
   "niri/workspaces": {
     "all-outputs": false,
     "format": "{icon} {value}",
@@ -13,6 +15,11 @@
       "comm-tools": "󰭹",
       "slack": "",
       "personal": "󰖟",
+      "blue": "●",
+      "red": "●",
+      "green": "●",
+      "yellow": "●",
+      "crab": "●",
       "focused": "",
       "active": "",
       "urgent": "",
@@ -27,13 +34,15 @@
     "max-length": 60,
     "separate-outputs": true
   },
-  // DP-3 only. Workspaces are named with the bare ticket key (see the
-  // "Workspace model" section of niri's CLAUDE.md), so this resolves the
-  // focused task workspace back to the slug typed in niri-task-new.sh via its
-  // worktree path, and shows that instead -- styled larger in style.css.
-  "custom/task-slug": {
-    "exec": "~/.config/niri/scripts/niri-task-slug.sh",
+  // DP-3 only. The workspace buttons next to this say which desk is showing;
+  // this says what is checked out on it, which is the thing a fixed desk name
+  // can no longer tell you. Polled rather than event-driven: `git checkout`
+  // fires no compositor event, so a follower would show a stale branch until
+  // you cycled away and back. See the script's own header.
+  "custom/desk-branch": {
+    "exec": "~/.config/niri/scripts/desk-branch.sh",
     "return-type": "json",
+    "interval": 5,
     "tooltip": true
   },
   "sway/mode": {

@@ -27,3 +27,8 @@ if os.getenv("TMUX") then
   }
   vim.opt.clipboard = "unnamedplus"
 end
+
+-- Diff mode clears 'wrap' on entry unless 'followwrap' is in 'diffopt'. Adding it
+-- lets the diff-window wrap autocmd in config/autocmds.lua actually stick, for
+-- Diffview, Octo review and plain :diffthis alike.
+vim.opt.diffopt:append("followwrap")

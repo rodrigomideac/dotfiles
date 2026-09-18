@@ -1,8 +1,7 @@
 // Two bars, one per monitor -- module definitions live in modules.jsonc and
 // are pulled in with "include"; each entry below only picks which modules
-// appear where. HDMI-A-1 (principal) gets weather + clock; DP-3 (task
-// workspaces) gets the window-title module instead, so the ticket context
-// shows next to its own workspaces.
+// appear where. HDMI-A-1 (principal) gets weather + clock; DP-3 (the desks) gets
+// the workspace buttons and the branch checked out on the desk showing there.
 [
   {
     "output": "HDMI-A-1",
@@ -35,8 +34,8 @@
     "height": 65,
     "spacing": 1,
     "margin": 0,
-    // disabled: "niri/workspaces", "niri/window"
-    "modules-left": ["custom/task-slug"],
+    // disabled: "niri/window"
+    "modules-left": ["niri/workspaces", "custom/desk-branch"],
     // disabled: "custom/playerctl"
     "modules-center": [],
     "modules-right": [

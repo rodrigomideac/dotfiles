@@ -13,6 +13,12 @@
 # Wraps around at the ends; with a handful of named workspaces that is the useful
 # behaviour.
 #
+# Focus additionally skips *empty* named workspaces. The five desks are declared
+# in the config and exist from login whether or not anything is open in them, so
+# without this most presses land on a bare desk. Moving still walks every named
+# workspace: carrying a column onto an empty desk is the only way into one, since
+# there are deliberately no direct desk binds.
+#
 # Bound to Mod+J / Mod+K for the focused output — so it walks task workspaces on
 # DP-3 and the three anchors on HDMI-A-1 without ever jumping between screens —
 # and with `move` to Mod+Ctrl+J / Mod+Ctrl+K. Mod+Tab names the task output
@@ -40,19 +46,39 @@ active_name="$(jq -r --arg o "$output" \
     'first(.[] | select(.output == $o and .is_active) | .name) // empty' <<<"$workspaces")"
 [[ -n "$current" ]] || exit 0
 
+# A workspace counts as occupied when it has an active window. niri's workspace
+# JSON carries no window count, and active_window_id is null exactly when the
+# workspace holds nothing; reading it from the snapshot already in hand also
+# keeps the emptiness test atomic with the indices it is filtering.
+active_window="$(jq -r --arg o "$output" \
+    'first(.[] | select(.output == $o and .is_active) | .active_window_id) // empty' <<<"$workspaces")"
+
 # Arriving from the other screen: land on what the target output is already
 # showing instead of stepping past it, so the first press never skips the
 # workspace you left behind. Falls through when that workspace is unnamed — the
-# trailing empty one — since there is nothing to land on.
-if [[ "$mode" == "focus" && "$output" != "$focused_output" && -n "$active_name" ]]; then
+# trailing empty one — or holds nothing, since there is nothing to land on.
+if [[ "$mode" == "focus" && "$output" != "$focused_output" \
+      && -n "$active_name" && -n "$active_window" ]]; then
     niri msg action focus-workspace "$active_name" >/dev/null 2>&1
     exit 0
 fi
 
-mapfile -t named < <(jq -r --arg o "$output" '
-    [ .[] | select(.output == $o and .name != null) ]
-    | sort_by(.idx)[]
-    | "\(.idx)\t\(.name)"' <<<"$workspaces")
+named_on_output() {
+    jq -r --arg o "$output" --argjson occ "$1" '
+        [ .[]
+          | select(.output == $o and .name != null)
+          | select(($occ | not) or (.active_window_id != null)) ]
+        | sort_by(.idx)[]
+        | "\(.idx)\t\(.name)"' <<<"$workspaces"
+}
+
+occupied_only=false
+[[ "$mode" == "focus" ]] && occupied_only=true
+
+mapfile -t named < <(named_on_output "$occupied_only")
+# Nothing open anywhere on the output: walk the full set rather than leave the
+# key doing nothing at all.
+(( ${#named[@]} )) || mapfile -t named < <(named_on_output false)
 
 (( ${#named[@]} )) || exit 0
 

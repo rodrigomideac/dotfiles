@@ -311,18 +311,27 @@ spawn-at-startup "kanshi"   // dynamic monitor configuration (~/.config/kanshi/c
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
 // spawn-sh-at-startup "qs -c ~/source/qs/MyAwesomeShell"
 
-// Custom startup script (brings up the anchor workspaces)
+// Custom startup script (brings up the anchors and pins workspace order)
 spawn-at-startup "~/.config/niri/scripts/startup.sh"
 
-// Anchor workspaces: the three permanent, named workspaces on the principal
-// monitor. Everything on HDMI-A-1 is reference material you check; DP-3 holds
-// only task workspaces, named after their worktree directory and created on
-// demand by Mod+T / Mod+Shift+T. See docs/adr/0001-niri-task-workspace-workflow.md
-// and docs/adr/0002-workspace-named-after-worktree.md.
+// Three anchors on the reference monitor, five desks on the work monitor.
+// Everything on HDMI-A-1 is reference material you check; DP-3 holds the desks —
+// blue, red, green, yellow and crab, each a permanent worktree under ~/dev that
+// you point at a branch with `git checkout`. See
+// docs/adr/0003-fixed-colour-desks.md, superseding 0001 and 0002.
 //
-// Declared here so they exist at login, persist while empty, and keep this
-// order. Addressing is by name only — there are deliberately no numeric
-// workspace binds, because indices are positions and positions move.
+// The desks are declared, where task workspaces were created at runtime and
+// vanished on reboot. That is the point of them being fixed: they exist at
+// login, persist while empty, and nothing reaps them.
+//
+// Order is load-bearing for the desks. With no direct binds, Mod+Tab walking
+// them in this sequence is the only way to reach one — and declaration order is
+// not honoured on a live reload, so startup.sh re-pins it at login and
+// Mod+Shift+T repairs it after a dock/undock. crab sits last so the four colours
+// stay contiguous.
+//
+// Addressing is by name only — there are deliberately no numeric workspace
+// binds, because indices are positions and positions move.
 workspace "comm-tools" {
     open-on-output "HDMI-A-1"
 }
@@ -331,6 +340,21 @@ workspace "slack" {
 }
 workspace "personal" {
     open-on-output "HDMI-A-1"
+}
+workspace "blue" {
+    open-on-output "DP-3"
+}
+workspace "red" {
+    open-on-output "DP-3"
+}
+workspace "green" {
+    open-on-output "DP-3"
+}
+workspace "yellow" {
+    open-on-output "DP-3"
+}
+workspace "crab" {
+    open-on-output "DP-3"
 }
 
 hotkey-overlay {
@@ -702,32 +726,36 @@ binds {
     // on the focused output, and positions shift whenever a workspace is added,
     // removed or reordered. The numeric binds that used to live here are gone.
     //
-    // Task workspaces (one per ticket worktree, on DP-3) are reached with Mod+T,
-    // walked with Mod+U / Mod+I on that screen, and cycled from either screen
-    // with Mod+Tab.
-    Mod+T hotkey-overlay-title="Go to a task or ticket worktree" {
-        spawn-sh "$HOME/.config/niri/scripts/niri-task.sh"
-    }
-    Mod+Shift+T hotkey-overlay-title="Create a task from a Jira key" {
-        spawn-sh "$HOME/.config/niri/scripts/niri-task-new.sh"
-    }
-    // Release this workspace: drops its name so niri reaps it once it empties.
-    // Windows are left alone — closing them is Mod+Shift+Q, deliberately.
-    Mod+Ctrl+T { unset-workspace-name; }
+    // The five desks on DP-3 are reached by cycling only: Mod+Tab from either
+    // screen, Mod+J / Mod+K on that screen. There are deliberately no direct
+    // desk binds — see docs/adr/0003-fixed-colour-desks.md.
+    //
+    // Gone with the per-ticket workspaces they served: Mod+T (the ticket
+    // picker), the old Mod+Shift+T (create a worktree from a Jira key) and
+    // Mod+Ctrl+T (release the workspace name — desks are never released).
 
-    // Cycles the task workspaces on DP-3 from either screen — the one thing
-    // Mod+J and Mod+U cannot do, since they walk whichever output already has
-    // focus. Pressed from HDMI-A-1 it lands on the task DP-3 is already
-    // showing and steps on only from the next press, so coming back from Slack
-    // never skips the ticket you left. Wraps at both ends; Shift reverses.
+    // Re-pin the order of both outputs. Declaration order is not honoured on a
+    // live config reload, and docking or undocking scrambles it; startup.sh
+    // pins it at login and this repairs it in between. Worth a key because a
+    // scrambled order is not cosmetic here — it is Mod+Tab landing somewhere
+    // other than where you meant to go.
+    Mod+Shift+T hotkey-overlay-title="Repair workspace order" {
+        spawn-sh "$HOME/.config/niri/scripts/niri-repair-order.sh"
+    }
+
+    // Cycles the desks on DP-3 from either screen — the one thing Mod+J and
+    // Mod+U cannot do, since they walk whichever output already has focus.
+    // Pressed from HDMI-A-1 it lands on the desk DP-3 is already showing and
+    // steps on only from the next press, so coming back from Slack never skips
+    // the desk you left. Wraps at both ends; Shift reverses.
     //
     // The output is named here rather than read from ~/.work-env because KDL
     // cannot interpolate environment variables — same reason the uncommitted
     // PWA gets no window rule.
-    Mod+Tab cooldown-ms=100 hotkey-overlay-title="Cycle task workspaces (DP-3)" {
+    Mod+Tab cooldown-ms=100 hotkey-overlay-title="Cycle desks (DP-3)" {
         spawn-sh "$HOME/.config/niri/scripts/niri-named-workspace.sh down focus DP-3"
     }
-    Mod+Shift+Tab cooldown-ms=100 hotkey-overlay-title="Cycle task workspaces back (DP-3)" {
+    Mod+Shift+Tab cooldown-ms=100 hotkey-overlay-title="Cycle desks back (DP-3)" {
         spawn-sh "$HOME/.config/niri/scripts/niri-named-workspace.sh up focus DP-3"
     }
 
@@ -879,3 +907,73 @@ window-rule {
 }
 
 
+
+// --- desk windows ------------------------------------------------------------
+// One title match, two jobs: tint the desk's focus ring, and send the desk's
+// windows to the desk.
+//
+// niri cannot colour a workspace: window rules match on app-id and title only —
+// there is no at-workspace in 26.04 (`niri validate` rejects it) — and the
+// focus-ring is otherwise global. So each desk tints the focus ring of the two
+// windows it owns, matched on a title the desk controls: IntelliJ puts the
+// project directory name at the front of its frame title, and
+// alacritty_launcher.sh passes --title with dynamic_title off.
+//
+// open-on-workspace is here because `sq ide` is run from a shell, not from the
+// desk: without it the IDE opens on whatever workspace happened to be focused,
+// and setting up four desks in one sitting left two IDEs on the wrong desk and a
+// third on a workspace with no name at all — which cycling skips, so it could
+// not be reached by keyboard.
+//
+// `\b` is what keeps "blue" off a window called "blueprint": after "blue" comes
+// another word character, so there is no boundary and no match.
+//
+// The colours are the bright Gruvbox variants. The bar uses the dim ones from
+// waybar's own palette (style.css, the Gruvbox @define-color block); these are
+// the same hues one step brighter, because a dim ring on a dark background is
+// hard to see. Changing one means changing the other — and the customColor in
+// setup-ide, which paints the IntelliJ window header to match.
+//
+// crab gets no colour — it is the neutral desk and keeps the default ring — but
+// it is still a desk, so its windows are still placed.
+window-rule {
+    match app-id=r#"^jetbrains-idea"# title=r#"^blue\b"#
+    match app-id=r#"^Alacritty$"# title=r#"^blue\b"#
+    open-on-workspace "blue"
+    focus-ring {
+        active-color "#83a598"
+    }
+}
+
+window-rule {
+    match app-id=r#"^jetbrains-idea"# title=r#"^red\b"#
+    match app-id=r#"^Alacritty$"# title=r#"^red\b"#
+    open-on-workspace "red"
+    focus-ring {
+        active-color "#fb4934"
+    }
+}
+
+window-rule {
+    match app-id=r#"^jetbrains-idea"# title=r#"^green\b"#
+    match app-id=r#"^Alacritty$"# title=r#"^green\b"#
+    open-on-workspace "green"
+    focus-ring {
+        active-color "#b8bb26"
+    }
+}
+
+window-rule {
+    match app-id=r#"^jetbrains-idea"# title=r#"^yellow\b"#
+    match app-id=r#"^Alacritty$"# title=r#"^yellow\b"#
+    open-on-workspace "yellow"
+    focus-ring {
+        active-color "#fabd2f"
+    }
+}
+
+window-rule {
+    match app-id=r#"^jetbrains-idea"# title=r#"^crab\b"#
+    match app-id=r#"^Alacritty$"# title=r#"^crab\b"#
+    open-on-workspace "crab"
+}

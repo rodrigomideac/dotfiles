@@ -1,6 +1,8 @@
 # 2. Task workspaces are named after their worktree directory
 
-- **Status:** accepted
+- **Status:** superseded by [ADR 0003](0003-fixed-colour-desks.md). Task
+  workspaces no longer exist; a desk is named after its directory, but the
+  directory is now a fixed colour rather than a per-ticket slug.
 - **Date:** 2026-08-21
 - **Scope:** `.config/niri/`, `.config/waybar/`
 - **Supersedes:** the "One identifier" naming rule of

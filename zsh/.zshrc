@@ -219,3 +219,12 @@ export PATH="/home/rodrigo/.local/bin:$PATH"
 alias ll="ls -larth"
 
 export PLAYWRIGHT_HOST_PLATFORM_OVERRIDE=ubuntu24.04-x64
+
+# >>> sd managed >>>
+export JIRA_USERNAME="rodrigo.midea@seeq.com"
+export JIRA_API_TOKEN="ATATT3xFfGF0qMIagBRSKudfUWedBZnSrqvA7PquAr3-nf6gQuaDInVAfTWYBn02JTwHVvfuFs38fTZGarNJx72cbwlkwN5OtrfAMDZYQLeooNLVMmy6vVNv3T5DyH8IaPaxsc42GYrTmxZ6KmiVjyBGINOD5l_tDWx3p3_-9DZbjBfxl-0vq5s=78F063EB"
+export JIRA_DEFAULT_PROJECT="CRAB"
+# <<< sd managed <<<
+
+# Added by the Hunk installer (https://hunk.dev)
+export PATH='/home/rodrigo/.hunk/bin':"$PATH"
