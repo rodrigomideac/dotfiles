@@ -19,10 +19,14 @@
 # workspace: carrying a column onto an empty desk is the only way into one, since
 # there are deliberately no direct desk binds.
 #
-# Bound to Mod+J / Mod+K for the focused output — so it walks task workspaces on
-# DP-3 and the three anchors on HDMI-A-1 without ever jumping between screens —
-# and with `move` to Mod+Ctrl+J / Mod+Ctrl+K. Mod+Tab names the task output
-# explicitly, so the task stack is reachable from either screen.
+# Bound to Mod+J / Mod+K for the focused output — so it walks the desks on DP-3
+# and the three anchors on HDMI-A-1 without ever jumping between screens — and
+# with `move` to Mod+Ctrl+J / Mod+Ctrl+K.
+#
+# Mod+Tab used to pass the desk output here to reach the desks from either
+# screen. It calls niri-desk-cycle.sh now: the desks are a fixed list, and the
+# set of named workspaces on that output stops being that list as soon as the
+# anchor monitor is unplugged and niri migrates the anchors onto it.
 
 set -uo pipefail
 

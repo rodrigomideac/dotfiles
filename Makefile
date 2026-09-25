@@ -12,6 +12,12 @@ stow:
 tools:
 	.config/niri/tools/build.sh
 
+# Quickshell -> ~/.local/bin, rebuilt from source because it links private Qt
+# APIs and must match the Qt6 apt currently ships. The shell config itself is
+# stowed with everything else in .config.
+quickshell:
+	.config/quickshell/build.sh
+
 stow-sudo:
 	sudo stow --no-folding --target=/etc/systemd/system systemd-services
 	sudo systemctl enable root-resume

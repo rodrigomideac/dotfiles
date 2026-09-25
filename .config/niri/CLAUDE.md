@@ -28,6 +28,9 @@ All niri configuration files use **KDL (KDL Document Language)** format. The mai
 - `scripts/niri-desk-lib.sh` - shared helpers for the fixed desk workspaces; see
   the "Workspace model" section at the end of this file
 
+- `scripts/niri-desk-cycle.sh` - walks the five desks by name for `Mod+Tab`; see
+  "Workspace model"
+
 - `scripts/desk-branch.sh` - waybar feed: the branch checked out on the desk
   showing on DP-3
 
@@ -334,22 +337,30 @@ reboot. There is no picker and no creation keybind; a desk is reached by cycling
 
 | Bind | Action |
 | --- | --- |
-| `Mod+Tab` / `Mod+Shift+Tab` | cycle DP-3's *occupied* desks, from either screen |
+| `Mod+Tab` / `Mod+Shift+Tab` | cycle all five desks by name, from either screen |
 | `Mod+J` / `Mod+K` | walk occupied named workspaces on the focused output |
 | `Mod+Ctrl+J` / `Mod+Ctrl+K` | carry the focused column across *all* named ones |
 | `Mod+U` / `Mod+I` | walk the workspace stack on the focused output |
 | `Mod+Shift+T` | re-pin workspace order after a dock/undock |
 | `Mod+Q` / `Mod+W` / `Mod+E` | the anchors, directly |
 
-**Cycling skips empty desks.** All five exist from login whether or not anything
-is open in them, so without the filter most presses land on a bare desk.
-`niri-named-workspace.sh` treats a workspace as occupied when its
-`active_window_id` is non-null — the workspace JSON carries no window count.
+**`Mod+Tab` cycles the desk *list*, not an output.** `niri-desk-cycle.sh` reads
+`DESKS` from `niri-desk-lib.sh` and walks those names in that order, so all five
+are always reachable — including the empty ones, and including from the anchor
+screen. Coming from an anchor it lands on the desk you left rather than stepping
+past it: the desk showing on `DESK_OUTPUT` while both monitors are up, else the
+last desk visited, remembered in `$XDG_RUNTIME_DIR/niri-desk-cycle`.
 
-Moving deliberately does *not* filter: carrying a column onto an empty desk is
-the only way into one, since there are no direct desk binds. The same asymmetry
-means a desk you empty drops out of the cycle until you move something back to
-it.
+It used to call `niri-named-workspace.sh` with `DP-3` named, walking that
+output's *occupied* named workspaces. Both halves of that were wrong. Unplug the
+anchor monitor and niri migrates `comm-tools`, `slack` and `personal` onto the
+desk output, so `Mod+Tab` starts cycling through Slack and the browser; and the
+occupancy filter made a desk vanish from the cycle the moment its last window
+closed, which with no direct desk binds left it unreachable by keyboard.
+
+`Mod+J` / `Mod+K` keep the occupancy filter — they walk whatever is named on the
+focused output and stopping on bare desks is noise there. Moving has never
+filtered: `Mod+Ctrl+J` / `Mod+Ctrl+K` carry a column onto an empty desk.
 
 **Order is load-bearing.** With no direct desk binds, the order of the five on
 DP-3 *is* the navigation. Declaration order in `config.kdl` is not honoured on a

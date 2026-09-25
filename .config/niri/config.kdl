@@ -297,6 +297,8 @@ layout {
 spawn-at-startup "waybar"   // status bar
 spawn-at-startup "mako"     // notification daemon
 spawn-at-startup "kanshi"   // dynamic monitor configuration (~/.config/kanshi/config)
+// Absolute path because ~/.local/bin is not on the PATH niri inherits.
+spawn-sh-at-startup "$HOME/.local/bin/qs"  // quickshell: the command center (Mod+Space)
 
 // Wallpaper: uncomment and point at an image once you have one.
 // spawn-at-startup "swaybg" "-m" "fill" "-i" "~/Pictures/wallpaper.png"
@@ -581,6 +583,10 @@ binds {
     // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+Return { spawn-sh "$HOME/.config/niri/scripts/alacritty_launcher.sh";}
     Mod+D hotkey-overlay-title="Run an Application: fuzzel" { spawn "fuzzel"; }
+    // Toggled over quickshell's IPC rather than by respawning it, so the panel
+    // keeps its state and opens instantly. Free because the xkb layout switch
+    // below is commented out.
+    Mod+Space hotkey-overlay-title="Command Center" { spawn-sh "$HOME/.local/bin/qs ipc call commandCenter toggle"; }
     Super+Alt+L hotkey-overlay-title="Lock the Screen: swaylock" { spawn "swaylock"; }
 
     // Use spawn-sh to run a shell command. Do this if you need pipes, multiple commands, etc.
@@ -743,20 +749,22 @@ binds {
         spawn-sh "$HOME/.config/niri/scripts/niri-repair-order.sh"
     }
 
-    // Cycles the desks on DP-3 from either screen — the one thing Mod+J and
-    // Mod+U cannot do, since they walk whichever output already has focus.
-    // Pressed from HDMI-A-1 it lands on the desk DP-3 is already showing and
+    // Cycles the five desks by name, from either screen — the one thing Mod+J
+    // and Mod+U cannot do, since they walk whichever output already has focus.
+    // All five are walked, empty ones included; wraps at both ends, Shift
+    // reverses. Pressed from an anchor it lands on the desk last worked in and
     // steps on only from the next press, so coming back from Slack never skips
-    // the desk you left. Wraps at both ends; Shift reverses.
+    // the desk you left.
     //
-    // The output is named here rather than read from ~/.work-env because KDL
-    // cannot interpolate environment variables — same reason the uncommitted
-    // PWA gets no window rule.
-    Mod+Tab cooldown-ms=100 hotkey-overlay-title="Cycle desks (DP-3)" {
-        spawn-sh "$HOME/.config/niri/scripts/niri-named-workspace.sh down focus DP-3"
+    // The desk names live in niri-desk-lib.sh rather than here because KDL
+    // cannot interpolate them into two binds, and because walking the output
+    // instead is wrong the moment the anchor monitor is unplugged and niri
+    // migrates Slack and the browser onto the desk output.
+    Mod+Tab cooldown-ms=100 hotkey-overlay-title="Cycle desks" {
+        spawn-sh "$HOME/.config/niri/scripts/niri-desk-cycle.sh next"
     }
-    Mod+Shift+Tab cooldown-ms=100 hotkey-overlay-title="Cycle desks back (DP-3)" {
-        spawn-sh "$HOME/.config/niri/scripts/niri-named-workspace.sh up focus DP-3"
+    Mod+Shift+Tab cooldown-ms=100 hotkey-overlay-title="Cycle desks back" {
+        spawn-sh "$HOME/.config/niri/scripts/niri-desk-cycle.sh prev"
     }
 
     // The following binds move the focused window in and out of a column.

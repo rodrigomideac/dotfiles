@@ -1,7 +1,9 @@
 // Two bars, one per monitor -- module definitions live in modules.jsonc and
 // are pulled in with "include"; each entry below only picks which modules
-// appear where. HDMI-A-1 (principal) gets weather + clock; DP-3 (the desks) gets
-// the workspace buttons and the branch checked out on the desk showing there.
+// appear where. Both bars carry the clock, so the date and time are there
+// whichever monitor you happen to be looking at. HDMI-A-1 (principal) gets
+// weather; DP-3 (the desks) gets the workspace buttons and the branch checked
+// out on the desk showing there.
 [
   {
     "output": "HDMI-A-1",
@@ -45,6 +47,7 @@
       "memory",
       "battery",
       "tray",
+      "clock",
       "custom/power"
     ]
   }

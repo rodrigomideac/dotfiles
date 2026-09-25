@@ -66,6 +66,8 @@ Consequently:
   use, most presses would land on a bare desk. Focus therefore walks only
   workspaces with a window in them. `move` keeps walking all of them, because
   carrying a column onto an empty desk is the only way into one.
+  **Amended 2026-09-21** — this no longer holds for `Mod+Tab`; see
+  [Amendments](#amendments).
 - **`Mod+Shift+T` is reused to repair workspace order.** Declaration order is
   not honoured on a live reload and dock/undock scrambles it; with no direct
   binds, order *is* the navigation.
@@ -143,7 +145,41 @@ Accepted costs and known limits:
 - **An emptied desk drops out of the cycle** until something is moved back onto
   it with `Mod+Ctrl+J`/`Mod+Ctrl+K`. Closing the last window on a desk therefore
   makes it unreachable by `Mod+Tab`, which is the price of not stopping on four
-  empty desks all day. The bar still shows it.
+  empty desks all day. The bar still shows it. *Withdrawn 2026-09-21 — the cost
+  was not worth paying; see [Amendments](#amendments).*
+
+## Amendments
+
+### 2026-09-21 — `Mod+Tab` walks the desk list, not the desk output
+
+The decision above left `Mod+Tab` reaching the desks *indirectly*, by asking
+`niri-named-workspace.sh` for the occupied named workspaces of `DP-3`. Two
+things were wrong with identifying the desks that way, and both bit:
+
+- **An output is not the desk set.** Unplug the anchor monitor and niri moves
+  `comm-tools`, `slack` and `personal` onto the remaining output, where they are
+  named workspaces like any other. `Mod+Tab` then cycles through Slack and the
+  browser — the anchors get their own three binds precisely so they are *not* in
+  the desk rotation.
+- **The occupancy filter cost more than it saved.** With cycling the only way to
+  reach a desk, closing a desk's last window removed it from the keyboard
+  altogether; getting back in meant carrying a column onto it with
+  `Mod+Ctrl+J`/`Mod+Ctrl+K`, which requires a column to spare and puts the
+  window somewhere you did not ask for. Stopping on a bare desk costs one more
+  keypress. Being unable to reach one costs a detour.
+
+`Mod+Tab` and `Mod+Shift+Tab` now call `niri-desk-cycle.sh`, which walks the
+`DESKS` array in `niri-desk-lib.sh` by name, in declared order, wrapping at both
+ends, empty desks included. The list was already the single source of truth for
+`desk_order` and the placement rules; navigation now reads it too, so the desks
+stay the desks however the monitors are arranged.
+
+`Mod+J`/`Mod+K` are unchanged — they walk the focused output's named workspaces
+and keep the occupancy filter, which is the right behaviour for a bind whose
+whole point is "whatever is on this screen". The one thing genuinely lost is
+that the desk order on the bar no longer has to match the cycling order for
+cycling to make sense; `Mod+Shift+T` stays because the bar should still read
+left to right.
 
 ## Alternatives rejected
 
